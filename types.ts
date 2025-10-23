@@ -1,0 +1,15 @@
+export enum UserRole {
+  Owner = "Owner",
+  CoOwner = "Co-Owner",
+  OperationsDirector = "Operations Director",
+  OperationsManager = "Operations Manager",
+  Secretary = "Secretary",
+  Dispatch = "Dispatch",
+  Supervisor = "Supervisor",
+  TrainingOfficer = "Training Officer",
+  Client = "Client",
+  LeadGuard = "Lead Guard",
+  BaseOfficer = "Base Officer",
+  FlexOfficer = "Flex Officer",
+  SeasonalOfficer = "Seasonal Officer",
+}
