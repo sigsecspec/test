@@ -6,6 +6,12 @@ import { ShieldIcon, LogoutIcon, MenuIcon } from './Icons';
 // Import View Components
 import MissionBoard from './views/MissionBoard';
 import PostMission from './views/PostMission';
+import MyMissions from './views/MyMissions';
+import GuardManagement from './views/GuardManagement';
+import ClientManagement from './views/ClientManagement';
+import MyProfile from './views/MyProfile';
+import Training from './views/Training';
+
 
 interface DashboardScreenProps {
   user: User;
@@ -38,6 +44,16 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ user, onLogout }) => 
         return <MissionBoard user={user} />;
       case 'Post Mission':
         return <PostMission />;
+      case 'My Missions':
+        return <MyMissions user={user} />;
+      case 'Guard Management':
+        return <GuardManagement />;
+       case 'Client Management':
+        return <ClientManagement />;
+      case 'My Profile':
+        return <MyProfile user={user} />;
+      case 'Training':
+          return <Training user={user} />;
       // Add other views here as they are created
       default:
         return (

@@ -71,6 +71,11 @@ export const getUserByEmail = (email: string): User | undefined => {
   return db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
 };
 
+export const getUserById = (id: string): User | undefined => {
+    const db = readDB();
+    return db.users.find(u => u.id === id);
+}
+
 export const getUsers = (roles?: UserRole[]): User[] => {
     const db = readDB();
     if (!roles) return db.users;
