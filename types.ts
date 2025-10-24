@@ -1,15 +1,15 @@
 export enum UserRole {
   // Management Hierarchy
-  Owner = "Owner (Chief)",
-  CoOwner = "Co-Owner (Asst. Chief)",
+  Owner = "Owner",
+  CoOwner = "Co-Owner",
   DeputyChief = "Deputy Chief",
   Commander = "Commander",
-  OperationsDirector = "Operations Director (Captain)",
-  OperationsManager = "Operations Manager (Lieutenant)",
-  Supervisor = "Supervisor (Sergeant)",
-  TrainingOfficer = "Training Officer (Corporal)",
-  LeadGuard = "Lead Guard (Private)",
-  Guard = "Guard (Officer)",
+  OperationsDirector = "Operations Director",
+  OperationsManager = "Operations Manager",
+  Supervisor = "Supervisor",
+  TrainingOfficer = "Training Officer",
+  LeadGuard = "Lead Guard",
+  Guard = "Guard",
 
   // Support Roles
   Dispatch = "Dispatch",
@@ -18,6 +18,8 @@ export enum UserRole {
   // External Roles
   Client = "Client",
 }
+
+export type GuardType = 'Seasonal' | 'Flex' | 'Base';
 
 export interface User {
     id: string;
@@ -28,6 +30,7 @@ export interface User {
     rank: string;
     level: number;
     certifications: string[];
+    guardType?: GuardType;
 }
 
 export interface Client {

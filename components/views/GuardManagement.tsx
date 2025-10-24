@@ -20,6 +20,7 @@ const GuardManagement: React.FC<GuardManagementProps> = ({ users }) => {
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Name</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Role / Rank</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Type</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Level</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Email</th>
               </tr>
@@ -33,6 +34,15 @@ const GuardManagement: React.FC<GuardManagementProps> = ({ users }) => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-[#c4c4c4]">{guard.role}</div>
                     <div className="text-xs text-[#787876]">{guard.rank}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {guard.guardType ? (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#535347]/50 text-[#c4c4c4]">
+                        {guard.guardType}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[#787876]">N/A</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#aeae5a]/20 text-[#aeae5a]">

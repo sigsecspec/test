@@ -27,6 +27,12 @@ const MyProfile: React.FC<MyProfileProps> = ({ user }) => {
                         <h4 className="text-sm font-medium text-[#787876]">Rank</h4>
                         <p className="text-lg text-[#c4c4c4]">{user.rank}</p>
                     </div>
+                    {user.guardType && (
+                        <div>
+                            <h4 className="text-sm font-medium text-[#787876]">Guard Type</h4>
+                            <p className="text-lg text-[#c4c4c4]">{user.guardType}</p>
+                        </div>
+                    )}
                      <div>
                         <h4 className="text-sm font-medium text-[#787876]">Security Level</h4>
                         <p className="text-lg font-bold text-[#aeae5a]">Level {user.level}</p>
