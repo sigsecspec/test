@@ -1,29 +1,31 @@
-import React, { useState } from 'react';
-import { UserRole } from './types';
+import React, { useState, useEffect } from 'react';
+import { User } from './types';
 import LoginScreen from './components/LoginScreen';
 import DashboardScreen from './components/DashboardScreen';
-import { TEST_USERS } from './constants';
+import { getUserByEmail, initializeDB } from './database';
 
 const App: React.FC = () => {
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const handleLogin = (email: string, pass: string): boolean => {
-    const user = TEST_USERS[email.toLowerCase()];
-    if (user && user.password === pass) {
-      setUserRole(user.role);
-      return true;
+  useEffect(() => {
+    initializeDB();
+  }, []);
+
+  const handleLogin = (email: string) => {
+    const user = getUserByEmail(email);
+    if (user) {
+      setCurrentUser(user);
     }
-    return false;
   };
 
   const handleLogout = () => {
-    setUserRole(null);
+    setCurrentUser(null);
   };
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-[#c4c4c4] font-sans">
-      {userRole ? (
-        <DashboardScreen userRole={userRole} onLogout={handleLogout} />
+      {currentUser ? (
+        <DashboardScreen user={currentUser} onLogout={handleLogout} />
       ) : (
         <LoginScreen onLogin={handleLogin} />
       )}

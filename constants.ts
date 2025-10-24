@@ -1,19 +1,21 @@
 import { UserRole } from './types';
 
+// This data is now only used to generate the preview login buttons.
+// The complete user data is managed in `database.ts`.
 interface TestUser {
-  password: string;
   role: UserRole;
 }
 
 export const TEST_USERS: { [email: string]: TestUser } = {
-  'owner@sss.com': { password: 'demo123', role: UserRole.Owner },
-  'coowner@sss.com': { password: 'demo123', role: UserRole.CoOwner },
-  'director@sss.com': { password: 'demo123', role: UserRole.OperationsDirector },
-  'manager@sss.com': { password: 'demo123', role: UserRole.OperationsManager },
-  'secretary@sss.com': { password: 'demo123', role: UserRole.Secretary },
-  'supervisor@sss.com': { password: 'demo123', role: UserRole.Supervisor },
-  'guard@sss.com': { password: 'demo123', role: UserRole.FlexOfficer },
-  'dispatch@sss.com': { password: 'demo123', role: UserRole.Dispatch },
-  'client@sss.com': { password: 'demo123', role: UserRole.Client },
-  'training@sss.com': { password: 'demo123', role: UserRole.TrainingOfficer },
+  'owner@sss.com': { role: UserRole.Owner },
+  'coowner@sss.com': { role: UserRole.CoOwner },
+  'director@sss.com': { role: UserRole.OperationsDirector },
+  'manager@sss.com': { role: UserRole.OperationsManager },
+  'secretary@sss.com': { role: UserRole.Secretary },
+  'supervisor@sss.com': { role: UserRole.Supervisor },
+  'training@sss.com': { role: UserRole.TrainingOfficer },
+  'leadguard@sss.com': { role: UserRole.LeadGuard },
+  'guard@sss.com': { role: UserRole.Guard },
+  'dispatch@sss.com': { role: UserRole.Dispatch },
+  'client@sss.com': { role: UserRole.Client },
 };
