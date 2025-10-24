@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { User } from '../types';
+import { User, Mission, Client, UserRole } from '../types';
 import Sidebar from './Sidebar';
 import { ShieldIcon, LogoutIcon, MenuIcon } from './Icons';
 
-// Import View Components
+// Import All View Components
 import MissionBoard from './views/MissionBoard';
 import PostMission from './views/PostMission';
 import MyMissions from './views/MyMissions';
@@ -11,14 +11,36 @@ import GuardManagement from './views/GuardManagement';
 import ClientManagement from './views/ClientManagement';
 import MyProfile from './views/MyProfile';
 import Training from './views/Training';
+import MissionControl from './views/MissionControl';
+import ActiveMissions from './views/ActiveMissions';
+import Analytics from './views/Analytics';
+import Approvals from './views/Approvals';
+import SystemSettings from './views/SystemSettings';
+import FieldOversight from './views/FieldOversight';
+import TrainingApprovals from './views/TrainingApprovals';
+import TrainingManagement from './views/TrainingManagement';
+import SiteRoster from './views/SiteRoster';
+import LiveControl from './views/LiveControl';
+import Alerts from './views/Alerts';
+import Applications from './views/Applications';
+import Communications from './views/Communications';
+import MySites from './views/MySites';
+import Billing from './views/Billing';
 
 
 interface DashboardScreenProps {
   user: User;
+  users: User[];
+  missions: Mission[];
+  clients: Client[];
   onLogout: () => void;
+  onClaimMission: (missionId: string, guardId: string) => void;
+  onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
 }
 
-const DashboardScreen: React.FC<DashboardScreenProps> = ({ user, onLogout }) => {
+const DashboardScreen: React.FC<DashboardScreenProps> = ({ 
+  user, users, missions, clients, onLogout, onClaimMission, onAddMission 
+}) => {
   const [activeView, setActiveView] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -31,35 +53,76 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ user, onLogout }) => 
               <h2 className="text-2xl font-bold text-[#c4c4c4]">Welcome, {user.firstName}!</h2>
               <p className="text-[#787876]">You are logged in as: <span className="font-semibold text-[#aeae5a]">{user.role}</span></p>
             </div>
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#c4c4c4] border-b border-[#535347] pb-2 mb-4">System Status</h3>
-              <p className="text-[#787876]">
-                This is a placeholder for your role-specific dashboard content. All systems are currently operational.
-                Based on your role as <span className="text-[#aeae5a]">{user.role}</span>, you would see relevant information here, such as mission feeds, analytics, user management, or incident reports.
-              </p>
-            </div>
+            {/* Render Analytics as the default dashboard view for management */}
+            {[UserRole.Owner, UserRole.CoOwner, UserRole.DeputyChief, UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager].includes(user.role) 
+              ? <Analytics users={users} missions={missions} clients={clients} />
+              : <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6">
+                  <h3 className="text-xl font-semibold text-[#c4c4c4] border-b border-[#535347] pb-2 mb-4">System Status</h3>
+                  <p className="text-[#787876]">
+                    All systems are currently operational. Select an item from the sidebar to begin.
+                  </p>
+                </div>
+            }
           </>
         );
+      // Guard & Lead Views
       case 'Mission Board':
-        return <MissionBoard user={user} />;
-      case 'Post Mission':
-        return <PostMission />;
+        return <MissionBoard user={user} missions={missions} onClaimMission={onClaimMission} />;
       case 'My Missions':
-        return <MyMissions user={user} />;
-      case 'Guard Management':
-        return <GuardManagement />;
-       case 'Client Management':
-        return <ClientManagement />;
+        return <MyMissions user={user} missions={missions} />;
       case 'My Profile':
         return <MyProfile user={user} />;
       case 'Training':
           return <Training user={user} />;
-      // Add other views here as they are created
+      case 'Site Roster':
+        return <SiteRoster user={user} missions={missions} users={users} />;
+      // Client Views
+      case 'Post Mission':
+        return <PostMission clients={clients} onAddMission={onAddMission} user={user} />;
+      case 'Active Missions':
+        return <ActiveMissions user={user} missions={missions} users={users} clients={clients} />;
+      case 'My Sites':
+        return <MySites />;
+      case 'Billing':
+        return <Billing user={user} missions={missions} clients={clients} />;
+      // Management Views
+      case 'Guard Management':
+      case 'Guard Roster': // Re-use component for different sidebar names
+      case 'User Management':
+        return <GuardManagement users={users} />;
+       case 'Client Management':
+        return <ClientManagement clients={clients} />;
+      case 'Mission Control':
+        return <MissionControl missions={missions} users={users} clients={clients} />;
+      case 'Approvals':
+        return <Approvals />;
+      case 'Analytics':
+        return <Analytics users={users} missions={missions} clients={clients} />;
+      case 'System Settings':
+        return <SystemSettings />;
+      // Supervisor Views
+      case 'Field Oversight':
+        return <FieldOversight missions={missions} users={users} clients={clients} />;
+      case 'Training Approvals':
+        return <TrainingApprovals users={users} />;
+      // Training Officer Views
+      case 'Training Management':
+        return <TrainingManagement users={users} />;
+      // Dispatch Views
+      case 'Live Control':
+        return <LiveControl missions={missions} users={users} clients={clients} />;
+      case 'Alerts':
+        return <Alerts />;
+      // Secretary Views
+      case 'Applications':
+        return <Applications />;
+      case 'Communications':
+        return <Communications />;
       default:
         return (
           <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6">
             <h3 className="text-xl font-semibold text-[#c4c4c4]">{activeView}</h3>
-            <p className="text-[#787876]">Content for {activeView} is under construction.</p>
+            <p className="text-[#787876]">This view is ready for implementation.</p>
           </div>
         );
     }

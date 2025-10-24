@@ -1,15 +1,13 @@
 import React from 'react';
 import { User, UserRole } from '../../types';
-import { getUsers } from '../../database';
 
-const GuardManagement: React.FC = () => {
-  const [guards, setGuards] = React.useState<User[]>([]);
+interface GuardManagementProps {
+  users: User[];
+}
 
-  React.useEffect(() => {
-    const allUsers = getUsers();
-    // Filter out clients from the guard management view
-    setGuards(allUsers.filter(u => u.role !== UserRole.Client));
-  }, []);
+const GuardManagement: React.FC<GuardManagementProps> = ({ users }) => {
+  // Filter out clients from the guard management view
+  const guards = users.filter(u => u.role !== UserRole.Client);
 
   return (
     <div>

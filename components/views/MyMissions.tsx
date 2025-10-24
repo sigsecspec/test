@@ -1,9 +1,9 @@
 import React from 'react';
 import type { User, Mission } from '../../types';
-import { getMissions } from '../../database';
 
 interface MyMissionsProps {
   user: User;
+  missions: Mission[];
 }
 
 const MyMissionCard: React.FC<{mission: Mission}> = ({ mission }) => {
@@ -36,21 +36,8 @@ const MyMissionCard: React.FC<{mission: Mission}> = ({ mission }) => {
 };
 
 
-const MyMissions: React.FC<MyMissionsProps> = ({ user }) => {
-    const [myMissions, setMyMissions] = React.useState<Mission[]>([]);
-    
-    const fetchMissions = () => {
-        const allMissions = getMissions();
-        setMyMissions(allMissions.filter(m => m.claimedBy === user.id));
-    }
-
-    React.useEffect(() => {
-        fetchMissions();
-        const handleStorageChange = () => fetchMissions();
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, [user.id]);
-
+const MyMissions: React.FC<MyMissionsProps> = ({ user, missions }) => {
+    const myMissions = missions.filter(m => m.claimedBy === user.id);
 
     return (
         <div>

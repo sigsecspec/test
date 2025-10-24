@@ -1,9 +1,11 @@
 import React from 'react';
 import type { User, Mission } from '../../types';
-import { getMissions, claimMission, getUserById } from '../../database';
+import { getUserById } from '../../database';
 
 interface MissionBoardProps {
   user: User;
+  missions: Mission[];
+  onClaimMission: (missionId: string, guardId: string) => void;
 }
 
 const MissionCard: React.FC<{
@@ -69,24 +71,7 @@ const MissionCard: React.FC<{
     );
 };
 
-const MissionBoard: React.FC<MissionBoardProps> = ({ user }) => {
-    const [missions, setMissions] = React.useState<Mission[]>([]);
-    
-    const fetchMissions = () => {
-        setMissions(getMissions());
-    }
-
-    React.useEffect(() => {
-        fetchMissions();
-        const handleStorageChange = () => fetchMissions();
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
-
-    const handleClaim = (missionId: string) => {
-        claimMission(missionId, user.id);
-        fetchMissions(); // Re-fetch to update UI
-    }
+const MissionBoard: React.FC<MissionBoardProps> = ({ user, missions, onClaimMission }) => {
     
     // Display all missions, not just open ones, so users can see claimed missions too.
     const allMissions = missions;
@@ -99,7 +84,7 @@ const MissionBoard: React.FC<MissionBoardProps> = ({ user }) => {
             {allMissions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {allMissions.map(mission => (
-                        <MissionCard key={mission.id} mission={mission} userLevel={user.level} onClaim={handleClaim} />
+                        <MissionCard key={mission.id} mission={mission} userLevel={user.level} onClaim={() => onClaimMission(mission.id, user.id)} />
                     ))}
                 </div>
             ) : (

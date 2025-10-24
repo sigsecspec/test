@@ -1,13 +1,11 @@
 import React from 'react';
 import type { Client } from '../../types';
-import { getClients } from '../../database';
 
-const ClientManagement: React.FC = () => {
-  const [clients, setClients] = React.useState<Client[]>([]);
+interface ClientManagementProps {
+  clients: Client[];
+}
 
-  React.useEffect(() => {
-    setClients(getClients());
-  }, []);
+const ClientManagement: React.FC<ClientManagementProps> = ({ clients }) => {
 
   return (
     <div>

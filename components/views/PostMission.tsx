@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { getClients, addMission } from '../../database';
-import type { Client } from '../../types';
+import React, { useState, useEffect } from 'react';
+import type { Client, Mission, User } from '../../types';
 
-const PostMission: React.FC = () => {
+interface PostMissionProps {
+    clients: Client[];
+    onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
+    user: User;
+}
+
+const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }) => {
     const [title, setTitle] = useState('');
     const [site, setSite] = useState('');
     const [description, setDescription] = useState('');
@@ -11,16 +16,18 @@ const PostMission: React.FC = () => {
     const [payRate, setPayRate] = useState(25);
     const [requiredLevel, setRequiredLevel] = useState(1);
     const [selectedClient, setSelectedClient] = useState('');
-    const [clients, setClients] = useState<Client[]>([]);
     const [message, setMessage] = useState('');
 
-    useState(() => {
-        const clientList = getClients();
-        setClients(clientList);
-        if (clientList.length > 0) {
-            setSelectedClient(clientList[0].id);
+    useEffect(() => {
+        // If the current user is a client, find their associated client profile
+        const userClientProfile = clients.find(c => c.userId === user.id);
+        if (userClientProfile) {
+            setSelectedClient(userClientProfile.id);
+        } else if (clients.length > 0) {
+            // Otherwise, default to the first client in the list (for management roles)
+            setSelectedClient(clients[0].id);
         }
-    });
+    }, [clients, user]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,7 +36,7 @@ const PostMission: React.FC = () => {
             return;
         }
 
-        addMission({
+        onAddMission({
             clientId: selectedClient,
             title,
             site,
@@ -52,6 +59,8 @@ const PostMission: React.FC = () => {
 
         setTimeout(() => setMessage(''), 3000);
     };
+    
+    const userClientProfile = clients.find(c => c.userId === user.id);
 
     return (
         <div>
@@ -60,36 +69,43 @@ const PostMission: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                      <div>
                         <label htmlFor="client" className="block text-sm font-medium text-[#c4c4c4]">Client</label>
-                        <select id="client" value={selectedClient} onChange={e => setSelectedClient(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]">
+                        <select 
+                            id="client" 
+                            value={selectedClient} 
+                            onChange={e => setSelectedClient(e.target.value)} 
+                            className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]"
+                            disabled={!!userClientProfile} // Disable if the user is a client
+                        >
                            {clients.map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}
                         </select>
+                         {!!userClientProfile && <p className="text-xs text-[#787876] mt-1">Posting as {userClientProfile.companyName}.</p>}
                     </div>
                      <div>
                         <label htmlFor="title" className="block text-sm font-medium text-[#c4c4c4]">Mission Title</label>
-                        <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" />
+                        <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
                     </div>
                      <div>
                         <label htmlFor="site" className="block text-sm font-medium text-[#c4c4c4]">Site / Location</label>
-                        <input type="text" id="site" value={site} onChange={e => setSite(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" />
+                        <input type="text" id="site" value={site} onChange={e => setSite(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="startTime" className="block text-sm font-medium text-[#c4c4c4]">Start Time</label>
-                            <input type="datetime-local" id="startTime" value={startTime} onChange={e => setStartTime(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" />
+                            <input type="datetime-local" id="startTime" value={startTime} onChange={e => setStartTime(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
                         </div>
                         <div>
                             <label htmlFor="endTime" className="block text-sm font-medium text-[#c4c4c4]">End Time</label>
-                            <input type="datetime-local" id="endTime" value={endTime} onChange={e => setEndTime(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" />
+                            <input type="datetime-local" id="endTime" value={endTime} onChange={e => setEndTime(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
                         </div>
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="payRate" className="block text-sm font-medium text-[#c4c4c4]">Pay Rate ($/hr)</label>
-                            <input type="number" id="payRate" value={payRate} onChange={e => setPayRate(Number(e.target.value))} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" />
+                            <input type="number" id="payRate" value={payRate} onChange={e => setPayRate(Number(e.target.value))} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
                         </div>
                         <div>
                             <label htmlFor="requiredLevel" className="block text-sm font-medium text-[#c4c4c4]">Required Level</label>
-                            <input type="number" id="requiredLevel" min="1" max="5" value={requiredLevel} onChange={e => setRequiredLevel(Number(e.target.value))} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" />
+                            <input type="number" id="requiredLevel" min="1" max="5" value={requiredLevel} onChange={e => setRequiredLevel(Number(e.target.value))} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
                         </div>
                     </div>
                      <div>
@@ -100,8 +116,8 @@ const PostMission: React.FC = () => {
                          <button type="submit" className="w-full bg-[#aeae5a] text-[#0f0f0f] font-bold py-2.5 rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0f0f0f] focus:ring-[#aeae5a] transition">
                             Post Mission
                         </button>
-                        {message && <p className="text-sm text-green-400 ml-4">{message}</p>}
                     </div>
+                    {message && <p className="text-sm text-center mt-4 text-green-400">{message}</p>}
                 </form>
             </div>
         </div>

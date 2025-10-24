@@ -92,6 +92,11 @@ export const getClients = (): Client[] => {
     return db.clients;
 }
 
+export const getClientById = (id: string): Client | undefined => {
+    const db = readDB();
+    return db.clients.find(c => c.id === id);
+}
+
 export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>): Mission => {
     const db = readDB();
     const newMission: Mission = {
