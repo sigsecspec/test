@@ -20,14 +20,18 @@ const MissionCard: React.FC<{
     const missionDuration = (mission.endTime.getTime() - mission.startTime.getTime()) / 3600000;
     const willExceedHours = (user.weeklyHours + missionDuration) > 40;
 
-    const canClaim = mission.status === 'Open' && isEligibleLevel && !isBlacklisted && !willExceedHours;
+    const canClaim = mission.status === 'Open' && isEligibleLevel && !isBlacklisted;
     const claimedByUser = mission.claimedBy ? getUserById(mission.claimedBy) : null;
 
     let eligibilityMessage = "";
+    let warningMessage = "";
     if (mission.status === 'Open') {
         if (!isEligibleLevel) eligibilityMessage = "Your security level is too low for this mission.";
         else if (isBlacklisted) eligibilityMessage = "You are blacklisted by this client for this mission.";
-        else if (willExceedHours) eligibilityMessage = `Claiming this mission (${missionDuration.toFixed(1)} hrs) would exceed your 40-hour weekly limit.`;
+        
+        if (canClaim && willExceedHours) {
+          warningMessage = `Note: Claiming results in overtime (${missionDuration.toFixed(1)} hrs) and requires approval.`;
+        }
     }
 
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -50,7 +54,10 @@ const MissionCard: React.FC<{
                 {mission.status === 'Open' && (
                     <>
                         {canClaim ? (
-                            <button onClick={() => onClaim(mission.id)} className="w-full mt-4 bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 rounded-md hover:bg-opacity-90 transition">Claim Mission</button>
+                            <>
+                                <button onClick={() => onClaim(mission.id)} className="w-full mt-4 bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 rounded-md hover:bg-opacity-90 transition">Claim Mission</button>
+                                {warningMessage && <p className="text-center text-xs text-yellow-600 mt-2">{warningMessage}</p>}
+                            </>
                         ) : (
                             <p className="text-center text-xs text-red-500 mt-4">{eligibilityMessage}</p>
                         )}

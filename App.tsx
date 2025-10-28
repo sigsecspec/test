@@ -110,7 +110,13 @@ const App: React.FC = () => {
 
   const handleLogout = () => setCurrentUser(null);
 
-  const handleClaimMission = (missionId: string, guardId: string) => { dbClaimMission(missionId, guardId); loadData(); };
+  const handleClaimMission = (missionId: string, guardId: string) => { 
+    const result = dbClaimMission(missionId, guardId);
+    if (!result.success) {
+      alert(`Mission Claim Failed: ${result.message}`);
+    }
+    loadData(); 
+  };
   const handleAddMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => { dbAddMission(missionData); loadData(); };
   const handleUpdateApplication = (appId: string, status: 'Approved' | 'Denied') => { dbUpdateApplicationStatus(appId, status); loadData(); };
   const handleProcessApproval = (approvalId: string) => { dbRemoveApproval(approvalId); loadData(); };

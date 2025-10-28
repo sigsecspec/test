@@ -150,7 +150,6 @@ const ModuleSection: React.FC<{
                         {status[module.id] === 'Failed' ? (
                              <button onClick={() => onAppeal(module.id, module.title)} className="w-full text-sm bg-yellow-500 text-black font-bold py-2 rounded-md hover:bg-yellow-400">Appeal for Retake</button>
                         ) : (
-                            // Fix: Use the onSelectModule prop instead of the undefined setActiveModule.
                             <button onClick={() => onSelectModule(module)} disabled={status[module.id] === 'Passed'} className="w-full text-sm bg-[var(--accent-secondary)] text-white font-bold py-2 rounded-md hover:bg-[var(--accent-secondary-hover)] disabled:bg-gray-300 disabled:cursor-not-allowed">
                                 {status[module.id] === 'Passed' ? 'Completed' : 'Start Module'}
                             </button>
