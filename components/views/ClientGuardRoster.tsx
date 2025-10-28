@@ -1,5 +1,5 @@
 import React from 'react';
-import { Client, User } from '../../types';
+import { Client, User } from '../../types.ts';
 
 interface ClientGuardRosterProps {
     client: Client;

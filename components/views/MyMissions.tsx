@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { User, Mission, IncidentReport, IncidentType, IncidentSeverity } from '../../types';
-import { XIcon, PlusCircleIcon } from '../Icons';
+import type { User, Mission, IncidentReport, IncidentType, IncidentSeverity } from '../../types.ts';
+import { XIcon, PlusCircleIcon } from '../Icons.tsx';
 
 const incidentTypes: IncidentType[] = ['Theft', 'Medical', 'Property Damage', 'Trespassing', 'Disturbance', 'Other'];
 const severities: IncidentSeverity[] = ['Low', 'Medium', 'High'];

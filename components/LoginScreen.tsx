@@ -1,6 +1,6 @@
 import React from 'react';
-import { ShieldIcon, UserIcon } from './Icons';
-import { User, UserRole } from '../types';
+import { ShieldIcon, UserIcon } from './Icons.tsx';
+import { User, UserRole } from '../types.ts';
 
 interface LoginScreenProps {
   users: User[];

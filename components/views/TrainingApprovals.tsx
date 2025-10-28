@@ -1,6 +1,6 @@
 import React from 'react';
-import { User, UserRole } from '../../types';
-import { AcademicCapIcon } from '../Icons';
+import { User, UserRole } from '../../types.ts';
+import { AcademicCapIcon } from '../Icons.tsx';
 
 
 interface TrainingApprovalsProps {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import type { Client, User } from '../../types';
-import { XIcon, PlusCircleIcon } from '../Icons';
+import type { Client, User } from '../../types.ts';
+import { XIcon, PlusCircleIcon } from '../Icons.tsx';
 
 interface ManageClientModalProps {
     isOpen: boolean;

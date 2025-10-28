@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal, UserRole } from './types';
-import DashboardScreen from './components/DashboardScreen';
-import HomePage from './components/HomePage';
-import LoginModal from './components/LoginModal';
+import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal, UserRole } from './types.ts';
+import DashboardScreen from './components/DashboardScreen.tsx';
+import HomePage from './components/HomePage.tsx';
+import LoginModal from './components/LoginModal.tsx';
 import { 
   initializeDB, 
   getUserByEmail, 
@@ -55,7 +55,7 @@ import {
   updatePromotionStatus as dbUpdatePromotionStatus,
   addAppeal as dbAddAppeal,
   updateAppealStatus as dbUpdateAppealStatus,
-} from './database';
+} from './database.ts';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { Client, Mission, User, Site } from '../../types';
+import type { Client, Mission, User, Site } from '../../types.ts';
 
 interface PostMissionProps {
     clients: Client[];

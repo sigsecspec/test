@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SystemSettings } from '../../types';
+import { SystemSettings } from '../../types.ts';
 
 interface SystemSettingsProps {
     systemSettings: SystemSettings;

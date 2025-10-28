@@ -1,7 +1,7 @@
 import React from 'react';
-import type { User, PayrollRun, PayrollEntry } from '../../types';
-import { getPayrollEntriesForRun } from '../../database';
-import { CreditCardIcon } from '../Icons';
+import type { User, PayrollRun, PayrollEntry } from '../../types.ts';
+import { getPayrollEntriesForRun } from '../../database.ts';
+import { CreditCardIcon } from '../Icons.tsx';
 
 interface EarningsProps {
     user: User;

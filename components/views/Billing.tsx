@@ -1,5 +1,5 @@
 import React from 'react';
-import type { User, Mission, Client } from '../../types';
+import type { User, Mission, Client } from '../../types.ts';
 
 interface BillingProps {
     user: User;

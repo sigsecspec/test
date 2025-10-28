@@ -1,11 +1,11 @@
 import React from 'react';
-import { UserRole } from '../types';
+import { UserRole } from '../types.ts';
 import { 
     HomeIcon, ClipboardListIcon, CalendarIcon, UserIcon, AcademicCapIcon, 
     PlusCircleIcon, LocationMarkerIcon, CreditCardIcon, CogIcon, UsersIcon, 
     ChartBarIcon, BriefcaseIcon, CheckCircleIcon, EyeIcon, MapIcon, 
     BellIcon, DocumentTextIcon, MailIcon, TrophyIcon, FlagIcon, ArrowUpTrayIcon 
-} from './Icons';
+} from './Icons.tsx';
 
 // A new icon for Vehicle Management
 const TruckIcon: React.FC<{ className?: string }> = ({ className }) => (

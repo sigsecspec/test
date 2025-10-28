@@ -1,6 +1,6 @@
 import React from 'react';
-import { DocumentTextIcon } from '../Icons';
-import { Application } from '../../types';
+import { DocumentTextIcon } from '../Icons.tsx';
+import { Application } from '../../types.ts';
 
 interface ApplicationsProps {
     applications: Application[];

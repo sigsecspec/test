@@ -1,6 +1,6 @@
 import React from 'react';
-import type { User, Mission, Client } from '../../types';
-import { getUserById } from '../../database';
+import type { User, Mission, Client } from '../../types.ts';
+import { getUserById } from '../../database.ts';
 
 interface MissionBoardProps {
   user: User;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import type { PayrollRun, User } from '../../types';
-import { getPayrollEntriesForRun } from '../../database';
-import { XIcon } from '../Icons';
+import type { PayrollRun, User } from '../../types.ts';
+import { getPayrollEntriesForRun } from '../../database.ts';
+import { XIcon } from '../Icons.tsx';
 
 interface PayrollProps {
     payrollRuns: PayrollRun[];

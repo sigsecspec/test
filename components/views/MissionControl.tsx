@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import type { Mission, User, Client, Site } from '../../types';
-import { XIcon } from '../Icons';
+import type { Mission, User, Client, Site } from '../../types.ts';
+import { XIcon } from '../Icons.tsx';
 
 const EditMissionModal: React.FC<{
     isOpen: boolean;

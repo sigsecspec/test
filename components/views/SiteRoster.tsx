@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Mission } from '../../types';
+import { User, Mission } from '../../types.ts';
 
 interface SiteRosterProps {
     user: User;

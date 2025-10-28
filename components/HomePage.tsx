@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MenuIcon } from './Icons';
-import { featureList, statList, levelList, testimonialList } from '../content/homepageContent';
+import { MenuIcon } from './Icons.tsx';
+import { featureList, statList, levelList, testimonialList } from '../content/homepageContent.ts';
 
 // --- START OF ANIMATION UTILITIES ---
 const useOnScreen = (ref: React.RefObject<HTMLElement>, options: IntersectionObserverInit) => {

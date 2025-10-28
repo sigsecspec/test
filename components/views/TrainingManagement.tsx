@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { User, UserRole } from '../../types';
-import { XIcon } from '../Icons';
+import { User, UserRole } from '../../types.ts';
+import { XIcon } from '../Icons.tsx';
 
 const allCertifications = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5', 'Supervision', 'Instructor', 'Lead', 'Tactical', 'First Aid/CPR', 'Fire Safety', 'Defensive Tactics'];
 

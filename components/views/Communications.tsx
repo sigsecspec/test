@@ -1,5 +1,5 @@
 import React from 'react';
-import { MailIcon } from '../Icons';
+import { MailIcon } from '../Icons.tsx';
 
 const Communications: React.FC = () => {
     return (

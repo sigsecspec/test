@@ -1,5 +1,5 @@
-import { UserRole } from './types';
-import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal } from './types';
+import { UserRole } from './types.ts';
+import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal } from './types.ts';
 
 // Let's define the shape of our database
 interface Database {

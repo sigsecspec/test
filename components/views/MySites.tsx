@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { LocationMarkerIcon, XIcon } from '../Icons';
-import { User, Client, Site } from '../../types';
+import { LocationMarkerIcon, XIcon } from '../Icons.tsx';
+import { User, Client, Site } from '../../types.ts';
 
 
 interface MySitesProps {

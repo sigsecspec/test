@@ -1,6 +1,6 @@
 import React from 'react';
-import { BellIcon } from '../Icons';
-import { Alert } from '../../types';
+import { BellIcon } from '../Icons.tsx';
+import { Alert } from '../../types.ts';
 
 interface AlertsProps {
   alerts: Alert[];

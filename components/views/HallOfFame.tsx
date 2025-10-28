@@ -1,6 +1,6 @@
 import React from 'react';
-import { User, HallOfFameEntry } from '../../types';
-import { UserIcon, TrophyIcon } from '../Icons';
+import { User, HallOfFameEntry } from '../../types.ts';
+import { UserIcon, TrophyIcon } from '../Icons.tsx';
 
 interface HallOfFameProps {
     users: User[];

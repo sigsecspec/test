@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { User, Appeal } from '../../types';
-import { AcademicCapIcon, XIcon } from '../Icons';
+import type { User, Appeal } from '../../types.ts';
+import { AcademicCapIcon, XIcon } from '../Icons.tsx';
 
 type TrainingStatus = 'Not Started' | 'In Progress' | 'Passed' | 'Failed';
 

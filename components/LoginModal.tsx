@@ -1,7 +1,7 @@
 import React from 'react';
-import LoginScreen from './LoginScreen';
-import { XIcon } from './Icons';
-import { User } from '../types';
+import LoginScreen from './LoginScreen.tsx';
+import { XIcon } from './Icons.tsx';
+import { User } from '../types.ts';
 
 interface LoginModalProps {
   isOpen: boolean;

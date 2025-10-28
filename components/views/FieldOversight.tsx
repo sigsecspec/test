@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import type { Mission, User, Client, SpotCheck } from '../../types';
-import { getSpotChecksForMission } from '../../database';
-import { XIcon } from '../Icons';
+import type { Mission, User, Client, SpotCheck } from '../../types.ts';
+import { getSpotChecksForMission } from '../../database.ts';
+import { XIcon } from '../Icons.tsx';
 
 interface SpotCheckModalProps {
     isOpen: boolean;

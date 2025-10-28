@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { User, Mission, Client, IncidentReport, IncidentSeverity } from '../../types';
-import { XIcon } from '../Icons';
+import type { User, Mission, Client, IncidentReport, IncidentSeverity } from '../../types.ts';
+import { XIcon } from '../Icons.tsx';
 
 interface RatingModalProps {
     isOpen: boolean;

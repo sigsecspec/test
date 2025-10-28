@@ -1,6 +1,6 @@
 import React from 'react';
-import { User } from '../../types';
-import { UserIcon } from '../Icons';
+import { User } from '../../types.ts';
+import { UserIcon } from '../Icons.tsx';
 
 interface MyProfileProps {
     user: User;

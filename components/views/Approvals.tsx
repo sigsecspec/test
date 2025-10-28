@@ -1,6 +1,6 @@
 import React from 'react';
-import { CheckCircleIcon, UserIcon } from '../Icons';
-import { Approval, User } from '../../types';
+import { CheckCircleIcon, UserIcon } from '../Icons.tsx';
+import { Approval, User } from '../../types.ts';
 
 
 interface ApprovalsProps {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { User, UserRole } from '../../types';
-import { XIcon } from '../Icons';
+import { User, UserRole } from '../../types.ts';
+import { XIcon } from '../Icons.tsx';
 
 const ranks = ['OFC (Officer)', 'PVT (Private)', 'CPL (Corporal)', 'SGT (Sergeant)', 'LT (Lieutenant)', 'CAP (Captain)', 'CMD (Commander)', 'DPT CHF (Deputy Chief)', 'ASST CHF (Asst. Chief)', 'CHF (Chief)', 'N/A'];
 

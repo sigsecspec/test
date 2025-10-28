@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Mission, User, Client } from '../../types';
+import type { Mission, User, Client } from '../../types.ts';
 
 interface LiveControlProps {
     missions: Mission[];

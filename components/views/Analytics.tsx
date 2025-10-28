@@ -1,6 +1,6 @@
 import React from 'react';
-import { User, Mission, Client, UserRole } from '../../types';
-import { UsersIcon, BriefcaseIcon, ClipboardListIcon, CheckCircleIcon } from '../Icons';
+import { User, Mission, Client, UserRole } from '../../types.ts';
+import { UsersIcon, BriefcaseIcon, ClipboardListIcon, CheckCircleIcon } from '../Icons.tsx';
 
 interface AnalyticsProps {
     users: User[];
