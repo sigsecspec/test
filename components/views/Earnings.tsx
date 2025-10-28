@@ -1,60 +1,77 @@
 import React from 'react';
-import type { User, Mission } from '../../types';
+import type { User, PayrollRun, PayrollEntry } from '../../types';
+import { getPayrollEntriesForRun } from '../../database';
 import { CreditCardIcon } from '../Icons';
 
 interface EarningsProps {
     user: User;
-    missions: Mission[];
+    payrollRuns: PayrollRun[];
+    onConfirmPayment: (entryId: string) => void;
 }
 
-const Earnings: React.FC<EarningsProps> = ({ user, missions }) => {
-    const completedMissions = missions.filter(m => m.claimedBy === user.id && (m.status === 'Completed' || m.status === 'AwaitingReport'));
+const Earnings: React.FC<EarningsProps> = ({ user, payrollRuns, onConfirmPayment }) => {
+    let allEntries: PayrollEntry[] = [];
+    payrollRuns.forEach(run => {
+        allEntries.push(...getPayrollEntriesForRun(run.id));
+    });
 
-    const calculateMissionPay = (mission: Mission) => {
-        const duration = (mission.endTime.getTime() - mission.startTime.getTime()) / 3600000; // hours
-        return duration * mission.payRate;
-    };
-
-    const totalEarnings = completedMissions.reduce((acc, mission) => acc + calculateMissionPay(mission), 0);
+    const myEntries = allEntries.filter(e => e.userId === user.id);
+    const totalEarnings = myEntries.reduce((acc, entry) => acc + entry.totalPay, 0);
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">My Earnings</h2>
-            <p className="text-[#787876] mb-6">Track your pay for completed missions.</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">My Earnings</h2>
+            <p className="text-[var(--text-secondary)] mb-6">Track your pay for completed missions and confirm receipt of payment.</p>
 
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 mb-6">
-                <h3 className="text-xl font-semibold text-[#c4c4c4]">Total Estimated Earnings</h3>
-                <p className="text-4xl font-bold text-[#aeae5a] mt-2">${totalEarnings.toFixed(2)}</p>
-                <p className="text-sm text-[#787876]">Based on {completedMissions.length} completed missions.</p>
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 mb-6 shadow-sm">
+                <h3 className="text-xl font-semibold text-[var(--text-primary)]">Total Estimated Earnings</h3>
+                <p className="text-4xl font-bold text-[var(--accent-primary)] mt-2">${totalEarnings.toFixed(2)}</p>
+                <p className="text-sm text-[var(--text-secondary)]">Based on {myEntries.length} paid mission entries.</p>
             </div>
 
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg overflow-hidden">
-                <h3 className="text-lg font-semibold text-[#c4c4c4] p-4 border-b border-[#535347]">Paystub Breakdown</h3>
-                {completedMissions.length > 0 ? (
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg overflow-hidden shadow-sm">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)] p-4 border-b border-[var(--border-primary)]">Paystub Breakdown</h3>
+                {myEntries.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
-                            <thead className="bg-[#535347]/20">
+                            <thead className="bg-[var(--bg-primary)]">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase">Mission</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase">Date</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-[#c4c4c4] uppercase">Pay</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Pay Period</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Hours</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">Pay</th>
+                                    <th className="px-6 py-3 text-center text-xs font-medium text-[var(--text-secondary)] uppercase">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#535347]/50">
-                                {completedMissions.map(mission => (
-                                    <tr key={mission.id}>
-                                        <td className="px-6 py-4 text-sm text-[#c4c4c4]">{mission.title}</td>
-                                        <td className="px-6 py-4 text-sm text-[#787876]">{mission.endTime.toLocaleDateString()}</td>
-                                        <td className="px-6 py-4 text-right text-sm font-medium text-[#c4c4c4]">${calculateMissionPay(mission).toFixed(2)}</td>
+                            <tbody className="divide-y divide-[var(--border-tertiary)]">
+                                {myEntries.map(entry => {
+                                    const run = payrollRuns.find(r => r.id === entry.payrollRunId);
+                                    return(
+                                    <tr key={entry.id}>
+                                        <td className="px-6 py-4 text-sm text-[var(--text-primary)]">{run ? `${run.startDate.toLocaleDateString()} - ${run.endDate.toLocaleDateString()}` : 'N/A'}</td>
+                                        <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">{entry.hours.toFixed(2)}</td>
+                                        <td className="px-6 py-4 text-right text-sm font-medium text-[var(--text-primary)]">${entry.totalPay.toFixed(2)}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            {run?.status === 'Approved' && !entry.paymentConfirmed && (
+                                                <button onClick={() => onConfirmPayment(entry.id)} className="text-xs bg-blue-500 text-white font-bold py-1 px-3 rounded-md hover:bg-blue-600">
+                                                    Confirm Receipt
+                                                </button>
+                                            )}
+                                            {entry.paymentConfirmed && (
+                                                 <span className="text-xs font-semibold text-green-600">Paid & Confirmed</span>
+                                            )}
+                                            {run?.status === 'Pending' && (
+                                                 <span className="text-xs font-semibold text-yellow-600">Processing</span>
+                                            )}
+                                        </td>
                                     </tr>
-                                ))}
+                                )})}
                             </tbody>
                         </table>
                     </div>
                 ) : (
-                    <div className="text-center p-12 text-[#787876]">
-                         <CreditCardIcon className="w-12 h-12 mx-auto text-[#787876] mb-4" />
-                        <h3 className="text-xl font-semibold text-[#c4c4c4]">No Earnings Yet</h3>
+                    <div className="text-center p-12 text-[var(--text-secondary)]">
+                         <CreditCardIcon className="w-12 h-12 mx-auto text-[var(--text-secondary)] mb-4" />
+                        <h3 className="text-xl font-semibold text-[var(--text-primary)]">No Earnings Yet</h3>
                         <p className="mt-2">Complete missions to see your earnings here.</p>
                     </div>
                 )}

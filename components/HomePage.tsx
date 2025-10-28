@@ -45,7 +45,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
     const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
     return(
-        <header className="sticky top-0 z-30 bg-[var(--bg-primary)]/80 backdrop-blur-sm border-b border-[var(--border-secondary)]">
+        <header className="sticky top-0 z-30 bg-[var(--bg-secondary)]/80 backdrop-blur-sm border-b border-[var(--border-primary)]">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
@@ -91,29 +91,29 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenLoginModal }) => {
         <div>
             <Header onOpenLoginModal={onOpenLoginModal} />
             <main>
-                <section id="home" className="text-center py-20 md:py-32">
+                <section id="home" className="text-center py-20 md:py-32 bg-[var(--bg-secondary)]">
                     <div className="container mx-auto px-4">
                         <h1 className="text-4xl md:text-6xl font-extrabold text-[var(--text-primary)]">Professional Security Management Platform</h1>
                         <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-[var(--text-secondary)]">Connecting businesses with certified security professionals through our comprehensive digital platform. Streamline operations, manage missions, and ensure safety with our all-in-one solution.</p>
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</a>
-                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--text-primary)] transition-transform duration-200 hover:scale-105">Hire Security</a>
+                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Hire Security</a>
                         </div>
                     </div>
                 </section>
-                <section className="py-16 bg-[var(--bg-secondary)]">
+                <section className="py-16 bg-[var(--bg-primary)]">
                     <div className="container mx-auto px-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                            {statList.map((stat, i) => <AnimateOnScroll key={i} className="text-center"><h2 className="text-4xl font-bold text-[var(--accent-primary)]">{stat.value}</h2><p className="mt-1 text-[var(--text-secondary)]">{stat.label}</p></AnimateOnScroll>)}
                         </div>
                     </div>
                 </section>
-                <section id="features" className="py-20">
+                <section id="features" className="py-20 bg-[var(--bg-secondary)]">
                      <div className="container mx-auto px-4">
                          <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold">Platform Features</h2><p className="mt-2 text-[var(--text-secondary)]">Everything you need to manage security operations efficiently</p></div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                              {featureList.map((feature, i) => (
-                                 <AnimateOnScroll key={i} className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6">
+                                 <AnimateOnScroll key={i} className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-6">
                                      <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
                                      <ul className="space-y-2 text-[var(--text-secondary)] list-disc list-inside">
                                          {feature.items.map(item => <li key={item}>{item}</li>)}
@@ -123,55 +123,55 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenLoginModal }) => {
                         </div>
                     </div>
                 </section>
-                 <section id="how-it-works" className="py-20 bg-[var(--bg-secondary)]">
+                 <section id="how-it-works" className="py-20 bg-[var(--bg-primary)]">
                     <div className="container mx-auto px-4">
                         <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold">How It Works</h2></div>
                         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                           <AnimateOnScroll className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-6"><h3 className="text-xl font-bold mb-4">For Security Guards</h3><ol className="list-decimal list-inside space-y-2 text-[var(--text-secondary)]"><li><strong>Apply Online</strong> - Submit your application and certifications</li><li><strong>Complete Training</strong> - Take required training modules</li><li><strong>Get Approved</strong> - Officers review your certifications</li><li><strong>Browse Missions</strong> - See available missions</li><li><strong>Claim & Work</strong> - Accept missions and start earning</li><li><strong>Get Paid</strong> - Receive payment after completion</li></ol></AnimateOnScroll>
-                           <AnimateOnScroll className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-6"><h3 className="text-xl font-bold mb-4">For Businesses</h3><ol className="list-decimal list-inside space-y-2 text-[var(--text-secondary)]"><li><strong>Apply Online</strong> - Submit your business information</li><li><strong>Get Verified</strong> - Complete verification process</li><li><strong>Set Up Contract</strong> - Create security contracts</li><li><strong>Post Missions</strong> - Create missions with requirements</li><li><strong>Guards Assigned</strong> - Certified guards accept missions</li><li><strong>Monitor Performance</strong> - Track missions and rate guards</li></ol></AnimateOnScroll>
-                        </div>
-                    </div>
-                </section>
-                <section className="py-20">
-                     <div className="container mx-auto px-4">
-                        <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold">Guard Certification Levels</h2><p className="mt-2 text-[var(--text-secondary)]">Different security levels for different needs</p></div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                             {levelList.map((level, i) => <AnimateOnScroll key={i} className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 text-center"><h4 className="text-lg font-bold">{level.title}</h4><p className="mt-2 text-[var(--text-secondary)]">{level.desc}</p></AnimateOnScroll>)}
+                           <AnimateOnScroll className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6"><h3 className="text-xl font-bold mb-4">For Security Guards</h3><ol className="list-decimal list-inside space-y-2 text-[var(--text-secondary)]"><li><strong>Apply Online</strong> - Submit your application and certifications</li><li><strong>Complete Training</strong> - Take required training modules</li><li><strong>Get Approved</strong> - Officers review your certifications</li><li><strong>Browse Missions</strong> - See available missions</li><li><strong>Claim & Work</strong> - Accept missions and start earning</li><li><strong>Get Paid</strong> - Receive payment after completion</li></ol></AnimateOnScroll>
+                           <AnimateOnScroll className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6"><h3 className="text-xl font-bold mb-4">For Businesses</h3><ol className="list-decimal list-inside space-y-2 text-[var(--text-secondary)]"><li><strong>Apply Online</strong> - Submit your business information</li><li><strong>Get Verified</strong> - Complete verification process</li><li><strong>Set Up Contract</strong> - Create security contracts</li><li><strong>Post Missions</strong> - Create missions with requirements</li><li><strong>Guards Assigned</strong> - Certified guards accept missions</li><li><strong>Monitor Performance</strong> - Track missions and rate guards</li></ol></AnimateOnScroll>
                         </div>
                     </div>
                 </section>
                 <section className="py-20 bg-[var(--bg-secondary)]">
+                     <div className="container mx-auto px-4">
+                        <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold">Guard Certification Levels</h2><p className="mt-2 text-[var(--text-secondary)]">Different security levels for different needs</p></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                             {levelList.map((level, i) => <AnimateOnScroll key={i} className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-6 text-center"><h4 className="text-lg font-bold">{level.title}</h4><p className="mt-2 text-[var(--text-secondary)]">{level.desc}</p></AnimateOnScroll>)}
+                        </div>
+                    </div>
+                </section>
+                <section className="py-20 bg-[var(--bg-primary)]">
                     <div className="container mx-auto px-4">
                          <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold">What Our Users Say</h2></div>
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {testimonialList.map((t, i) => <AnimateOnScroll key={i} className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-6"><p className="text-[var(--text-secondary)]">"{t.quote}"</p><p className="mt-4 font-bold text-[var(--text-primary)]">{t.author}</p></AnimateOnScroll>)}
+                            {testimonialList.map((t, i) => <AnimateOnScroll key={i} className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6"><p className="text-[var(--text-secondary)]">"{t.quote}"</p><p className="mt-4 font-bold text-[var(--text-primary)]">{t.author}</p></AnimateOnScroll>)}
                          </div>
                     </div>
                 </section>
-                <section id="contact" className="py-20 text-center">
+                <section id="contact" className="py-20 text-center bg-[var(--bg-secondary)]">
                     <div className="container mx-auto px-4">
                          <h2 className="text-3xl md:text-4xl font-bold">Ready to Get Started?</h2>
                          <p className="mt-2 mb-8 text-[var(--text-secondary)]">Join our platform today and experience professional security management</p>
                         <div className="flex flex-wrap justify-center gap-4">
                              <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</a>
-                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--text-primary)] transition-transform duration-200 hover:scale-105">Hire Security</a>
+                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Hire Security</a>
                         </div>
                     </div>
                 </section>
             </main>
-            <footer id="about" className="bg-[var(--bg-secondary)] border-t border-[var(--border-primary)] py-12">
+            <footer id="about" className="bg-[var(--accent-secondary)] text-white py-12">
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
                         <div className="col-span-2 md:col-span-1">
-                            <h4 className="font-bold text-[var(--text-primary)]">Signature Security Specialist</h4>
-                            <p className="mt-2 text-sm text-[var(--text-secondary)]">Professional security management platform.</p>
+                            <h4 className="font-bold">Signature Security Specialist</h4>
+                            <p className="mt-2 text-sm opacity-70">Professional security management platform.</p>
                         </div>
-                        <div><h4 className="font-bold text-[var(--text-primary)]">For Guards</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Apply as Guard</a></li><li><a href="#" className="hover:text-[var(--text-primary)]" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Guard Login</a></li></ul></div>
-                        <div><h4 className="font-bold text-[var(--text-primary)]">For Clients</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Apply as Client</a></li><li><a href="#" className="hover:text-[var(--text-primary)]" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Client Login</a></li></ul></div>
-                        <div><h4 className="font-bold text-[var(--text-primary)]">Company</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">About Us</a></li><li><a href="#" className="hover:text-[var(--text-primary)]">Contact</a></li></ul></div>
-                        <div><h4 className="font-bold text-[var(--text-primary)]">Legal</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Terms of Service</a></li><li><a href="#" className="hover:text-[var(--text-primary)]">Privacy Policy</a></li></ul></div>
+                        <div><h4 className="font-bold">For Guards</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">Apply as Guard</a></li><li><a href="#" className="hover:opacity-100" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Guard Login</a></li></ul></div>
+                        <div><h4 className="font-bold">For Clients</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">Apply as Client</a></li><li><a href="#" className="hover:opacity-100" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Client Login</a></li></ul></div>
+                        <div><h4 className="font-bold">Company</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">About Us</a></li><li><a href="#" className="hover:opacity-100">Contact</a></li></ul></div>
+                        <div><h4 className="font-bold">Legal</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">Terms of Service</a></li><li><a href="#" className="hover:opacity-100">Privacy Policy</a></li></ul></div>
                     </div>
-                    <div className="mt-8 pt-8 border-t border-[var(--border-secondary)] text-center text-sm text-[var(--text-secondary)]">
+                    <div className="mt-8 pt-8 border-t border-white/10 text-center text-sm opacity-70">
                         <p>© {new Date().getFullYear()} Signature Security Specialist. All rights reserved.</p>
                     </div>
                 </div>

@@ -45,23 +45,23 @@ const SiteModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="relative bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-                 <h3 className="text-lg font-bold text-[#c4c4c4] mb-4">{siteToEdit ? 'Edit Site' : 'Add New Site'}</h3>
+            <div className="relative bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
+                 <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">{siteToEdit ? 'Edit Site' : 'Add New Site'}</h3>
                  <form onSubmit={handleSubmit} className="space-y-4">
                      <div>
-                        <label htmlFor="siteName" className="block text-sm font-medium text-[#c4c4c4]">Site Name</label>
-                        <input type="text" id="siteName" value={name} onChange={e => setName(e.target.value)} className="mt-1 block w-full bg-[#1a1a1a] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
+                        <label htmlFor="siteName" className="block text-sm font-medium text-[var(--text-primary)]">Site Name</label>
+                        <input type="text" id="siteName" value={name} onChange={e => setName(e.target.value)} className="mt-1 block w-full bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm text-[var(--text-primary)]" required/>
                     </div>
                      <div>
-                        <label htmlFor="siteAddress" className="block text-sm font-medium text-[#c4c4c4]">Address</label>
-                        <input type="text" id="siteAddress" value={address} onChange={e => setAddress(e.target.value)} className="mt-1 block w-full bg-[#1a1a1a] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
+                        <label htmlFor="siteAddress" className="block text-sm font-medium text-[var(--text-primary)]">Address</label>
+                        <input type="text" id="siteAddress" value={address} onChange={e => setAddress(e.target.value)} className="mt-1 block w-full bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm text-[var(--text-primary)]" required/>
                     </div>
                     <div className="flex justify-end space-x-2 pt-2">
-                        <button type="button" onClick={onClose} className="bg-transparent border border-[#535347] text-[#c4c4c4] font-semibold py-2 px-4 rounded-md hover:bg-[#535347]/50">Cancel</button>
-                        <button type="submit" className="bg-[#aeae5a] text-[#0f0f0f] font-bold py-2 px-4 rounded-md hover:bg-opacity-90">Save Site</button>
+                        <button type="button" onClick={onClose} className="bg-transparent border border-[var(--border-secondary)] text-[var(--text-primary)] font-semibold py-2 px-4 rounded-md hover:bg-[var(--border-tertiary)]">Cancel</button>
+                        <button type="submit" className="bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 px-4 rounded-md hover:bg-opacity-90">Save Site</button>
                     </div>
                  </form>
-                 <button onClick={onClose} className="absolute top-3 right-3 text-[#787876] hover:text-[#c4c4c4]"><XIcon className="h-6 w-6"/></button>
+                 <button onClick={onClose} className="absolute top-3 right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><XIcon className="h-6 w-6"/></button>
             </div>
         </div>
     );
@@ -92,34 +92,34 @@ const MySites: React.FC<MySitesProps> = ({ user, clients, sites, onAddSite, onUp
         <div>
             <div className="flex justify-between items-center mb-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-[#c4c4c4]">My Sites & Posts</h2>
-                    <p className="text-[#787876]">Manage the locations where you require security coverage.</p>
+                    <h2 className="text-2xl font-bold text-[var(--text-primary)]">My Sites & Posts</h2>
+                    <p className="text-[var(--text-secondary)]">Manage the locations where you require security coverage.</p>
                 </div>
                  <button 
                     onClick={() => { setSiteToEdit(null); setModalOpen(true); }}
-                    className="bg-[#aeae5a] text-[#0f0f0f] font-bold py-2 px-4 rounded-md hover:bg-opacity-90 transition text-sm disabled:bg-opacity-50 disabled:cursor-not-allowed"
+                    className="bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 px-4 rounded-md hover:bg-opacity-90 transition text-sm disabled:bg-opacity-50 disabled:cursor-not-allowed"
                     disabled={!clientProfile}
                  >
                     Add New Site
                 </button>
              </div>
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg">
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-sm">
                 {mySites.length > 0 ? (
-                    <ul className="divide-y divide-[#535347]/50">
+                    <ul className="divide-y divide-[var(--border-primary)]">
                         {mySites.map(site => (
-                            <li key={site.id} className="p-4 hover:bg-[#535347]/10 flex items-center justify-between">
+                            <li key={site.id} className="p-4 hover:bg-[var(--bg-primary)] flex items-center justify-between">
                                 <div className="flex items-center">
-                                    <LocationMarkerIcon className="h-5 w-5 text-[#787876] mr-4 flex-shrink-0" />
+                                    <LocationMarkerIcon className="h-5 w-5 text-[var(--text-secondary)] mr-4 flex-shrink-0" />
                                     <div>
-                                        <p className="text-sm font-medium text-[#c4c4c4]">{site.name}</p>
-                                        <p className="text-xs text-[#787876]">{site.address}</p>
+                                        <p className="text-sm font-medium text-[var(--text-primary)]">{site.name}</p>
+                                        <p className="text-xs text-[var(--text-secondary)]">{site.address}</p>
                                     </div>
                                 </div>
                                 <div className="text-xs font-semibold flex-shrink-0 ml-4 space-x-4">
-                                     <button onClick={() => { setSiteToEdit(site); setModalOpen(true); }} className="text-[#aeae5a] hover:text-opacity-80">
+                                     <button onClick={() => { setSiteToEdit(site); setModalOpen(true); }} className="text-[var(--accent-primary)] hover:text-opacity-80">
                                         Edit
                                     </button>
-                                     <button onClick={() => handleDelete(site.id)} className="text-red-400 hover:text-red-300">
+                                     <button onClick={() => handleDelete(site.id)} className="text-red-500 hover:text-red-700">
                                         Delete
                                     </button>
                                 </div>
@@ -127,9 +127,9 @@ const MySites: React.FC<MySitesProps> = ({ user, clients, sites, onAddSite, onUp
                         ))}
                     </ul>
                 ) : (
-                    <div className="text-center p-12 text-[#787876]">
-                        <LocationMarkerIcon className="w-12 h-12 mx-auto text-[#787876] mb-4" />
-                        <h3 className="text-xl font-semibold text-[#c4c4c4]">No Sites Found</h3>
+                    <div className="text-center p-12 text-[var(--text-secondary)]">
+                        <LocationMarkerIcon className="w-12 h-12 mx-auto text-[var(--text-secondary)] mb-4" />
+                        <h3 className="text-xl font-semibold text-[var(--text-primary)]">No Sites Found</h3>
                         <p className="mt-2">You have not configured any sites for {clientProfile?.companyName || 'your account'}.</p>
                     </div>
                 )}

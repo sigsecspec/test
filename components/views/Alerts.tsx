@@ -11,40 +11,40 @@ interface AlertsProps {
 const Alerts: React.FC<AlertsProps> = ({ alerts, onAcknowledge }) => {
     const getSeverityColor = (severity: string) => {
         switch (severity) {
-            case 'High': return 'text-red-400';
-            case 'Medium': return 'text-yellow-400';
-            case 'Low': return 'text-blue-400';
-            default: return 'text-[#787876]';
+            case 'High': return 'text-red-600';
+            case 'Medium': return 'text-yellow-600';
+            case 'Low': return 'text-blue-600';
+            default: return 'text-[var(--text-secondary)]';
         }
     };
     return (
         <div>
-            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">System Alerts</h2>
-            <p className="text-[#787876] mb-6">Priority alerts requiring dispatcher attention.</p>
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg">
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">System Alerts</h2>
+            <p className="text-[var(--text-secondary)] mb-6">Priority alerts requiring dispatcher attention.</p>
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-sm">
                 {alerts.length > 0 ? (
-                    <ul className="divide-y divide-[#535347]/50">
+                    <ul className="divide-y divide-[var(--border-primary)]">
                         {alerts.map(alert => (
-                            <li key={alert.id} className="p-4 hover:bg-[#535347]/10 flex items-center justify-between">
+                            <li key={alert.id} className="p-4 hover:bg-[var(--bg-primary)] flex items-center justify-between">
                                 <div className="flex items-center">
                                     <BellIcon className={`h-5 w-5 mr-4 flex-shrink-0 ${getSeverityColor(alert.severity)}`} />
                                     <div>
-                                        <p className="text-sm font-medium text-[#c4c4c4]">{alert.message}</p>
-                                        <p className="text-xs text-[#787876]">{alert.time}</p>
+                                        <p className="text-sm font-medium text-[var(--text-primary)]">{alert.message}</p>
+                                        <p className="text-xs text-[var(--text-secondary)]">{alert.time}</p>
                                     </div>
                                 </div>
                                 <button 
                                     onClick={() => onAcknowledge(alert.id)}
-                                    className="bg-transparent border border-[#535347] text-xs text-[#c4c4c4] font-semibold py-1 px-3 rounded-md hover:bg-[#535347]/50 hover:border-[#aeae5a] transition">
+                                    className="bg-transparent border border-[var(--border-secondary)] text-xs text-[var(--text-secondary)] font-semibold py-1 px-3 rounded-md hover:bg-[var(--border-tertiary)] hover:border-[var(--accent-primary)] transition">
                                     Acknowledge
                                 </button>
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <div className="text-center p-12 text-[#787876]">
-                        <BellIcon className="w-12 h-12 mx-auto text-[#787876] mb-4" />
-                        <h3 className="text-xl font-semibold text-[#c4c4c4]">No Active Alerts</h3>
+                    <div className="text-center p-12 text-[var(--text-secondary)]">
+                        <BellIcon className="w-12 h-12 mx-auto text-[var(--text-secondary)] mb-4" />
+                        <h3 className="text-xl font-semibold text-[var(--text-primary)]">No Active Alerts</h3>
                         <p className="mt-2">All systems are normal.</p>
                     </div>
                 )}

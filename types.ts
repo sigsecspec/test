@@ -1,25 +1,22 @@
 export enum UserRole {
-  // Management Hierarchy
+  // Executive
   Owner = "Owner",
   CoOwner = "Co-Owner",
   DeputyChief = "Deputy Chief",
   Commander = "Commander",
+  // Operations
   OperationsDirector = "Operations Director",
   OperationsManager = "Operations Manager",
+  Dispatch = "Dispatch",
+  Secretary = "Secretary",
+  // Field
   Supervisor = "Supervisor",
   TrainingOfficer = "Training Officer",
   LeadGuard = "Lead Guard",
   Guard = "Guard",
-
-  // Support Roles
-  Dispatch = "Dispatch",
-  Secretary = "Secretary",
-
-  // External Roles
+  // External
   Client = "Client",
 }
-
-export type GuardType = 'Seasonal' | 'Flex' | 'Base';
 
 export interface User {
     id: string;
@@ -30,9 +27,8 @@ export interface User {
     rank: string;
     level: number;
     certifications: string[];
-    guardType?: GuardType;
     weeklyHours: number;
-    performanceRating: number; // Average of client ratings
+    performanceRating: number;
 }
 
 export interface Client {
@@ -161,4 +157,28 @@ export interface PayrollEntry {
   hours: number;
   payRate: number;
   totalPay: number;
+  paymentConfirmed: boolean;
+}
+
+export type PromotionStatus = 'Pending' | 'Approved' | 'Denied';
+
+export interface Promotion {
+  id: string;
+  userId: string;
+  toRole: UserRole.Supervisor | UserRole.TrainingOfficer;
+  status: PromotionStatus;
+  applicationText: string;
+  dateApplied: Date;
+}
+
+export type AppealStatus = 'Pending' | 'Approved' | 'Denied';
+
+export interface Appeal {
+  id: string;
+  userId: string;
+  type: 'Application' | 'Training Retake';
+  originalId: string; // ID of the Application or Training Module
+  reason: string;
+  status: AppealStatus;
+  dateSubmitted: Date;
 }

@@ -7,43 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       :root {
-        /* Desktop Theme: "Command Center" */
-        --bg-primary: #0f0f0f;
-        --bg-secondary: #1a1a1a;
-        --border-primary: #535347;
-        --border-primary-hover: #aeae5a;
-        --border-secondary: #535347;
-        --border-tertiary: #535347;
-        --text-primary: #c4c4c4;
-        --text-secondary: #787876;
-        --accent-primary: #aeae5a;
-        --accent-primary-text: #0f0f0f;
-        --accent-secondary: #333333;
-        --accent-secondary-hover: #444444;
-        --status-active-bg: bg-blue-900/40;
-        --status-active-text: text-blue-300;
-        --shadow-color: rgba(174, 174, 90, 0.1);
-      }
-
-      @media (max-width: 767px) {
-        :root {
-          /* Mobile Theme: "Field Operative" */
-          --bg-primary: #121212;
-          --bg-secondary: #1E1E1E;
-          --border-primary: #444444;
-          --border-primary-hover: #FFBF00;
-          --border-secondary: #333333;
-          --border-tertiary: #2a2a2a;
-          --text-primary: #E0E0E0;
-          --text-secondary: #9E9E9E;
-          --accent-primary: #FFBF00;
-          --accent-primary-text: #121212;
-          --accent-secondary: #333333;
-          --accent-secondary-hover: #444444;
-          --status-active-bg: bg-amber-500/20;
-          --status-active-text: text-amber-400;
-          --shadow-color: rgba(255, 191, 0, 0.1);
-        }
+        /* New Theme: "Protect with Purpose" */
+        --bg-primary: #f8f9fa; /* Off-white */
+        --bg-secondary: #ffffff; /* White */
+        --border-primary: #dee2e6; /* Light grey */
+        --border-primary-hover: #aeae5a; /* Sage */
+        --border-secondary: #ced4da; /* Grey */
+        --border-tertiary: #e9ecef; /* Lighter grey */
+        --text-primary: #0f0f0f; /* Black */
+        --text-secondary: #787876; /* Grey */
+        --accent-primary: #aeae5a; /* Sage */
+        --accent-primary-text: #ffffff; /* White */
+        --accent-secondary: #535347; /* Ebony */
+        --accent-secondary-hover: #40403a;
+        --status-active-bg: bg-blue-100;
+        --status-active-text: text-blue-800;
+        --shadow-color: rgba(0, 0, 0, 0.05);
       }
 
       body {
@@ -60,7 +39,7 @@
         background: var(--bg-primary);
       }
       ::-webkit-scrollbar-thumb {
-        background-color: var(--border-primary);
+        background-color: var(--border-secondary);
         border-radius: 4px;
         border: 2px solid var(--bg-primary);
       }

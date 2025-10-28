@@ -15,21 +15,21 @@ const SpotCheckModal: React.FC<SpotCheckModalProps> = ({ isOpen, onClose, onSubm
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="relative bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-[#c4c4c4] mb-4">Log Spot Check</h3>
+            <div className="relative bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 w-full max-w-lg shadow-xl" onClick={e => e.stopPropagation()}>
+                <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Log Spot Check</h3>
                 <div className="space-y-4">
-                    <select value={status} onChange={e => setStatus(e.target.value as SpotCheck['status'])} className="w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]">
+                    <select value={status} onChange={e => setStatus(e.target.value as SpotCheck['status'])} className="w-full bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-md py-2 px-3 text-[var(--text-primary)]">
                         <option>Guard Present</option>
                         <option>Guard Absent</option>
                         <option>Uniform OK</option>
                         <option>Issue Reported</option>
                     </select>
-                    <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={4} placeholder="Add notes..." className="w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]"></textarea>
+                    <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={4} placeholder="Add notes..." className="w-full bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-md py-2 px-3 text-[var(--text-primary)]"></textarea>
                 </div>
                 <div className="flex justify-end mt-4">
-                    <button onClick={() => onSubmit(status, notes)} className="bg-[#aeae5a] text-[#0f0f0f] font-bold py-2 px-4 rounded-md hover:bg-opacity-90">Log Check</button>
+                    <button onClick={() => onSubmit(status, notes)} className="bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 px-4 rounded-md hover:bg-opacity-90">Log Check</button>
                 </div>
-                 <button onClick={onClose} className="absolute top-3 right-3 text-[#787876] hover:text-[#c4c4c4]"><XIcon className="h-6 w-6"/></button>
+                 <button onClick={onClose} className="absolute top-3 right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><XIcon className="h-6 w-6"/></button>
             </div>
         </div>
     );
@@ -57,26 +57,26 @@ const FieldOversight: React.FC<FieldOversightProps> = ({ missions, users, client
     return (
         <>
             <div>
-                <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">Field Oversight</h2>
-                <p className="text-[#787876] mb-6">Monitor all currently active and assigned missions.</p>
+                <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Field Oversight</h2>
+                <p className="text-[var(--text-secondary)] mb-6">Monitor all currently active and assigned missions.</p>
 
                 {activeMissions.length > 0 ? (
                     <div className="space-y-6">
                         {activeMissions.map((mission) => {
                             const spotChecks = getSpotChecksForMission(mission.id);
                             return (
-                            <div key={mission.id} className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-4">
+                            <div key={mission.id} className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-4 shadow-sm">
                                 <div className="flex justify-between items-center">
                                     <div>
-                                        <h3 className="font-bold text-[#c4c4c4]">{mission.title} @ {mission.site}</h3>
-                                        <p className="text-sm text-[#787876]">Guard: {getUserName(mission.claimedBy)}</p>
+                                        <h3 className="font-bold text-[var(--text-primary)]">{mission.title} @ {mission.site}</h3>
+                                        <p className="text-sm text-[var(--text-secondary)]">Guard: {getUserName(mission.claimedBy)}</p>
                                     </div>
                                     <button onClick={() => setCheckingMissionId(mission.id)} className="bg-blue-600 text-white font-bold py-1 px-3 text-sm rounded-md hover:bg-blue-500">Log Spot Check</button>
                                 </div>
                                 {spotChecks.length > 0 && (
-                                    <div className="mt-3 pt-3 border-t border-[#535347]/50">
-                                        <h4 className="text-xs font-semibold text-[#787876]">Spot Check Log:</h4>
-                                        <ul className="text-xs text-[#c4c4c4] list-disc list-inside">
+                                    <div className="mt-3 pt-3 border-t border-[var(--border-tertiary)]">
+                                        <h4 className="text-xs font-semibold text-[var(--text-secondary)]">Spot Check Log:</h4>
+                                        <ul className="text-xs text-[var(--text-primary)] list-disc list-inside">
                                             {spotChecks.map(sc => <li key={sc.id}>{sc.time.toLocaleTimeString()}: {sc.status} - {sc.notes}</li>)}
                                         </ul>
                                     </div>
@@ -85,8 +85,8 @@ const FieldOversight: React.FC<FieldOversightProps> = ({ missions, users, client
                         )})}
                     </div>
                 ) : (
-                    <div className="text-center py-12 bg-[#0f0f0f] border border-[#535347] rounded-lg">
-                        <p className="text-[#787876]">No missions are currently active.</p>
+                    <div className="text-center py-12 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg">
+                        <p className="text-[var(--text-secondary)]">No missions are currently active.</p>
                     </div>
                 )}
             </div>

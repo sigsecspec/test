@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry } from './types';
+import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal, UserRole } from './types';
 import DashboardScreen from './components/DashboardScreen';
 import HomePage from './components/HomePage';
 import LoginModal from './components/LoginModal';
@@ -19,7 +19,8 @@ import {
   getIncidentReports,
   getVehicles,
   getPayrollRuns,
-  getPayrollEntriesForRun,
+  getPromotions,
+  getAppeals,
   claimMission as dbClaimMission,
   addMission as dbAddMission,
   updateApplicationStatus as dbUpdateApplicationStatus,
@@ -49,6 +50,11 @@ import {
   updateVehicle as dbUpdateVehicle,
   createPayrollRun as dbCreatePayrollRun,
   approvePayrollRun as dbApprovePayrollRun,
+  confirmPayment as dbConfirmPayment,
+  addPromotion as dbAddPromotion,
+  updatePromotionStatus as dbUpdatePromotionStatus,
+  addAppeal as dbAddAppeal,
+  updateAppealStatus as dbUpdateAppealStatus,
 } from './database';
 
 const App: React.FC = () => {
@@ -65,6 +71,8 @@ const App: React.FC = () => {
   const [incidentReports, setIncidentReports] = useState<IncidentReport[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [payrollRuns, setPayrollRuns] = useState<PayrollRun[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -81,6 +89,8 @@ const App: React.FC = () => {
     setIncidentReports(getIncidentReports());
     setVehicles(getVehicles());
     setPayrollRuns(getPayrollRuns());
+    setPromotions(getPromotions());
+    setAppeals(getAppeals());
   };
 
   useEffect(() => {
@@ -130,10 +140,15 @@ const App: React.FC = () => {
   const handleUpdateVehicle = (id: string, data: Partial<Vehicle>) => { dbUpdateVehicle(id, data); loadData(); };
   const handleCreatePayrollRun = (startDate: Date, endDate: Date) => { dbCreatePayrollRun(startDate, endDate); loadData(); };
   const handleApprovePayrollRun = (id: string) => { dbApprovePayrollRun(id); loadData(); };
+  const handleConfirmPayment = (entryId: string) => { dbConfirmPayment(entryId); loadData(); };
+  const handleAddPromotion = (data: Omit<Promotion, 'id' | 'status' | 'dateApplied'>) => { dbAddPromotion(data); loadData(); };
+  const handleUpdatePromotionStatus = (id: string, status: 'Approved' | 'Denied') => { dbUpdatePromotionStatus(id, status); loadData(); };
+  const handleAddAppeal = (data: Omit<Appeal, 'id' | 'status' | 'dateSubmitted'>) => { dbAddAppeal(data); loadData(); };
+  const handleUpdateAppealStatus = (id: string, status: 'Approved' | 'Denied') => { dbUpdateAppealStatus(id, status); loadData(); };
 
 
   if (isLoading || !systemSettings) {
-    return <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-[#c4c4c4]">Loading System...</div>
+    return <div className="min-h-screen bg-gray-100 flex items-center justify-center text-gray-700">Loading System...</div>
   }
 
   return (
@@ -153,6 +168,8 @@ const App: React.FC = () => {
           incidentReports={incidentReports}
           vehicles={vehicles}
           payrollRuns={payrollRuns}
+          promotions={promotions}
+          appeals={appeals}
           onLogout={handleLogout}
           onClaimMission={handleClaimMission}
           onAddMission={handleAddMission}
@@ -183,6 +200,11 @@ const App: React.FC = () => {
           onUpdateVehicle={handleUpdateVehicle}
           onCreatePayrollRun={handleCreatePayrollRun}
           onApprovePayrollRun={handleApprovePayrollRun}
+          onConfirmPayment={handleConfirmPayment}
+          onAddPromotion={handleAddPromotion}
+          onUpdatePromotionStatus={handleUpdatePromotionStatus}
+          onAddAppeal={handleAddAppeal}
+          onUpdateAppealStatus={handleUpdateAppealStatus}
         />
       ) : (
         <>

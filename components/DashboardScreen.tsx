@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun } from '../types';
+import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, Promotion, Appeal } from '../types';
 import Sidebar from './Sidebar';
 import { ShieldIcon, LogoutIcon, MenuIcon } from './Icons';
 
@@ -15,7 +15,6 @@ import MissionControl from './views/MissionControl';
 import ActiveMissions from './views/ActiveMissions';
 import Analytics from './views/Analytics';
 import Approvals from './views/Approvals';
-// FIX: Aliased SystemSettings component import to avoid name collision with the SystemSettings type.
 import SystemSettingsView from './views/SystemSettings';
 import FieldOversight from './views/FieldOversight';
 import TrainingApprovals from './views/TrainingApprovals';
@@ -32,6 +31,8 @@ import ClientGuardRoster from './views/ClientGuardRoster';
 import HallOfFame from './views/HallOfFame';
 import Payroll from './views/Payroll';
 import VehicleManagement from './views/VehicleManagement';
+import Promotions from './views/Promotions';
+import Appeals from './views/Appeals';
 
 
 interface DashboardScreenProps {
@@ -48,6 +49,8 @@ interface DashboardScreenProps {
   incidentReports: IncidentReport[];
   vehicles: Vehicle[];
   payrollRuns: PayrollRun[];
+  promotions: Promotion[];
+  appeals: Appeal[];
   onLogout: () => void;
   onClaimMission: (missionId: string, guardId: string) => void;
   onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
@@ -78,16 +81,18 @@ interface DashboardScreenProps {
   onUpdateVehicle: (id: string, data: Partial<Vehicle>) => void;
   onCreatePayrollRun: (startDate: Date, endDate: Date) => void;
   onApprovePayrollRun: (id: string) => void;
+  onConfirmPayment: (entryId: string) => void;
+  onAddPromotion: (data: Omit<Promotion, 'id'|'status'|'dateApplied'>) => void;
+  onUpdatePromotionStatus: (id: string, status: 'Approved' | 'Denied') => void;
+  onAddAppeal: (data: Omit<Appeal, 'id'|'status'|'dateSubmitted'>) => void;
+  onUpdateAppealStatus: (id: string, status: 'Approved' | 'Denied') => void;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
   const { 
     user, users, missions, clients, sites, alerts, applications, approvals, hallOfFameEntries, systemSettings, 
-    incidentReports, vehicles, payrollRuns, onLogout, 
-    onClaimMission, onAddMission, onUpdateApplication, onProcessApproval, onAcknowledgeAlert, onAddSite,
-    onCheckIn, onCheckOut, onSubmitReport, onAddIncidentReport, onRateMission, onAddSpotCheck, onUpdateRank, onUpdateCerts, onUpdateClientGuardList,
-    onUpdateMission, onCancelMission, onUpdateUser, onDeleteUser, onAddClient, onUpdateClient, onDeleteClient,
-    onUpdateSite, onDeleteSite, onUpdateSystemSettings, onAddVehicle, onUpdateVehicle, onCreatePayrollRun, onApprovePayrollRun
+    incidentReports, vehicles, payrollRuns, promotions, appeals, onLogout, 
+    ...handlers
   } = props;
   const [activeView, setActiveView] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -97,15 +102,15 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
       case 'Dashboard':
         return (
           <>
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 mb-6">
-              <h2 className="text-2xl font-bold text-[#c4c4c4]">Welcome, {user.firstName}!</h2>
-              <p className="text-[#787876]">You are logged in as: <span className="font-semibold text-[#aeae5a]">{user.role}</span></p>
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 mb-6 shadow-sm">
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Welcome, {user.firstName}!</h2>
+              <p className="text-[var(--text-secondary)]">You are logged in as: <span className="font-semibold text-[var(--accent-primary)]">{user.role}</span></p>
             </div>
             {[UserRole.Owner, UserRole.CoOwner, UserRole.DeputyChief, UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager].includes(user.role) 
               ? <Analytics users={users} missions={missions} clients={clients} />
-              : <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6">
-                  <h3 className="text-xl font-semibold text-[#c4c4c4] border-b border-[#535347] pb-2 mb-4">System Status</h3>
-                  <p className="text-[#787876]">
+              : <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 shadow-sm">
+                  <h3 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 mb-4">System Status</h3>
+                  <p className="text-[var(--text-secondary)]">
                     All systems are currently operational. Select an item from the sidebar to begin.
                   </p>
                 </div>
@@ -114,73 +119,75 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
         );
       // Guard & Lead Views
       case 'Mission Board':
-        return <MissionBoard user={user} missions={missions} onClaimMission={onClaimMission} clients={clients} />;
+        return <MissionBoard user={user} missions={missions} onClaimMission={handlers.onClaimMission} clients={clients} />;
       case 'Mission Hub':
-        return <MyMissions user={user} missions={missions} onCheckIn={onCheckIn} onCheckOut={onCheckOut} onSubmitReport={onSubmitReport} onAddIncidentReport={onAddIncidentReport} />;
+        return <MyMissions user={user} missions={missions} onCheckIn={handlers.onCheckIn} onCheckOut={handlers.onCheckOut} onSubmitReport={handlers.onSubmitReport} onAddIncidentReport={handlers.onAddIncidentReport} />;
       case 'My Profile':
         return <MyProfile user={user} />;
       case 'Training':
-          return <Training user={user} />;
+          return <Training user={user} onAddAppeal={handlers.onAddAppeal} />;
       case 'Site Roster':
         return <SiteRoster user={user} missions={missions} users={users} />;
       case 'My Earnings':
-        return <Earnings user={user} missions={missions} />;
+        return <Earnings user={user} payrollRuns={payrollRuns} onConfirmPayment={handlers.onConfirmPayment} />;
+      case 'Promotions':
+        return <Promotions user={user} users={users} promotions={promotions} onAddPromotion={handlers.onAddPromotion} onUpdatePromotionStatus={handlers.onUpdatePromotionStatus} />;
       // Client Views
       case 'Post Mission':
-        return <PostMission clients={clients} onAddMission={onAddMission} user={user} sites={sites} />;
+        return <PostMission clients={clients} onAddMission={handlers.onAddMission} user={user} sites={sites} />;
       case 'Active Missions':
-        return <ActiveMissions user={user} missions={missions} users={users} clients={clients} incidentReports={incidentReports} onRateMission={onRateMission} />;
+        return <ActiveMissions user={user} missions={missions} users={users} clients={clients} incidentReports={incidentReports} onRateMission={handlers.onRateMission} />;
       case 'My Sites':
-        return <MySites user={user} clients={clients} sites={sites} onAddSite={onAddSite} onUpdateSite={onUpdateSite} onDeleteSite={onDeleteSite} />;
+        return <MySites user={user} clients={clients} sites={sites} onAddSite={handlers.onAddSite} onUpdateSite={handlers.onUpdateSite} onDeleteSite={handlers.onDeleteSite} />;
       case 'Billing':
         return <Billing user={user} missions={missions} clients={clients} />;
       case 'Guard Roster': // For Client
         const client = clients.find(c => c.userId === user.id);
-        return client ? <ClientGuardRoster client={client} allGuards={users.filter(u => u.role === UserRole.Guard || u.role === UserRole.LeadGuard)} onUpdateList={onUpdateClientGuardList}/> : null;
+        return client ? <ClientGuardRoster client={client} allGuards={users.filter(u => u.role === UserRole.Guard || u.role === UserRole.LeadGuard)} onUpdateList={handlers.onUpdateClientGuardList}/> : null;
       // Management Views
-      case 'Guard Management':
       case 'User Management':
-        return <GuardManagement users={users} onUpdateUser={onUpdateUser} onDeleteUser={onDeleteUser} />;
+        return <GuardManagement users={users} onUpdateUser={handlers.onUpdateUser} onDeleteUser={handlers.onDeleteUser} />;
        case 'Client Management':
-        return <ClientManagement clients={clients} users={users} onAddClient={onAddClient} onUpdateClient={onUpdateClient} onDeleteClient={onDeleteClient} />;
+        return <ClientManagement clients={clients} users={users} onAddClient={handlers.onAddClient} onUpdateClient={handlers.onUpdateClient} onDeleteClient={handlers.onDeleteClient} />;
       case 'Mission Control':
-        return <MissionControl missions={missions} users={users} clients={clients} sites={sites} onUpdateMission={onUpdateMission} onCancelMission={onCancelMission}/>;
+        return <MissionControl missions={missions} users={users} clients={clients} sites={sites} onUpdateMission={handlers.onUpdateMission} onCancelMission={handlers.onCancelMission}/>;
       case 'Approvals':
-        return <Approvals approvals={approvals} users={users} onProcessApproval={onProcessApproval} />;
+        return <Approvals approvals={approvals} users={users} onProcessApproval={handlers.onProcessApproval} />;
       case 'Analytics':
         return <Analytics users={users} missions={missions} clients={clients} />;
       case 'System Settings':
-        // FIX: Used the aliased component name `SystemSettingsView` to render the component.
-        return <SystemSettingsView systemSettings={systemSettings} onUpdateSystemSettings={onUpdateSystemSettings} />;
+        return <SystemSettingsView systemSettings={systemSettings} onUpdateSystemSettings={handlers.onUpdateSystemSettings} />;
       case 'Payroll':
-        return <Payroll payrollRuns={payrollRuns} users={users} onCreatePayrollRun={onCreatePayrollRun} onApprovePayrollRun={onApprovePayrollRun} />;
+        return <Payroll payrollRuns={payrollRuns} users={users} onCreatePayrollRun={handlers.onCreatePayrollRun} onApprovePayrollRun={handlers.onApprovePayrollRun} />;
       case 'Vehicle Management':
-        return <VehicleManagement vehicles={vehicles} missions={missions} onAddVehicle={onAddVehicle} onUpdateVehicle={onUpdateVehicle} />;
+        return <VehicleManagement vehicles={vehicles} missions={missions} onAddVehicle={handlers.onAddVehicle} onUpdateVehicle={handlers.onUpdateVehicle} />;
+      case 'Appeals':
+        return <Appeals user={user} users={users} appeals={appeals} onUpdateAppealStatus={handlers.onUpdateAppealStatus} />;
       // Supervisor Views
       case 'Field Oversight':
-        return <FieldOversight missions={missions} users={users} clients={clients} supervisorId={user.id} onAddSpotCheck={onAddSpotCheck} />;
+        return <FieldOversight missions={missions} users={users} clients={clients} supervisorId={user.id} onAddSpotCheck={handlers.onAddSpotCheck} />;
       case 'Training Approvals':
         return <TrainingApprovals users={users} />;
       // Training Officer Views
       case 'Training Management':
-        return <TrainingManagement users={users} onUpdateCerts={onUpdateCerts} />;
+        return <TrainingManagement users={users} onUpdateCerts={handlers.onUpdateCerts} />;
       // Dispatch Views
       case 'Live Control':
         return <LiveControl missions={missions} users={users} clients={clients} />;
       case 'Alerts':
-        return <Alerts alerts={alerts} onAcknowledge={onAcknowledgeAlert} />;
+        return <Alerts alerts={alerts} onAcknowledge={handlers.onAcknowledgeAlert} />;
       // Secretary Views
       case 'Applications':
-        return <Applications applications={applications} onUpdateApplication={onUpdateApplication} />;
+        return <Applications applications={applications} onUpdateApplication={handlers.onUpdateApplication} />;
       case 'Communications':
         return <Communications />;
       case 'Hall of Fame':
         return <HallOfFame users={users} hallOfFameEntries={hallOfFameEntries} />;
       default:
         return (
-          <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6">
-            <h3 className="text-xl font-semibold text-[#c4c4c4]">{activeView}</h3>
-            <p className="text-[#787876]">This view is ready for implementation.</p>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6">
+            <h3 className="text-xl font-semibold text-[var(--text-primary)]">{activeView}</h3>
+            <p className="text-[var(--text-secondary)]">This view is ready for implementation.</p>
           </div>
         );
     }
@@ -200,21 +207,21 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
          <Sidebar userRole={user.role} activeView={activeView} setActiveView={setActiveView} onLogout={onLogout} />
       </div>
       <div className="flex-1 flex flex-col w-full">
-        <header className="bg-[#0f0f0f] border-b border-[#535347] shadow-lg shadow-[#aeae5a]/5 w-full">
+        <header className="bg-[var(--bg-secondary)]/80 backdrop-blur-sm border-b border-[var(--border-primary)] shadow-sm sticky top-0 z-20 w-full">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
-                 <button className="md:hidden text-[#c4c4c4] mr-4" onClick={() => setSidebarOpen(true)}>
+                 <button className="md:hidden text-[var(--text-secondary)] mr-4" onClick={() => setSidebarOpen(true)}>
                     <MenuIcon className="h-6 w-6"/>
                  </button>
-                <ShieldIcon className="w-8 h-8 text-[#aeae5a] mr-3" />
-                <h1 className="text-lg font-bold text-[#c4c4c4] hidden sm:block">
-                  Signature Security <span className="font-light text-[#aeae5a]">Specialists</span>
+                <ShieldIcon className="w-8 h-8 text-[var(--accent-primary)] mr-3" />
+                <h1 className="text-lg font-bold text-[var(--text-primary)] hidden sm:block">
+                  Signature Security <span className="font-light text-[var(--accent-primary)]">Specialists</span>
                 </h1>
               </div>
               <button
                 onClick={onLogout}
-                className="flex items-center bg-transparent border border-[#535347] text-[#c4c4c4] font-semibold py-2 px-4 rounded-md hover:bg-[#535347]/50 hover:border-[#aeae5a] transition"
+                className="flex items-center bg-transparent border border-[var(--border-primary)] text-[var(--text-secondary)] font-semibold py-2 px-4 rounded-md hover:bg-[var(--border-tertiary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition"
                 aria-label="Logout"
               >
                 <LogoutIcon className="w-5 h-5 md:mr-2" />

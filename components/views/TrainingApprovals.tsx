@@ -15,19 +15,19 @@ const TrainingApprovals: React.FC<TrainingApprovalsProps> = ({ users }) => {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">Training Approvals</h2>
-            <p className="text-[#787876] mb-6">Review and approve completed training modules for guards.</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Training Approvals</h2>
+            <p className="text-[var(--text-secondary)] mb-6">Review and approve completed training modules for guards.</p>
             
             {guardsNeedingApproval.length > 0 ? (
-                <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg">
-                    <ul className="divide-y divide-[#535347]/50">
+                <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg">
+                    <ul className="divide-y divide-[var(--border-tertiary)]">
                         {guardsNeedingApproval.map(guard => (
-                            <li key={guard.id} className="p-4 hover:bg-[#535347]/10 flex items-center justify-between">
+                            <li key={guard.id} className="p-4 hover:bg-[var(--bg-primary)] flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-[#c4c4c4]">{guard.firstName} {guard.lastName}</p>
-                                    <p className="text-xs text-[#787876]">Submitted 'Level 3 Taser Certification' for review.</p>
+                                    <p className="text-sm font-medium text-[var(--text-primary)]">{guard.firstName} {guard.lastName}</p>
+                                    <p className="text-xs text-[var(--text-secondary)]">Submitted 'Level 3 Taser Certification' for review.</p>
                                 </div>
-                                <button className="bg-transparent border border-[#535347] text-xs text-[#aeae5a] font-semibold py-1 px-3 rounded-md hover:bg-[#aeae5a]/20 hover:border-[#aeae5a] transition">
+                                <button className="bg-transparent border border-[var(--border-secondary)] text-xs text-[var(--accent-primary)] font-semibold py-1 px-3 rounded-md hover:bg-[var(--accent-primary)]/10 hover:border-[var(--accent-primary)] transition">
                                     Review
                                 </button>
                             </li>
@@ -35,10 +35,10 @@ const TrainingApprovals: React.FC<TrainingApprovalsProps> = ({ users }) => {
                     </ul>
                 </div>
             ) : (
-                <div className="text-center py-12 bg-[#0f0f0f] border border-[#535347] rounded-lg">
-                    <AcademicCapIcon className="w-12 h-12 mx-auto text-[#787876] mb-4" />
-                    <h3 className="text-xl font-semibold text-[#c4c4c4]">No Pending Approvals</h3>
-                    <p className="text-[#787876] mt-2">All training submissions have been reviewed.</p>
+                <div className="text-center py-12 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg">
+                    <AcademicCapIcon className="w-12 h-12 mx-auto text-[var(--text-secondary)] mb-4" />
+                    <h3 className="text-xl font-semibold text-[var(--text-primary)]">No Pending Approvals</h3>
+                    <p className="text-[var(--text-secondary)] mt-2">All training submissions have been reviewed.</p>
                 </div>
             )}
         </div>

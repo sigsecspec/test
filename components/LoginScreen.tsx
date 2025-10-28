@@ -26,7 +26,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ users, onLogin }) => {
                 <button
                     key={user.id}
                     onClick={() => onLogin(user.email)}
-                    className="w-full flex items-center text-left bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary-hover)] border border-[var(--border-tertiary)] text-[var(--text-primary)] p-3 rounded-md transition-all duration-150 transform hover:border-[var(--border-primary-hover)]"
+                    className="w-full flex items-center text-left bg-[var(--bg-primary)] hover:bg-[var(--border-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] p-3 rounded-md transition-all duration-150 transform hover:border-[var(--border-primary-hover)]"
                 >
                   <div className="w-8 h-8 rounded-full bg-[var(--accent-primary)]/20 flex items-center justify-center mr-3 flex-shrink-0">
                     <UserIcon className="w-5 h-5 text-[var(--accent-primary)]" />

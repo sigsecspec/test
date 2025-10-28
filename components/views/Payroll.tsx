@@ -14,38 +14,37 @@ const PayrollDetailsModal: React.FC<{ run: PayrollRun; users: User[]; onClose: (
     const entries = getPayrollEntriesForRun(run.id);
     const getUserName = (userId: string) => users.find(u => u.id === userId)?.firstName + ' ' + users.find(u => u.id === userId)?.lastName || 'Unknown';
     
-    const entriesByUser = entries.reduce((acc, entry) => {
-        acc[entry.userId] = acc[entry.userId] || { total: 0, missions: 0 };
-        acc[entry.userId].total += entry.totalPay;
-        acc[entry.userId].missions += 1;
-        return acc;
-    }, {} as Record<string, { total: number; missions: number }>);
-
     return (
          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="relative bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 w-full max-w-2xl" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-[#c4c4c4] mb-4">Payroll Details: {run.startDate.toLocaleDateString()} - {run.endDate.toLocaleDateString()}</h3>
+            <div className="relative bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 w-full max-w-4xl shadow-xl" onClick={e => e.stopPropagation()}>
+                <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Payroll Details: {run.startDate.toLocaleDateString()} - {run.endDate.toLocaleDateString()}</h3>
                 <div className="max-h-[60vh] overflow-y-auto">
-                    <table className="min-w-full divide-y divide-[#535347]">
-                        <thead className="bg-[#535347]/20 sticky top-0">
+                    <table className="min-w-full divide-y divide-[var(--border-primary)]">
+                        <thead className="bg-[var(--bg-primary)] sticky top-0">
                             <tr>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-[#c4c4c4] uppercase">Guard</th>
-                                <th className="px-4 py-2 text-right text-xs font-medium text-[#c4c4c4] uppercase">Missions</th>
-                                <th className="px-4 py-2 text-right text-xs font-medium text-[#c4c4c4] uppercase">Total Pay</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Guard</th>
+                                <th className="px-4 py-2 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">Missions</th>
+                                <th className="px-4 py-2 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">Hours</th>
+                                <th className="px-4 py-2 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">Total Pay</th>
+                                <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-secondary)] uppercase">Status</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#535347]/50">
-                            {Object.entries(entriesByUser).map(([userId, data]) => (
-                                <tr key={userId}>
-                                    <td className="px-4 py-2 text-sm text-[#c4c4c4]">{getUserName(userId)}</td>
-                                    <td className="px-4 py-2 text-sm text-right text-[#c4c4c4]">{data.missions}</td>
-                                    <td className="px-4 py-2 text-sm text-right font-semibold text-[#aeae5a]">${data.total.toFixed(2)}</td>
+                        <tbody className="divide-y divide-[var(--border-tertiary)]">
+                            {entries.map((entry) => (
+                                <tr key={entry.id}>
+                                    <td className="px-4 py-2 text-sm text-[var(--text-primary)]">{getUserName(entry.userId)}</td>
+                                    <td className="px-4 py-2 text-sm text-right text-[var(--text-primary)]">1</td>
+                                    <td className="px-4 py-2 text-sm text-right text-[var(--text-primary)]">{entry.hours.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-sm text-right font-semibold text-[var(--accent-primary)]">${entry.totalPay.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-sm text-center font-semibold">
+                                        {entry.paymentConfirmed ? <span className="text-green-600">Confirmed</span> : <span className="text-yellow-600">Unconfirmed</span>}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-                 <button onClick={onClose} className="absolute top-3 right-3 text-[#787876] hover:text-[#c4c4c4]"><XIcon className="h-6 w-6"/></button>
+                 <button onClick={onClose} className="absolute top-3 right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><XIcon className="h-6 w-6"/></button>
             </div>
         </div>
     );
@@ -66,46 +65,46 @@ const Payroll: React.FC<PayrollProps> = ({ payrollRuns, users, onCreatePayrollRu
     
     const getStatusStyles = (status: PayrollRun['status']) => {
         switch(status) {
-            case 'Pending': return 'bg-yellow-500/20 text-yellow-400';
-            case 'Approved': return 'bg-blue-500/20 text-blue-300';
-            case 'Paid': return 'bg-green-500/20 text-green-400';
+            case 'Pending': return 'bg-yellow-100 text-yellow-800';
+            case 'Approved': return 'bg-blue-100 text-blue-800';
+            case 'Paid': return 'bg-green-100 text-green-800';
         }
     }
 
     return (
         <>
         <div>
-            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">Payroll Management</h2>
-            <p className="text-[#787876] mb-6">Create, review, and approve payroll runs for all personnel.</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Payroll Management</h2>
+            <p className="text-[var(--text-secondary)] mb-6">Create, review, and approve payroll runs for all personnel.</p>
             
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-[#c4c4c4]">Create New Payroll Run</h3>
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-4 mb-6 shadow-sm">
+                <h3 className="font-semibold text-[var(--text-primary)]">Create New Payroll Run</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]" />
-                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]" />
-                    <button onClick={handleCreateRun} className="bg-[#aeae5a] text-[#0f0f0f] font-bold rounded-md hover:bg-opacity-90">Generate Run</button>
+                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md py-2 px-3 text-[var(--text-primary)]" />
+                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md py-2 px-3 text-[var(--text-primary)]" />
+                    <button onClick={handleCreateRun} className="bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold rounded-md hover:bg-opacity-90">Generate Run</button>
                 </div>
             </div>
 
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-[#535347]">
-                    <thead className="bg-[#535347]/20">
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg overflow-hidden shadow-sm">
+                <table className="min-w-full divide-y divide-[var(--border-primary)]">
+                    <thead className="bg-[var(--bg-primary)]">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase">Period</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase">Status</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-[#c4c4c4] uppercase">Total Amount</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-[#c4c4c4] uppercase">Actions</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Period</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Status</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">Total Amount</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#535347]/50">
+                    <tbody className="divide-y divide-[var(--border-tertiary)]">
                         {payrollRuns.map(run => (
                             <tr key={run.id}>
-                                <td className="px-6 py-4 text-sm text-[#c4c4c4]">{run.startDate.toLocaleDateString()} - {run.endDate.toLocaleDateString()}</td>
+                                <td className="px-6 py-4 text-sm text-[var(--text-primary)]">{run.startDate.toLocaleDateString()} - {run.endDate.toLocaleDateString()}</td>
                                 <td className="px-6 py-4"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyles(run.status)}`}>{run.status}</span></td>
-                                <td className="px-6 py-4 text-right text-sm font-semibold text-[#aeae5a]">${run.totalAmount.toFixed(2)}</td>
+                                <td className="px-6 py-4 text-right text-sm font-semibold text-[var(--accent-primary)]">${run.totalAmount.toFixed(2)}</td>
                                 <td className="px-6 py-4 text-right text-sm space-x-4">
-                                    <button onClick={() => setSelectedRun(run)} className="font-semibold text-[#c4c4c4] hover:text-[#aeae5a]">View</button>
-                                    {run.status === 'Pending' && <button onClick={() => onApprovePayrollRun(run.id)} className="font-semibold text-[#aeae5a] hover:text-opacity-80">Approve</button>}
+                                    <button onClick={() => setSelectedRun(run)} className="font-semibold text-[var(--text-primary)] hover:text-[var(--accent-primary)]">View</button>
+                                    {run.status === 'Pending' && <button onClick={() => onApprovePayrollRun(run.id)} className="font-semibold text-[var(--accent-primary)] hover:text-opacity-80">Approve</button>}
                                 </td>
                             </tr>
                         ))}

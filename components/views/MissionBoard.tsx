@@ -33,26 +33,26 @@ const MissionCard: React.FC<{
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     
     return (
-        <div className={`bg-[#0f0f0f] border ${!eligibilityMessage || mission.status !== 'Open' ? 'border-[#535347]' : 'border-red-900/50'} rounded-lg p-4 flex flex-col justify-between shadow-lg`}>
+        <div className={`bg-[var(--bg-secondary)] border ${!eligibilityMessage || mission.status !== 'Open' ? 'border-[var(--border-primary)]' : 'border-red-500/50'} rounded-lg p-4 flex flex-col justify-between shadow-sm`}>
             <div>
                 <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-bold text-[#c4c4c4]">{mission.title}</h3>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${ mission.status === 'Open' ? 'bg-[#aeae5a]/20 text-[#aeae5a]' : 'bg-[#787876]/20 text-[#787876]' }`}>
+                    <h3 className="text-lg font-bold text-[var(--text-primary)]">{mission.title}</h3>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${ mission.status === 'Open' ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : 'bg-[var(--bg-primary)] text-[var(--text-secondary)]' }`}>
                         {mission.status}
                     </span>
                 </div>
-                <p className="text-sm text-[#787876] mt-1">{mission.site}</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">{mission.site}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-[#535347]/50">
-                <div className="flex justify-between items-center text-sm text-[#c4c4c4]"><span><strong className="text-[#aeae5a]">${mission.payRate}/hr</strong></span><span>Level {mission.requiredLevel}+</span></div>
-                <div className="text-xs text-[#787876] mt-2"><p>Start: {mission.startTime.toLocaleString(undefined, options)}</p><p>End: {mission.endTime.toLocaleString(undefined, options)}</p></div>
-                {mission.status === 'Claimed' && claimedByUser && (<p className="text-center text-sm text-[#787876] mt-4">Claimed by: <span className="font-semibold text-[#c4c4c4]">{claimedByUser.firstName} {claimedByUser.lastName}</span></p>)}
+            <div className="mt-4 pt-4 border-t border-[var(--border-tertiary)]">
+                <div className="flex justify-between items-center text-sm text-[var(--text-primary)]"><span><strong className="text-[var(--accent-primary)]">${mission.payRate}/hr</strong></span><span>Level {mission.requiredLevel}+</span></div>
+                <div className="text-xs text-[var(--text-secondary)] mt-2"><p>Start: {mission.startTime.toLocaleString(undefined, options)}</p><p>End: {mission.endTime.toLocaleString(undefined, options)}</p></div>
+                {mission.status === 'Claimed' && claimedByUser && (<p className="text-center text-sm text-[var(--text-secondary)] mt-4">Claimed by: <span className="font-semibold text-[var(--text-primary)]">{claimedByUser.firstName} {claimedByUser.lastName}</span></p>)}
                 {mission.status === 'Open' && (
                     <>
                         {canClaim ? (
-                            <button onClick={() => onClaim(mission.id)} className="w-full mt-4 bg-[#aeae5a] text-[#0f0f0f] font-bold py-2 rounded-md hover:bg-opacity-90 transition">Claim Mission</button>
+                            <button onClick={() => onClaim(mission.id)} className="w-full mt-4 bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 rounded-md hover:bg-opacity-90 transition">Claim Mission</button>
                         ) : (
-                            <p className="text-center text-xs text-red-400 mt-4">{eligibilityMessage}</p>
+                            <p className="text-center text-xs text-red-500 mt-4">{eligibilityMessage}</p>
                         )}
                     </>
                 )}
@@ -76,8 +76,8 @@ const MissionBoard: React.FC<MissionBoardProps> = ({ user, missions, clients, on
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">Mission Board</h2>
-            <p className="text-[#787876] mb-6">Missions from clients who have whitelisted you appear first.</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Mission Board</h2>
+            <p className="text-[var(--text-secondary)] mb-6">Missions from clients who have whitelisted you appear first.</p>
             
             {sortedMissions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -86,8 +86,8 @@ const MissionBoard: React.FC<MissionBoardProps> = ({ user, missions, clients, on
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-12 bg-[#0f0f0f] border border-[#535347] rounded-lg">
-                    <p className="text-[#787876]">No missions posted at this time. Please check back later.</p>
+                <div className="text-center py-12 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg">
+                    <p className="text-[var(--text-secondary)]">No missions posted at this time. Please check back later.</p>
                 </div>
             )}
         </div>

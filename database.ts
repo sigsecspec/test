@@ -1,5 +1,5 @@
 import { UserRole } from './types';
-import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry } from './types';
+import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal } from './types';
 
 // Let's define the shape of our database
 interface Database {
@@ -17,20 +17,22 @@ interface Database {
   vehicles: Vehicle[];
   payrollRuns: PayrollRun[];
   payrollEntries: PayrollEntry[];
+  promotions: Promotion[];
+  appeals: Appeal[];
 }
 
 // Initial seed data
 const initialData: Database = {
   users: [
-    { id: 'user-1', firstName: 'Admin', lastName: 'Owner', email: 'owner@sss.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-2', firstName: 'Jane', lastName: 'Doe', email: 'coowner@sss.com', role: UserRole.CoOwner, rank: 'ASST CHF (Asst. Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-3', firstName: 'John', lastName: 'Smith', email: 'director@sss.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-4', firstName: 'Emily', lastName: 'Jones', email: 'manager@sss.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 5, certifications: ['Management'], weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-1', firstName: 'Admin', lastName: 'Owner', email: 'owner@sss.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
+    { id: 'user-2', firstName: 'Jane', lastName: 'Doe', email: 'coowner@sss.com', role: UserRole.CoOwner, rank: 'ASST CHF (Asst. Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
+    { id: 'user-3', firstName: 'John', lastName: 'Smith', email: 'director@sss.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8 },
+    { id: 'user-4', firstName: 'Emily', lastName: 'Jones', email: 'manager@sss.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 5, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.9 },
     { id: 'user-5', firstName: 'Robert', lastName: 'Brown', email: 'secretary@sss.com', role: UserRole.Secretary, rank: 'N/A', level: 1, certifications: ['Admin'], weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-6', firstName: 'Mike', lastName: 'Davis', email: 'supervisor@sss.com', role: UserRole.Supervisor, rank: 'SGT (Sergeant)', level: 4, certifications: ['Level 4', 'Supervision'], guardType: 'Base', weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-7', firstName: 'Sarah', lastName: 'Wilson', email: 'training@sss.com', role: UserRole.TrainingOfficer, rank: 'CPL (Corporal)', level: 4, certifications: ['Level 4', 'Instructor'], guardType: 'Base', weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-8', firstName: 'David', lastName: 'Clark', email: 'leadguard@sss.com', role: UserRole.LeadGuard, rank: 'CPL (Corporal)', level: 3, certifications: ['Level 3', 'Lead'], guardType: 'Base', weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-9', firstName: 'Chris', lastName: 'Taylor', email: 'guard@sss.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 2, certifications: ['Level 2'], guardType: 'Flex', weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-6', firstName: 'Mike', lastName: 'Davis', email: 'supervisor@sss.com', role: UserRole.Supervisor, rank: 'SGT (Sergeant)', level: 4, certifications: ['Level 4', 'Supervision', 'First Aid/CPR'], weeklyHours: 0, performanceRating: 4.7 },
+    { id: 'user-7', firstName: 'Sarah', lastName: 'Wilson', email: 'training@sss.com', role: UserRole.TrainingOfficer, rank: 'CPL (Corporal)', level: 4, certifications: ['Level 4', 'Instructor', 'First Aid/CPR'], weeklyHours: 0, performanceRating: 4.6 },
+    { id: 'user-8', firstName: 'David', lastName: 'Clark', email: 'leadguard@sss.com', role: UserRole.LeadGuard, rank: 'PVT (Private)', level: 3, certifications: ['Level 3', 'Lead', 'Taser Certified'], weeklyHours: 0, performanceRating: 4.5 },
+    { id: 'user-9', firstName: 'Chris', lastName: 'Taylor', email: 'guard@sss.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 2, certifications: ['Level 2', 'Pepper Spray Certified'], weeklyHours: 0, performanceRating: 4.2 },
     { id: 'user-10', firstName: 'Jessica', lastName: 'Miller', email: 'dispatch@sss.com', role: UserRole.Dispatch, rank: 'N/A', level: 1, certifications: ['Dispatch'], weeklyHours: 0, performanceRating: 0 },
     { id: 'user-11', firstName: 'Kevin', lastName: 'Harris', email: 'client@sss.com', role: UserRole.Client, rank: 'N/A', level: 0, certifications: [], weeklyHours: 0, performanceRating: 0 },
   ],
@@ -50,6 +52,8 @@ const initialData: Database = {
   vehicles: [],
   payrollRuns: [],
   payrollEntries: [],
+  promotions: [],
+  appeals: [],
 };
 
 const DB_KEY = 'sss_db';
@@ -83,6 +87,9 @@ const readDB = (): Database => {
       startDate: new Date(pr.startDate),
       endDate: new Date(pr.endDate),
     }));
+    db.promotions = (db.promotions || []).map((p: any) => ({ ...p, dateApplied: new Date(p.dateApplied) }));
+    db.appeals = (db.appeals || []).map((a: any) => ({ ...a, dateSubmitted: new Date(a.dateSubmitted) }));
+
   // Add new tables if they don't exist
   db.hallOfFame = db.hallOfFame || [];
   db.systemSettings = db.systemSettings || initialData.systemSettings;
@@ -90,6 +97,8 @@ const readDB = (): Database => {
   db.vehicles = db.vehicles || [];
   db.payrollRuns = db.payrollRuns || [];
   db.payrollEntries = db.payrollEntries || [];
+  db.promotions = db.promotions || [];
+  db.appeals = db.appeals || [];
 
   return db;
 };
@@ -122,6 +131,8 @@ export const getIncidentReports = (): IncidentReport[] => readDB().incidentRepor
 export const getVehicles = (): Vehicle[] => readDB().vehicles || [];
 export const getPayrollRuns = (): PayrollRun[] => readDB().payrollRuns.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()) || [];
 export const getPayrollEntriesForRun = (runId: string): PayrollEntry[] => readDB().payrollEntries.filter(p => p.payrollRunId === runId) || [];
+export const getPromotions = (): Promotion[] => readDB().promotions || [];
+export const getAppeals = (): Appeal[] => readDB().appeals || [];
 
 
 export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>): Mission => {
@@ -168,7 +179,7 @@ export const updateApplicationStatus = (applicationId: string, status: Applicati
                 id,
                 firstName: newUserData.firstName || 'N/A', lastName: newUserData.lastName || 'N/A', email: newUserData.email || `${id}@sss.com`,
                 role: newUserData.role || UserRole.Guard, rank: newUserData.rank || 'OFC (Officer)', level: newUserData.level || 1, certifications: newUserData.certifications || [],
-                guardType: newUserData.guardType || 'Flex', weeklyHours: 0, performanceRating: 0
+                weeklyHours: 0, performanceRating: 0
             });
         } else if (application.type === 'New Client') {
             const newClientData = application.data as Partial<Client>;
@@ -446,7 +457,6 @@ export const createPayrollRun = (startDate: Date, endDate: Date): void => {
     missionsInPeriod.forEach(mission => {
         if (!mission.checkOutTime || !mission.checkInTime || !mission.claimedBy) return;
 
-        // Check if this mission is already in another payroll run
         const alreadyProcessed = db.payrollEntries.some(e => e.missionId === mission.id);
         if (alreadyProcessed) return;
 
@@ -461,6 +471,7 @@ export const createPayrollRun = (startDate: Date, endDate: Date): void => {
             hours,
             payRate: mission.payRate,
             totalPay,
+            paymentConfirmed: false,
         });
     });
 
@@ -480,8 +491,66 @@ export const createPayrollRun = (startDate: Date, endDate: Date): void => {
 export const approvePayrollRun = (runId: string): void => {
     const db = readDB();
     const run = db.payrollRuns.find(r => r.id === runId);
-    if (run) {
-        run.status = 'Approved'; // Can be extended to 'Paid' later
+    if (run && run.status === 'Pending') {
+        run.status = 'Approved';
+        writeDB(db);
+    }
+};
+
+export const confirmPayment = (entryId: string): void => {
+    const db = readDB();
+    const entry = db.payrollEntries.find(e => e.id === entryId);
+    if(entry) {
+        entry.paymentConfirmed = true;
+    }
+    const run = db.payrollRuns.find(r => r.id === entry?.payrollRunId);
+    if(run && run.status === 'Approved') {
+      const allConfirmed = db.payrollEntries.filter(e => e.payrollRunId === run.id).every(e => e.paymentConfirmed);
+      if(allConfirmed) {
+        run.status = 'Paid';
+      }
+    }
+    writeDB(db);
+};
+
+
+// Promotions & Appeals
+export const addPromotion = (promotionData: Omit<Promotion, 'id' | 'status' | 'dateApplied'>): void => {
+    const db = readDB();
+    const newPromotion: Promotion = { ...promotionData, id: `promo-${Date.now()}`, status: 'Pending', dateApplied: new Date() };
+    db.promotions.push(newPromotion);
+    writeDB(db);
+};
+
+export const updatePromotionStatus = (promotionId: string, status: 'Approved' | 'Denied'): void => {
+    const db = readDB();
+    const promotion = db.promotions.find(p => p.id === promotionId);
+    if (promotion) {
+        promotion.status = status;
+        if (status === 'Approved') {
+            const user = db.users.find(u => u.id === promotion.userId);
+            if (user) {
+                user.role = promotion.toRole;
+                user.rank = promotion.toRole === UserRole.Supervisor ? 'SGT (Sergeant)' : 'CPL (Corporal)';
+            }
+        }
+        writeDB(db);
+    }
+};
+
+export const addAppeal = (appealData: Omit<Appeal, 'id' | 'status' | 'dateSubmitted'>): void => {
+    const db = readDB();
+    const newAppeal: Appeal = { ...appealData, id: `appeal-${Date.now()}`, status: 'Pending', dateSubmitted: new Date() };
+    db.appeals.push(newAppeal);
+    writeDB(db);
+};
+
+export const updateAppealStatus = (appealId: string, status: 'Approved' | 'Denied'): void => {
+    const db = readDB();
+    const appeal = db.appeals.find(a => a.id === appealId);
+    if (appeal) {
+        appeal.status = status;
+        // Logic to handle approved appeal would go here, e.g., re-opening an application
         writeDB(db);
     }
 };

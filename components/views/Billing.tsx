@@ -26,32 +26,32 @@ const Billing: React.FC<BillingProps> = ({ user, missions, clients }) => {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">Billing & Invoices</h2>
-            <p className="text-[#787876] mb-6">Review your current billing cycle and payment history.</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Billing & Invoices</h2>
+            <p className="text-[var(--text-secondary)] mb-6">Review your current billing cycle and payment history.</p>
 
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 mb-6">
-                <h3 className="text-xl font-semibold text-[#c4c4c4]">Current Cycle Summary</h3>
-                <p className="text-4xl font-bold text-[#aeae5a] mt-2">${totalBilled.toFixed(2)}</p>
-                <p className="text-sm text-[#787876]">Total estimated cost for all posted missions.</p>
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 mb-6 shadow-sm">
+                <h3 className="text-xl font-semibold text-[var(--text-primary)]">Current Cycle Summary</h3>
+                <p className="text-4xl font-bold text-[var(--accent-primary)] mt-2">${totalBilled.toFixed(2)}</p>
+                <p className="text-sm text-[var(--text-secondary)]">Total estimated cost for all posted missions.</p>
             </div>
             
-            <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg overflow-hidden">
-                <h3 className="text-lg font-semibold text-[#c4c4c4] p-4 border-b border-[#535347]">Mission Cost Breakdown</h3>
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg overflow-hidden shadow-sm">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)] p-4 border-b border-[var(--border-primary)]">Mission Cost Breakdown</h3>
                  <div className="overflow-x-auto">
                     <table className="min-w-full">
-                        <thead className="bg-[#535347]/20">
+                        <thead className="bg-[var(--bg-primary)]">
                             <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Mission</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Date</th>
-                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-[#c4c4c4] uppercase tracking-wider">Cost</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Mission</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Date</th>
+                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Cost</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#535347]/50">
+                        <tbody className="divide-y divide-[var(--border-tertiary)]">
                             {clientMissions.map((mission) => (
-                                <tr key={mission.id} className="hover:bg-[#535347]/10">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#c4c4c4]">{mission.title}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#787876]">{mission.startTime.toLocaleDateString(undefined, options)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-[#c4c4c4]">${calculateTotalCost(mission).toFixed(2)}</td>
+                                <tr key={mission.id} className="hover:bg-[var(--bg-primary)]">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{mission.title}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{mission.startTime.toLocaleDateString(undefined, options)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-[var(--text-primary)]">${calculateTotalCost(mission).toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>
