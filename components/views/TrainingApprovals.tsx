@@ -9,8 +9,9 @@ interface TrainingApprovalsProps {
 
 const TrainingApprovals: React.FC<TrainingApprovalsProps> = ({ users }) => {
     
-    // For demonstration, we'll just show the first few guards as needing approval.
-    const guardsNeedingApproval = users.filter(u => u.role === UserRole.Guard).slice(0, 2);
+    // There is no data source for pending training approvals in the database.
+    // To be fully functional with "actual local data", this view should show an empty state.
+    const guardsNeedingApproval: User[] = [];
 
     return (
         <div>

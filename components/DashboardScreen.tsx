@@ -33,13 +33,17 @@ interface DashboardScreenProps {
   users: User[];
   missions: Mission[];
   clients: Client[];
+  sites: any[];
+  alerts: any[];
+  applications: any[];
+  approvals: any[];
   onLogout: () => void;
   onClaimMission: (missionId: string, guardId: string) => void;
   onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ 
-  user, users, missions, clients, onLogout, onClaimMission, onAddMission 
+  user, users, missions, clients, sites, alerts, applications, approvals, onLogout, onClaimMission, onAddMission 
 }) => {
   const [activeView, setActiveView] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -82,7 +86,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       case 'Active Missions':
         return <ActiveMissions user={user} missions={missions} users={users} clients={clients} />;
       case 'My Sites':
-        return <MySites />;
+        return <MySites user={user} clients={clients} sites={sites} />;
       case 'Billing':
         return <Billing user={user} missions={missions} clients={clients} />;
       // Management Views
@@ -95,7 +99,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       case 'Mission Control':
         return <MissionControl missions={missions} users={users} clients={clients} />;
       case 'Approvals':
-        return <Approvals />;
+        return <Approvals approvals={approvals} />;
       case 'Analytics':
         return <Analytics users={users} missions={missions} clients={clients} />;
       case 'System Settings':
@@ -112,10 +116,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       case 'Live Control':
         return <LiveControl missions={missions} users={users} clients={clients} />;
       case 'Alerts':
-        return <Alerts />;
+        return <Alerts alerts={alerts} />;
       // Secretary Views
       case 'Applications':
-        return <Applications />;
+        return <Applications applications={applications} />;
       case 'Communications':
         return <Communications />;
       default:

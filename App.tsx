@@ -3,11 +3,15 @@ import { User, Mission, Client, UserRole } from './types';
 import LoginScreen from './components/LoginScreen';
 import DashboardScreen from './components/DashboardScreen';
 import { 
-  getUserByEmail, 
   initializeDB, 
+  getUserByEmail, 
   getUsers, 
   getMissions, 
   getClients, 
+  getSites,
+  getAlerts,
+  getApplications,
+  getApprovals,
   claimMission as dbClaimMission,
   addMission as dbAddMission,
 } from './database';
@@ -17,6 +21,10 @@ const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [sites, setSites] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [approvals, setApprovals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Function to load all data from the database into state
@@ -24,6 +32,10 @@ const App: React.FC = () => {
     setUsers(getUsers());
     setMissions(getMissions());
     setClients(getClients());
+    setSites(getSites());
+    setAlerts(getAlerts());
+    setApplications(getApplications());
+    setApprovals(getApprovals());
   };
 
   useEffect(() => {
@@ -76,6 +88,10 @@ const App: React.FC = () => {
           users={users}
           missions={missions}
           clients={clients}
+          sites={sites}
+          alerts={alerts}
+          applications={applications}
+          approvals={approvals}
           onLogout={handleLogout}
           onClaimMission={handleClaimMission}
           onAddMission={handleAddMission}
