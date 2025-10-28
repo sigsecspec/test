@@ -1,39 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, UserRole } from '../../types';
 import { XIcon } from '../Icons';
 
-const ranks = ['OFC (Officer)', 'CPL (Corporal)', 'SGT (Sergeant)', 'LT (Lieutenant)', 'CAP (Captain)', 'CMD (Commander)', 'DPT CHF (Deputy Chief)', 'ASST CHF (Asst. Chief)', 'CHF (Chief)'];
+const ranks = ['OFC (Officer)', 'CPL (Corporal)', 'SGT (Sergeant)', 'LT (Lieutenant)', 'CAP (Captain)', 'CMD (Commander)', 'DPT CHF (Deputy Chief)', 'ASST CHF (Asst. Chief)', 'CHF (Chief)', 'N/A'];
 
 interface ManageUserModalProps {
     isOpen: boolean;
     onClose: () => void;
     user: User;
-    onUpdate: (userId: string, newRank: string, newLevel: number) => void;
+    onUpdate: (userId: string, userData: Partial<User>) => void;
 }
 const ManageUserModal: React.FC<ManageUserModalProps> = ({ isOpen, onClose, user, onUpdate }) => {
-    const [rank, setRank] = useState(user.rank);
-    const [level, setLevel] = useState(user.level);
+    const [userData, setUserData] = useState(user);
+
+    useEffect(() => {
+        setUserData(user);
+    }, [user]);
+    
     if (!isOpen) return null;
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setUserData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleLevelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUserData(prev => ({...prev, level: parseInt(e.target.value, 10) }));
+    }
+
     const handleSave = () => {
-        onUpdate(user.id, rank, level);
+        onUpdate(user.id, userData);
         onClose();
     };
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="relative bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="relative bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <h3 className="text-lg font-bold text-[#c4c4c4] mb-4">Manage {user.firstName} {user.lastName}</h3>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-[#c4c4c4]">Rank</label>
-                        <select value={rank} onChange={e => setRank(e.target.value)} className="mt-1 block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]">
-                            {ranks.map(r => <option key={r} value={r}>{r}</option>)}
-                        </select>
-                    </div>
+                <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                     <div className="grid grid-cols-2 gap-4">
+                        <input name="firstName" value={userData.firstName} onChange={handleChange} placeholder="First Name" className="block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]" />
+                        <input name="lastName" value={userData.lastName} onChange={handleChange} placeholder="Last Name" className="block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]" />
+                     </div>
+                     <input name="email" value={userData.email} onChange={handleChange} placeholder="Email" className="block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]" />
+                     <select name="role" value={userData.role} onChange={handleChange} className="block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]">
+                        {Object.values(UserRole).map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                    <select name="rank" value={userData.rank} onChange={handleChange} className="block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]">
+                        {ranks.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                     <select name="guardType" value={userData.guardType || ''} onChange={handleChange} className="block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]">
+                        <option value="">N/A</option>
+                        <option value="Base">Base</option>
+                        <option value="Flex">Flex</option>
+                        <option value="Seasonal">Seasonal</option>
+                    </select>
                     <div>
                         <label className="block text-sm font-medium text-[#c4c4c4]">Security Level</label>
-                        <input type="number" value={level} onChange={e => setLevel(Number(e.target.value))} min="1" max="5" className="mt-1 block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]" />
+                        <input type="number" value={userData.level} onChange={handleLevelChange} min="0" max="5" className="mt-1 block w-full bg-[#1a1a1a] border border-[#535347] rounded-md py-2 px-3 text-[#c4c4c4]" />
                     </div>
                 </div>
                 <div className="flex justify-end mt-6">
@@ -48,12 +72,23 @@ const ManageUserModal: React.FC<ManageUserModalProps> = ({ isOpen, onClose, user
 
 interface GuardManagementProps {
   users: User[];
-  onUpdateRank: (userId: string, newRank: string, newLevel: number) => void;
+  onUpdateUser: (userId: string, userData: Partial<User>) => void;
+  onDeleteUser: (userId: string) => void;
 }
 
-const GuardManagement: React.FC<GuardManagementProps> = ({ users, onUpdateRank }) => {
+const GuardManagement: React.FC<GuardManagementProps> = ({ users, onUpdateUser, onDeleteUser }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const guards = users.filter(u => u.role !== UserRole.Client);
+  
+  const handleDelete = (user: User) => {
+    if(user.id === 'user-1') {
+        alert("Cannot delete the primary owner account.");
+        return;
+    }
+    if (window.confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}? This action cannot be undone.`)) {
+        onDeleteUser(user.id);
+    }
+  };
 
   return (
     <>
@@ -90,6 +125,7 @@ const GuardManagement: React.FC<GuardManagementProps> = ({ users, onUpdateRank }
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-[#c4c4c4]">{guard.email}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button onClick={() => setSelectedUser(guard)} className="text-[#aeae5a] hover:text-opacity-80 font-semibold">Manage</button>
+                       <button onClick={() => handleDelete(guard)} className="text-red-400 hover:text-red-300 font-semibold ml-4">Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -98,7 +134,7 @@ const GuardManagement: React.FC<GuardManagementProps> = ({ users, onUpdateRank }
           </div>
         </div>
       </div>
-      {selectedUser && <ManageUserModal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} user={selectedUser} onUpdate={onUpdateRank} />}
+      {selectedUser && <ManageUserModal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} user={selectedUser} onUpdate={onUpdateUser} />}
     </>
   );
 };

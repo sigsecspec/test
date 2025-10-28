@@ -4,7 +4,7 @@ import {
     HomeIcon, ClipboardListIcon, CalendarIcon, UserIcon, AcademicCapIcon, 
     PlusCircleIcon, LocationMarkerIcon, CreditCardIcon, CogIcon, UsersIcon, 
     ChartBarIcon, BriefcaseIcon, CheckCircleIcon, EyeIcon, MapIcon, 
-    BellIcon, DocumentTextIcon, MailIcon 
+    BellIcon, DocumentTextIcon, MailIcon, TrophyIcon 
 } from './Icons';
 
 interface SidebarProps {
@@ -50,6 +50,7 @@ const managementNav = [
     { name: 'Mission Control', icon: ClipboardListIcon },
     { name: 'Approvals', icon: CheckCircleIcon },
     { name: 'Analytics', icon: ChartBarIcon },
+    { name: 'Hall of Fame', icon: TrophyIcon },
     { name: 'System Settings', icon: CogIcon },
 ];
 
@@ -66,12 +67,14 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'Training Approvals', icon: AcademicCapIcon },
         { name: 'My Missions', icon: CalendarIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
+        { name: 'Hall of Fame', icon: TrophyIcon },
     ],
     [UserRole.TrainingOfficer]: [
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Training Management', icon: AcademicCapIcon },
         { name: 'User Management', icon: UsersIcon },
         { name: 'My Missions', icon: CalendarIcon },
+        { name: 'Hall of Fame', icon: TrophyIcon },
     ],
     [UserRole.LeadGuard]: [
         { name: 'Dashboard', icon: HomeIcon },
@@ -80,6 +83,7 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'Site Roster', icon: UsersIcon },
         { name: 'My Earnings', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
+        { name: 'Hall of Fame', icon: TrophyIcon },
     ],
     [UserRole.Guard]: [
         { name: 'Dashboard', icon: HomeIcon },
@@ -88,18 +92,21 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'My Earnings', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
         { name: 'Training', icon: AcademicCapIcon },
+        { name: 'Hall of Fame', icon: TrophyIcon },
     ],
     [UserRole.Dispatch]: [
         { name: 'Live Control', icon: MapIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
         { name: 'Guard Management', icon: UsersIcon },
         { name: 'Alerts', icon: BellIcon },
+        { name: 'Hall of Fame', icon: TrophyIcon },
     ],
     [UserRole.Secretary]: [
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Applications', icon: DocumentTextIcon },
         { name: 'User Management', icon: UsersIcon },
         { name: 'Communications', icon: MailIcon },
+        { name: 'Hall of Fame', icon: TrophyIcon },
     ],
     [UserRole.Client]: [
         { name: 'Dashboard', icon: HomeIcon },
@@ -109,6 +116,7 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'Guard Roster', icon: UsersIcon },
         { name: 'Billing', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
+        { name: 'Hall of Fame', icon: TrophyIcon },
     ],
 };
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck } from '../types';
+import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings } from '../types';
 import Sidebar from './Sidebar';
 import { ShieldIcon, LogoutIcon, MenuIcon } from './Icons';
 
@@ -15,7 +15,8 @@ import MissionControl from './views/MissionControl';
 import ActiveMissions from './views/ActiveMissions';
 import Analytics from './views/Analytics';
 import Approvals from './views/Approvals';
-import SystemSettings from './views/SystemSettings';
+// FIX: Aliased SystemSettings component import to avoid name collision with the SystemSettings type.
+import SystemSettingsView from './views/SystemSettings';
 import FieldOversight from './views/FieldOversight';
 import TrainingApprovals from './views/TrainingApprovals';
 import TrainingManagement from './views/TrainingManagement';
@@ -28,6 +29,7 @@ import MySites from './views/MySites';
 import Billing from './views/Billing';
 import Earnings from './views/Earnings';
 import ClientGuardRoster from './views/ClientGuardRoster';
+import HallOfFame from './views/HallOfFame';
 
 
 interface DashboardScreenProps {
@@ -39,6 +41,8 @@ interface DashboardScreenProps {
   alerts: Alert[];
   applications: Application[];
   approvals: Approval[];
+  hallOfFameEntries: HallOfFameEntry[];
+  systemSettings: SystemSettings;
   onLogout: () => void;
   onClaimMission: (missionId: string, guardId: string) => void;
   onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
@@ -54,13 +58,26 @@ interface DashboardScreenProps {
   onUpdateRank: (userId: string, rank: string, level: number) => void;
   onUpdateCerts: (userId: string, certs: string[]) => void;
   onUpdateClientGuardList: (clientId: string, guardId: string, list: 'whitelist' | 'blacklist', action: 'add' | 'remove') => void;
+  onUpdateMission: (missionId: string, data: Partial<Mission>) => void;
+  onCancelMission: (missionId: string) => void;
+  onUpdateUser: (userId: string, data: Partial<User>) => void;
+  onDeleteUser: (userId: string) => void;
+  onAddClient: (data: Omit<Client, 'id' | 'userId' | 'whitelist' | 'blacklist'>, userId?: string) => void;
+  onUpdateClient: (clientId: string, data: Partial<Client>) => void;
+  onDeleteClient: (clientId: string) => void;
+  onUpdateSite: (siteId: string, data: Partial<Site>) => void;
+  onDeleteSite: (siteId: string) => void;
+  onUpdateSystemSettings: (settings: SystemSettings) => void;
 }
 
-const DashboardScreen: React.FC<DashboardScreenProps> = ({ 
-  user, users, missions, clients, sites, alerts, applications, approvals, onLogout, 
-  onClaimMission, onAddMission, onUpdateApplication, onProcessApproval, onAcknowledgeAlert, onAddSite,
-  onCheckIn, onCheckOut, onSubmitReport, onRateMission, onAddSpotCheck, onUpdateRank, onUpdateCerts, onUpdateClientGuardList
-}) => {
+const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
+  const { 
+    user, users, missions, clients, sites, alerts, applications, approvals, hallOfFameEntries, systemSettings, onLogout, 
+    onClaimMission, onAddMission, onUpdateApplication, onProcessApproval, onAcknowledgeAlert, onAddSite,
+    onCheckIn, onCheckOut, onSubmitReport, onRateMission, onAddSpotCheck, onUpdateRank, onUpdateCerts, onUpdateClientGuardList,
+    onUpdateMission, onCancelMission, onUpdateUser, onDeleteUser, onAddClient, onUpdateClient, onDeleteClient,
+    onUpdateSite, onDeleteSite, onUpdateSystemSettings
+  } = props;
   const [activeView, setActiveView] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -103,7 +120,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       case 'Active Missions':
         return <ActiveMissions user={user} missions={missions} users={users} clients={clients} onRateMission={onRateMission} />;
       case 'My Sites':
-        return <MySites user={user} clients={clients} sites={sites} onAddSite={onAddSite} />;
+        return <MySites user={user} clients={clients} sites={sites} onAddSite={onAddSite} onUpdateSite={onUpdateSite} onDeleteSite={onDeleteSite} />;
       case 'Billing':
         return <Billing user={user} missions={missions} clients={clients} />;
       case 'Guard Roster': // For Client
@@ -112,17 +129,18 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       // Management Views
       case 'Guard Management':
       case 'User Management':
-        return <GuardManagement users={users} onUpdateRank={onUpdateRank} />;
+        return <GuardManagement users={users} onUpdateUser={onUpdateUser} onDeleteUser={onDeleteUser} />;
        case 'Client Management':
-        return <ClientManagement clients={clients} users={users} />;
+        return <ClientManagement clients={clients} users={users} onAddClient={onAddClient} onUpdateClient={onUpdateClient} onDeleteClient={onDeleteClient} />;
       case 'Mission Control':
-        return <MissionControl missions={missions} users={users} clients={clients} />;
+        return <MissionControl missions={missions} users={users} clients={clients} sites={sites} onUpdateMission={onUpdateMission} onCancelMission={onCancelMission}/>;
       case 'Approvals':
         return <Approvals approvals={approvals} users={users} onProcessApproval={onProcessApproval} />;
       case 'Analytics':
         return <Analytics users={users} missions={missions} clients={clients} />;
       case 'System Settings':
-        return <SystemSettings />;
+        // FIX: Used the aliased component name `SystemSettingsView` to render the component.
+        return <SystemSettingsView systemSettings={systemSettings} onUpdateSystemSettings={onUpdateSystemSettings} />;
       // Supervisor Views
       case 'Field Oversight':
         return <FieldOversight missions={missions} users={users} clients={clients} supervisorId={user.id} onAddSpotCheck={onAddSpotCheck} />;
@@ -141,6 +159,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         return <Applications applications={applications} onUpdateApplication={onUpdateApplication} />;
       case 'Communications':
         return <Communications />;
+      case 'Hall of Fame':
+        return <HallOfFame users={users} hallOfFameEntries={hallOfFameEntries} />;
       default:
         return (
           <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6">

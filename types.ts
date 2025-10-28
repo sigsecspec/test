@@ -105,3 +105,16 @@ export interface SpotCheck {
     status: 'Guard Present' | 'Guard Absent' | 'Uniform OK' | 'Issue Reported';
     notes: string;
 }
+
+export interface SystemSettings {
+  companyName: string;
+  payrollCycle: 'Weekly' | 'Bi-Weekly';
+}
+
+export interface HallOfFameEntry {
+  id: string;
+  month: string; // e.g., "August 2024"
+  userId: string;
+  award: string; // e.g., "Guard of the Month"
+  reason: string;
+}

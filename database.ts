@@ -1,5 +1,5 @@
 import { UserRole } from './types';
-import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck } from './types';
+import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings } from './types';
 
 // Let's define the shape of our database
 interface Database {
@@ -11,6 +11,8 @@ interface Database {
   applications: Application[];
   approvals: Approval[];
   spotChecks: SpotCheck[];
+  hallOfFame: HallOfFameEntry[];
+  systemSettings: SystemSettings;
 }
 
 // Initial seed data
@@ -59,7 +61,17 @@ const initialData: Database = {
   ],
   spotChecks: [
       { id: 'sc-1', missionId: 'mission-4', supervisorId: 'user-6', time: new Date(Date.now() - 4 * 60 * 60 * 1000), status: 'Guard Present', notes: 'Guard performing duties as expected.'}
-  ]
+  ],
+  systemSettings: {
+    companyName: 'Signature Security Specialists',
+    payrollCycle: 'Bi-Weekly',
+  },
+  hallOfFame: [
+    { id: 'hof-1', month: 'August 2024', userId: 'user-6', award: 'Guard of the Month', reason: 'For exceptional performance during the Downtown Mall event, receiving multiple client commendations.' },
+    { id: 'hof-2', month: 'August 2024', userId: 'user-8', award: 'Top Performer', reason: 'Completed the most missions (22) with a perfect 5.0 average client rating.' },
+    { id: 'hof-3', month: 'July 2024', userId: 'user-9', award: 'Guard of the Month', reason: 'For identifying and resolving a critical security vulnerability at TechCorp HQ.' },
+    { id: 'hof-4', month: 'June 2024', userId: 'user-8', award: 'Guard of the Month', reason: 'Consistently high performance and dedication, exceeding weekly hour expectations safely.' },
+  ],
 };
 
 const DB_KEY = 'sss_db';
@@ -83,6 +95,8 @@ const readDB = (): Database => {
        ...sc,
        time: new Date(sc.time),
    }));
+  db.hallOfFame = db.hallOfFame || initialData.hallOfFame;
+  db.systemSettings = db.systemSettings || initialData.systemSettings;
   return db;
 };
 
@@ -108,6 +122,8 @@ export const getAlerts = (): Alert[] => readDB().alerts.filter(a => !a.acknowled
 export const getApplications = (): Application[] => readDB().applications.filter(a => a.status === 'Pending') || [];
 export const getApprovals = (): Approval[] => readDB().approvals || [];
 export const getSpotChecksForMission = (missionId: string): SpotCheck[] => readDB().spotChecks.filter(sc => sc.missionId === missionId);
+export const getHallOfFameEntries = (): HallOfFameEntry[] => readDB().hallOfFame || [];
+export const getSystemSettings = (): SystemSettings => readDB().systemSettings;
 
 
 export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>): Mission => {
@@ -265,6 +281,105 @@ export const updateUserCertifications = (userId: string, certifications: string[
     }
 };
 
+export const updateMission = (missionId: string, missionData: Partial<Omit<Mission, 'id'>>): Mission | undefined => {
+    const db = readDB();
+    const mission = db.missions.find(m => m.id === missionId);
+    if (mission) {
+        Object.assign(mission, missionData);
+        if (typeof mission.startTime === 'string') mission.startTime = new Date(mission.startTime);
+        if (typeof mission.endTime === 'string') mission.endTime = new Date(mission.endTime);
+        writeDB(db);
+        return mission;
+    }
+    return undefined;
+};
+
+export const cancelMission = (missionId: string): void => {
+    const db = readDB();
+    const mission = db.missions.find(m => m.id === missionId);
+    if (mission) {
+        mission.status = 'Cancelled';
+        writeDB(db);
+    }
+};
+
+export const updateUser = (userId: string, userData: Partial<User>): void => {
+    const db = readDB();
+    const user = db.users.find(u => u.id === userId);
+    if (user) {
+        Object.assign(user, userData);
+        writeDB(db);
+    }
+};
+
+export const deleteUser = (userId: string): void => {
+    const db = readDB();
+    if (userId === 'user-1') return;
+    db.users = db.users.filter(u => u.id !== userId);
+    db.missions.forEach(m => {
+        if (m.claimedBy === userId) {
+            m.claimedBy = null;
+            m.status = 'Open';
+        }
+    });
+    writeDB(db);
+};
+
+export const addClient = (clientData: Omit<Client, 'id' | 'userId' | 'whitelist' | 'blacklist'>, linkedUserId?: string): Client => {
+    const db = readDB();
+    const newClient: Client = {
+        ...clientData,
+        id: `client-${Date.now()}`,
+        userId: linkedUserId || null,
+        whitelist: [],
+        blacklist: [],
+    };
+    db.clients.push(newClient);
+    writeDB(db);
+    return newClient;
+};
+
+export const updateClient = (clientId: string, clientData: Partial<Client>): void => {
+    const db = readDB();
+    const client = db.clients.find(c => c.id === clientId);
+    if (client) {
+        Object.assign(client, clientData);
+        writeDB(db);
+    }
+};
+
+export const deleteClient = (clientId: string): void => {
+    const db = readDB();
+    db.clients = db.clients.filter(c => c.id !== clientId);
+    db.missions.forEach(m => {
+        if (m.clientId === clientId) {
+            m.status = 'Cancelled';
+        }
+    });
+    writeDB(db);
+};
+
+export const updateSite = (siteId: string, siteData: Partial<Site>): void => {
+    const db = readDB();
+    const site = db.sites.find(s => s.id === siteId);
+    if (site) {
+        Object.assign(site, siteData);
+        writeDB(db);
+    }
+};
+
+export const deleteSite = (siteId: string): void => {
+    const db = readDB();
+    db.sites = db.sites.filter(s => s.id !== siteId);
+    writeDB(db);
+};
+
+export const updateSystemSettings = (settings: SystemSettings): void => {
+    const db = readDB();
+    db.systemSettings = settings;
+    writeDB(db);
+};
+
 export const updateClientGuardList = (clientId: string, guardId: string, listType: 'whitelist' | 'blacklist', action: 'add' | 'remove') => {
     const db = readDB();
     const client = db.clients.find(c => c.id === clientId);
@@ -273,7 +388,6 @@ export const updateClientGuardList = (clientId: string, guardId: string, listTyp
     const otherList = listType === 'whitelist' ? client.blacklist : client.whitelist;
     const list = client[listType];
 
-    // Remove from other list first if adding
     if (action === 'add') {
         const indexInOther = otherList.indexOf(guardId);
         if (indexInOther > -1) otherList.splice(indexInOther, 1);

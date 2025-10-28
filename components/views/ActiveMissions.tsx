@@ -87,7 +87,8 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
                                 </thead>
                                 <tbody className="divide-y divide-[#535347]/50">
                                     {clientMissions.map((mission) => (
-                                        <tr key={mission.id} className="hover:bg-[#535347]/10">
+                                       <React.Fragment key={mission.id}>
+                                        <tr className="hover:bg-[#535347]/10">
                                             <td className="px-6 py-4"><div className="text-sm font-medium text-[#c4c4c4]">{mission.title}</div><div className="text-xs text-[#787876]">{mission.site}</div></td>
                                             <td className="px-6 py-4 text-sm text-[#787876]">{mission.startTime.toLocaleDateString()}</td>
                                             <td className="px-6 py-4"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyles(mission.status)}`}>{mission.status}</span></td>
@@ -99,6 +100,15 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
                                                  {mission.clientRating && <span className="text-xs text-yellow-400">{mission.clientRating} ★</span>}
                                             </td>
                                         </tr>
+                                        {mission.report && (
+                                            <tr className="bg-[#535347]/10">
+                                                <td colSpan={5} className="px-6 py-2">
+                                                    <p className="text-xs text-[#787876] font-semibold">Guard Report:</p>
+                                                    <p className="text-sm text-[#c4c4c4] italic">"{mission.report}"</p>
+                                                </td>
+                                            </tr>
+                                        )}
+                                       </React.Fragment>
                                     ))}
                                 </tbody>
                             </table>
