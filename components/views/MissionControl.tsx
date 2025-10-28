@@ -44,32 +44,40 @@ const MissionControl: React.FC<MissionControlProps> = ({ missions, users, client
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#535347]/50">
-                            {missions.map((mission) => (
-                                <tr key={mission.id} className="hover:bg-[#535347]/10">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-[#c4c4c4]">{mission.title}</div>
-                                        <div className="text-xs text-[#787876]">{mission.site}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#c4c4c4]">
-                                        {getClientName(mission.clientId)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#787876]">
-                                        {mission.startTime.toLocaleString(undefined, options)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            mission.status === 'Open' ? 'bg-[#aeae5a]/20 text-[#aeae5a]' : 
-                                            mission.status === 'Claimed' ? 'bg-blue-900/40 text-blue-300' :
-                                            'bg-[#787876]/20 text-[#787876]'
-                                        }`}>
-                                            {mission.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#c4c4c4]">
-                                        {getUserName(mission.claimedBy)}
+                            {missions.length > 0 ? (
+                                missions.map((mission) => (
+                                    <tr key={mission.id} className="hover:bg-[#535347]/10">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-medium text-[#c4c4c4]">{mission.title}</div>
+                                            <div className="text-xs text-[#787876]">{mission.site}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#c4c4c4]">
+                                            {getClientName(mission.clientId)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#787876]">
+                                            {mission.startTime.toLocaleString(undefined, options)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                mission.status === 'Open' ? 'bg-[#aeae5a]/20 text-[#aeae5a]' : 
+                                                mission.status === 'Claimed' ? 'bg-blue-900/40 text-blue-300' :
+                                                'bg-[#787876]/20 text-[#787876]'
+                                            }`}>
+                                                {mission.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#c4c4c4]">
+                                            {getUserName(mission.claimedBy)}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center p-12 text-[#787876]">
+                                        No active missions in the system.
                                     </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>

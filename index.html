@@ -140,11 +140,7 @@ const initialData = {
       { id: 'client-1', companyName: 'Downtown Mall', contactEmail: 'security@downtownmall.com', userId: 'user-11' },
       { id: 'client-2', companyName: 'TechCorp HQ', contactEmail: 'ops@techcorp.com', userId: null },
   ],
-  missions: [
-      { id: 'mission-1', clientId: 'client-1', title: 'Weekend Mall Patrol', site: 'Downtown Mall - Main Entrance', startTime: new Date('2024-08-10T09:00:00Z'), endTime: new Date('2024-08-10T17:00:00Z'), payRate: 28, requiredLevel: 2, status: 'Open', claimedBy: null, description: 'Standard patrol duties for the main entrance and food court area. High visibility required.' },
-      { id: 'mission-2', clientId: 'client-2', title: 'Corporate Lobby Security', site: 'TechCorp HQ - Lobby', startTime: new Date('2024-08-12T08:00:00Z'), endTime: new Date('2024-08-12T18:00:00Z'), payRate: 35, requiredLevel: 4, status: 'Open', claimedBy: null, description: 'Access control and monitoring for a high-traffic corporate lobby. Professional attire and demeanor essential.' },
-      { id: 'mission-3', clientId: 'client-1', title: 'Night Watch - West Wing', site: 'Downtown Mall - West Wing', startTime: new Date('2024-08-10T22:00:00Z'), endTime: new Date('2024-08-11T06:00:00Z'), payRate: 32, requiredLevel: 3, status: 'Claimed', claimedBy: 'user-8', description: 'Overnight security patrol for the west wing stores. Regular check-ins required.' },
-  ],
+  missions: [],
   sites: [
     { id: 'site-1', clientId: 'client-1', name: 'Main Entrance', address: '123 Commerce St, Downtown' },
     { id: 'site-2', clientId: 'client-1', name: 'West Wing', address: '123 Commerce St, Downtown' },
@@ -161,11 +157,7 @@ const initialData = {
     { id: 'app-2', type: 'New Client', name: 'Global Logistics Inc.', status: 'Pending Contract Review' },
     { id: 'app-3', type: 'New Supervisor', name: 'James White', status: 'Pending Interview' },
   ],
-  approvals: [
-    { id: 'approval-1', type: 'New Guard Application', subject: 'Michael Rodriguez', details: 'Pending background check.' },
-    { id: 'approval-2', type: 'Training Completion', subject: 'Chris Taylor - Level 3', details: 'Awaiting supervisor sign-off.' },
-    { id: 'approval-3', type: 'New Client Contract', subject: 'Riverside Industrial Park', details: 'Legal review required.' },
-  ],
+  approvals: [],
 };
 
 const DB_KEY = 'sss_db';
@@ -229,6 +221,35 @@ const claimMission = (missionId, guardId) => {
     }
     return null;
 }
+
+// --- START OF content/homepageContent.ts ---
+const featureList = [
+    { title: "🛡️ For Guards", items: ["Browse and claim available missions", "Real-time earnings tracking", "Comprehensive training programs", "Performance tracking and ratings", "Direct communication with operations"] },
+    { title: "👔 For Clients", items: ["Post security missions instantly", "Manage multiple locations", "Request specific lead guards", "Track mission performance", "Flexible payment options"] },
+    { title: "👮 For Supervisors", items: ["Conduct spot checks and oversight", "Approve training certifications", "Work regular missions", "Team management tools", "Performance monitoring"] },
+    { title: "📋 Mission Management", items: ["Real-time mission tracking", "GPS check-in verification", "Automated scheduling", "Multi-guard coordination", "Instant notifications"] },
+    { title: "🎓 Training System", items: ["Multiple training types", "Interactive quizzes", "Certification tracking", "Field training coordination", "Progress monitoring"] },
+    { title: "💰 Payment Processing", items: ["Automated pay calculation", "Real-time payment tracking", "Weekly payroll processing", "Overtime handling", "Transparent billing"] },
+];
+const statList = [ 
+    { value: "500+", label: "Certified Guards" }, 
+    { value: "1,200+", label: "Missions Completed" }, 
+    { value: "98%", label: "Client Satisfaction" }, 
+    { value: "24/7", label: "Support Available" } 
+];
+const levelList = [
+    { title: "Level 1 - Basic", desc: "Essential security guard with standard equipment" }, 
+    { title: "Level 2 - Enhanced", desc: "Basic equipment plus pepper spray" },
+    { title: "Level 3 - Advanced", desc: "Pepper spray plus taser" }, 
+    { title: "Level 4 - Professional", desc: "Pepper spray, taser, and baton" },
+    { title: "Level 5 - Executive", desc: "Full equipment including firearm certification" }, 
+    { title: "All Levels Include", desc: "Flashlight, cuffs, first aid (with certifications)" },
+];
+const testimonialList = [
+    { quote: "Best security management platform I've used. The mission system makes scheduling so much easier!", author: "- Sarah M., Operations Manager" },
+    { quote: "Found consistent work quickly. The training system helped me get certified for multiple mission types.", author: "- James T., Level 4 Guard" },
+    { quote: "Finally, a reliable way to get quality security for our retail locations. Highly recommend!", author: "- Michael R., Client" },
+];
 
 // --- START OF components/Icons.tsx ---
 const ShieldIcon = ({ className }) => (
@@ -357,7 +378,7 @@ let MissionBoard = ({ user, missions, onClaimMission }) => { /* ... */ };
 let PostMission = ({ clients, onAddMission, user }) => { /* ... */ };
 let MyMissions = ({ user, missions }) => { /* ... */ };
 let GuardManagement = ({ users }) => { /* ... */ };
-let ClientManagement = ({ clients }) => { /* ... */ };
+let ClientManagement = ({ clients, users }) => { /* ... */ };
 let MyProfile = ({ user }) => { /* ... */ };
 let Training = ({ user }) => { /* ... */ };
 let MissionControl = ({ missions, users, clients }) => { /* ... */ };
@@ -454,20 +475,6 @@ const Header = ({ onOpenLoginModal }) => {
 };
 
 const HomePage = ({ onOpenLoginModal }) => {
-    const featureList = [
-      { title: "🛡️ For Guards", items: ["Browse and claim available missions", "Real-time earnings tracking", "Comprehensive training programs", "Performance tracking and ratings", "Direct communication with operations"] },
-      { title: "👔 For Clients", items: ["Post security missions instantly", "Manage multiple locations", "Request specific lead guards", "Track mission performance", "Flexible payment options"] },
-      { title: "👮 For Supervisors", items: ["Conduct spot checks and oversight", "Approve training certifications", "Work regular missions", "Team management tools", "Performance monitoring"] },
-      { title: "📋 Mission Management", items: ["Real-time mission tracking", "GPS check-in verification", "Automated scheduling", "Multi-guard coordination", "Instant notifications"] },
-      { title: "🎓 Training System", items: ["Multiple training types", "Interactive quizzes", "Certification tracking", "Field training coordination", "Progress monitoring"] },
-      { title: "💰 Payment Processing", items: ["Automated pay calculation", "Real-time payment tracking", "Weekly payroll processing", "Overtime handling", "Transparent billing"] },
-    ];
-    const statList = [ { value: "500+", label: "Certified Guards" }, { value: "1,200+", label: "Missions Completed" }, { value: "98%", label: "Client Satisfaction" }, { value: "24/7", label: "Support Available" } ];
-    const levelList = [
-      { title: "Level 1 - Basic", desc: "Essential security guard with standard equipment" }, { title: "Level 2 - Enhanced", desc: "Basic equipment plus pepper spray" },
-      { title: "Level 3 - Advanced", desc: "Pepper spray plus taser" }, { title: "Level 4 - Professional", desc: "Pepper spray, taser, and baton" },
-      { title: "Level 5 - Executive", desc: "Full equipment including firearm certification" }, { title: "All Levels Include", desc: "Flashlight, cuffs, first aid (with certifications)" },
-    ];
     return (
         <div>
             <Header onOpenLoginModal={onOpenLoginModal} />
@@ -477,8 +484,8 @@ const HomePage = ({ onOpenLoginModal }) => {
                         <h1 className="text-4xl md:text-6xl font-extrabold text-[var(--text-primary)]">Professional Security Management Platform</h1>
                         <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-[var(--text-secondary)]">Connecting businesses with certified security professionals through our comprehensive digital platform. Streamline operations, manage missions, and ensure safety with our all-in-one solution.</p>
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
-                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)]">Join as Guard</a>
-                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--text-primary)]">Hire Security</a>
+                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</a>
+                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--text-primary)] transition-transform duration-200 hover:scale-105">Hire Security</a>
                         </div>
                     </div>
                 </section>
@@ -521,13 +528,21 @@ const HomePage = ({ onOpenLoginModal }) => {
                         </div>
                     </div>
                 </section>
+                <section className="py-20 bg-[var(--bg-secondary)]">
+                    <div className="container mx-auto px-4">
+                         <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold">What Our Users Say</h2></div>
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {testimonialList.map((t, i) => <AnimateOnScroll key={i} className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-6"><p className="text-[var(--text-secondary)]">"{t.quote}"</p><p className="mt-4 font-bold text-[var(--text-primary)]">{t.author}</p></AnimateOnScroll>)}
+                         </div>
+                    </div>
+                </section>
                 <section id="contact" className="py-20 text-center">
                     <div className="container mx-auto px-4">
                          <h2 className="text-3xl md:text-4xl font-bold">Ready to Get Started?</h2>
                          <p className="mt-2 mb-8 text-[var(--text-secondary)]">Join our platform today and experience professional security management</p>
                         <div className="flex flex-wrap justify-center gap-4">
-                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)]">Join as Guard</a>
-                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--text-primary)]">Hire Security</a>
+                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</a>
+                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--text-primary)] transition-transform duration-200 hover:scale-105">Hire Security</a>
                         </div>
                     </div>
                 </section>
@@ -539,8 +554,8 @@ const HomePage = ({ onOpenLoginModal }) => {
                             <h4 className="font-bold text-[var(--text-primary)]">Signature Security Specialist</h4>
                             <p className="mt-2 text-sm text-[var(--text-secondary)]">Professional security management platform.</p>
                         </div>
-                        <div><h4 className="font-bold text-[var(--text-primary)]">For Guards</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Apply as Guard</a></li><li><a href="#" className="hover:text-[var(--text-primary)]">Guard Login</a></li></ul></div>
-                        <div><h4 className="font-bold text-[var(--text-primary)]">For Clients</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Apply as Client</a></li><li><a href="#" className="hover:text-[var(--text-primary)]">Client Login</a></li></ul></div>
+                        <div><h4 className="font-bold text-[var(--text-primary)]">For Guards</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Apply as Guard</a></li><li><a href="#" className="hover:text-[var(--text-primary)]" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Guard Login</a></li></ul></div>
+                        <div><h4 className="font-bold text-[var(--text-primary)]">For Clients</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Apply as Client</a></li><li><a href="#" className="hover:text-[var(--text-primary)]" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Client Login</a></li></ul></div>
                         <div><h4 className="font-bold text-[var(--text-primary)]">Company</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">About Us</a></li><li><a href="#" className="hover:text-[var(--text-primary)]">Contact</a></li></ul></div>
                         <div><h4 className="font-bold text-[var(--text-primary)]">Legal</h4><ul className="mt-2 space-y-1 text-sm text-[var(--text-secondary)]"><li><a href="#" className="hover:text-[var(--text-primary)]">Terms of Service</a></li><li><a href="#" className="hover:text-[var(--text-primary)]">Privacy Policy</a></li></ul></div>
                     </div>
@@ -897,29 +912,50 @@ GuardManagement = ({ users }) => {
     </div>
   );
 };
-ClientManagement = ({ clients }) => {
+ClientManagement = ({ clients, users }) => {
+  const clientAccounts = clients
+    .map(client => ({
+      ...client,
+      user: client.userId ? users.find(u => u.id === client.userId) : null
+    }))
+    .filter(client => client.user);
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Client Roster</h2>
-      <p className="text-[var(--text-secondary)] mb-6">A complete list of all active clients.</p>
+      <p className="text-[var(--text-secondary)] mb-6">A list of all client accounts with portal access.</p>
       <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-[var(--border-secondary)]">
             <thead className="bg-[var(--accent-secondary)]/20">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-primary)] uppercase tracking-wider">Company Name</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-primary)] uppercase tracking-wider">Primary Contact</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-primary)] uppercase tracking-wider">Contact Email</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-primary)] uppercase tracking-wider">User Account Linked</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-secondary)]/50">
-              {clients.map((client) => (
-                <tr key={client.id} className="hover:bg-[var(--accent-secondary)]/10">
-                  <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-[var(--text-primary)]">{client.companyName}</div></td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{client.contactEmail}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{client.userId ? 'Yes' : 'No'}</td>
+              {clientAccounts.length > 0 ? (
+                clientAccounts.map((client) => (
+                  <tr key={client.id} className="hover:bg-[var(--accent-secondary)]/10">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-[var(--text-primary)]">{client.companyName}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">
+                      {client.user ? `${client.user.firstName} ${client.user.lastName}` : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">
+                      {client.contactEmail}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="text-center p-12 text-[var(--text-secondary)]">
+                    No client accounts with portal access found.
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -989,15 +1025,23 @@ MissionControl = ({ missions, users, clients }) => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-secondary)]/50">
-                            {missions.map((mission) => (
-                                <tr key={mission.id} className="hover:bg-[var(--accent-secondary)]/10">
-                                    <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-[var(--text-primary)]">{mission.title}</div><div className="text-xs text-[var(--text-secondary)]">{mission.site}</div></td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{getClientName(mission.clientId)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{mission.startTime.toLocaleString(undefined, options)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${mission.status === 'Open' ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]' : mission.status === 'Claimed' ? 'var(--status-active-bg) var(--status-active-text)' : 'bg-[var(--text-secondary)]/20 text-[var(--text-secondary)]'}`}>{mission.status}</span></td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{getUserName(mission.claimedBy)}</td>
+                            {missions.length > 0 ? (
+                                missions.map((mission) => (
+                                    <tr key={mission.id} className="hover:bg-[var(--accent-secondary)]/10">
+                                        <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-[var(--text-primary)]">{mission.title}</div><div className="text-xs text-[var(--text-secondary)]">{mission.site}</div></td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{getClientName(mission.clientId)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{mission.startTime.toLocaleString(undefined, options)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${mission.status === 'Open' ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]' : mission.status === 'Claimed' ? 'var(--status-active-bg) var(--status-active-text)' : 'bg-[var(--text-secondary)]/20 text-[var(--text-secondary)]'}`}>{mission.status}</span></td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{getUserName(mission.claimedBy)}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="text-center p-12 text-[var(--text-secondary)]">
+                                        No active missions in the system.
+                                    </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -1378,7 +1422,7 @@ DashboardScreen = ({ user, users, missions, clients, sites, alerts, applications
       case 'My Sites': return <MySites user={user} clients={clients} sites={sites} />;
       case 'Billing': return <Billing user={user} missions={missions} clients={clients} />;
       case 'Guard Management': case 'Guard Roster': case 'User Management': return <GuardManagement users={users} />;
-      case 'Client Management': return <ClientManagement clients={clients} />;
+      case 'Client Management': return <ClientManagement clients={clients} users={users} />;
       case 'Mission Control': return <MissionControl missions={missions} users={users} clients={clients} />;
       case 'Approvals': return <Approvals approvals={approvals} />;
       case 'Analytics': return <Analytics users={users} missions={missions} clients={clients} />;

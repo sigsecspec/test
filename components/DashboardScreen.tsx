@@ -95,7 +95,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       case 'User Management':
         return <GuardManagement users={users} />;
        case 'Client Management':
-        return <ClientManagement clients={clients} />;
+        return <ClientManagement clients={clients} users={users} />;
       case 'Mission Control':
         return <MissionControl missions={missions} users={users} clients={clients} />;
       case 'Approvals':

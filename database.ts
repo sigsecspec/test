@@ -59,11 +59,7 @@ const initialData: Database = {
       { id: 'client-1', companyName: 'Downtown Mall', contactEmail: 'security@downtownmall.com', userId: 'user-11' },
       { id: 'client-2', companyName: 'TechCorp HQ', contactEmail: 'ops@techcorp.com', userId: null },
   ],
-  missions: [
-      { id: 'mission-1', clientId: 'client-1', title: 'Weekend Mall Patrol', site: 'Downtown Mall - Main Entrance', startTime: new Date('2024-08-10T09:00:00Z'), endTime: new Date('2024-08-10T17:00:00Z'), payRate: 28, requiredLevel: 2, status: 'Open', claimedBy: null, description: 'Standard patrol duties for the main entrance and food court area. High visibility required.' },
-      { id: 'mission-2', clientId: 'client-2', title: 'Corporate Lobby Security', site: 'TechCorp HQ - Lobby', startTime: new Date('2024-08-12T08:00:00Z'), endTime: new Date('2024-08-12T18:00:00Z'), payRate: 35, requiredLevel: 4, status: 'Open', claimedBy: null, description: 'Access control and monitoring for a high-traffic corporate lobby. Professional attire and demeanor essential.' },
-      { id: 'mission-3', clientId: 'client-1', title: 'Night Watch - West Wing', site: 'Downtown Mall - West Wing', startTime: new Date('2024-08-10T22:00:00Z'), endTime: new Date('2024-08-11T06:00:00Z'), payRate: 32, requiredLevel: 3, status: 'Claimed', claimedBy: 'user-8', description: 'Overnight security patrol for the west wing stores. Regular check-ins required.' },
-  ],
+  missions: [],
   sites: [
     { id: 'site-1', clientId: 'client-1', name: 'Main Entrance', address: '123 Commerce St, Downtown' },
     { id: 'site-2', clientId: 'client-1', name: 'West Wing', address: '123 Commerce St, Downtown' },
@@ -80,11 +76,7 @@ const initialData: Database = {
     { id: 'app-2', type: 'New Client', name: 'Global Logistics Inc.', status: 'Pending Contract Review' },
     { id: 'app-3', type: 'New Supervisor', name: 'James White', status: 'Pending Interview' },
   ],
-  approvals: [
-    { id: 'approval-1', type: 'New Guard Application', subject: 'Michael Rodriguez', details: 'Pending background check.' },
-    { id: 'approval-2', type: 'Training Completion', subject: 'Chris Taylor - Level 3', details: 'Awaiting supervisor sign-off.' },
-    { id: 'approval-3', type: 'New Client Contract', subject: 'Riverside Industrial Park', details: 'Legal review required.' },
-  ],
+  approvals: [],
 };
 
 const DB_KEY = 'sss_db';
