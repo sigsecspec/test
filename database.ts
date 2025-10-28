@@ -134,6 +134,16 @@ export const getPayrollEntriesForRun = (runId: string): PayrollEntry[] => readDB
 export const getPromotions = (): Promotion[] => readDB().promotions || [];
 export const getAppeals = (): Appeal[] => readDB().appeals || [];
 
+export const addApplication = (appData: Omit<Application, 'id' | 'status'>): void => {
+    const db = readDB();
+    const newApplication: Application = {
+        ...appData,
+        id: `app-${Date.now()}`,
+        status: 'Pending',
+    };
+    db.applications.push(newApplication);
+    writeDB(db);
+};
 
 export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>): Mission => {
     const db = readDB();

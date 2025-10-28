@@ -40,9 +40,10 @@ const AnimateOnScroll: React.FC<{ children: React.ReactNode, className?: string,
 
 interface HeaderProps {
     onOpenLoginModal: () => void;
+    onOpenApplicationModal: (type: 'Guard' | 'Client') => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenLoginModal, onOpenApplicationModal }) => {
     const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
     return(
         <header className="sticky top-0 z-30 bg-[var(--bg-secondary)]/80 backdrop-blur-sm border-b border-[var(--border-primary)]">
@@ -84,20 +85,21 @@ const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
 
 interface HomePageProps {
     onOpenLoginModal: () => void;
+    onOpenApplicationModal: (type: 'Guard' | 'Client') => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onOpenLoginModal }) => {
+const HomePage: React.FC<HomePageProps> = ({ onOpenLoginModal, onOpenApplicationModal }) => {
     return (
         <div>
-            <Header onOpenLoginModal={onOpenLoginModal} />
+            <Header onOpenLoginModal={onOpenLoginModal} onOpenApplicationModal={onOpenApplicationModal} />
             <main>
                 <section id="home" className="text-center py-20 md:py-32 bg-[var(--bg-secondary)]">
                     <div className="container mx-auto px-4">
                         <h1 className="text-4xl md:text-6xl font-extrabold text-[var(--text-primary)]">Professional Security Management Platform</h1>
                         <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-[var(--text-secondary)]">Connecting businesses with certified security professionals through our comprehensive digital platform. Streamline operations, manage missions, and ensure safety with our all-in-one solution.</p>
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
-                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</a>
-                            <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Hire Security</a>
+                            <button onClick={() => onOpenApplicationModal('Guard')} className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</button>
+                            <button onClick={() => onOpenApplicationModal('Client')} className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Hire Security</button>
                         </div>
                     </div>
                 </section>
@@ -153,8 +155,8 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenLoginModal }) => {
                          <h2 className="text-3xl md:text-4xl font-bold">Ready to Get Started?</h2>
                          <p className="mt-2 mb-8 text-[var(--text-secondary)]">Join our platform today and experience professional security management</p>
                         <div className="flex flex-wrap justify-center gap-4">
-                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</a>
-                             <a href="#" className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Hire Security</a>
+                             <button onClick={() => onOpenApplicationModal('Guard')} className="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</button>
+                             <button onClick={() => onOpenApplicationModal('Client')} className="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Hire Security</button>
                         </div>
                     </div>
                 </section>
@@ -166,8 +168,8 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenLoginModal }) => {
                             <h4 className="font-bold">Signature Security Specialist</h4>
                             <p className="mt-2 text-sm opacity-70">Professional security management platform.</p>
                         </div>
-                        <div><h4 className="font-bold">For Guards</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">Apply as Guard</a></li><li><a href="#" className="hover:opacity-100" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Guard Login</a></li></ul></div>
-                        <div><h4 className="font-bold">For Clients</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">Apply as Client</a></li><li><a href="#" className="hover:opacity-100" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Client Login</a></li></ul></div>
+                        <div><h4 className="font-bold">For Guards</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" onClick={(e) => { e.preventDefault(); onOpenApplicationModal('Guard'); }} className="hover:opacity-100">Apply as Guard</a></li><li><a href="#" className="hover:opacity-100" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Guard Login</a></li></ul></div>
+                        <div><h4 className="font-bold">For Clients</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" onClick={(e) => { e.preventDefault(); onOpenApplicationModal('Client'); }} className="hover:opacity-100">Apply as Client</a></li><li><a href="#" className="hover:opacity-100" onClick={(e) => { e.preventDefault(); onOpenLoginModal();}}>Client Login</a></li></ul></div>
                         <div><h4 className="font-bold">Company</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">About Us</a></li><li><a href="#" className="hover:opacity-100">Contact</a></li></ul></div>
                         <div><h4 className="font-bold">Legal</h4><ul className="mt-2 space-y-1 text-sm opacity-70"><li><a href="#" className="hover:opacity-100">Terms of Service</a></li><li><a href="#" className="hover:opacity-100">Privacy Policy</a></li></ul></div>
                     </div>

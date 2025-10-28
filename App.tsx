@@ -3,6 +3,7 @@ import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, H
 import DashboardScreen from './components/DashboardScreen.tsx';
 import HomePage from './components/HomePage.tsx';
 import LoginModal from './components/LoginModal.tsx';
+import ApplicationModal from './components/ApplicationModal.tsx';
 import { 
   initializeDB, 
   getUserByEmail, 
@@ -21,6 +22,7 @@ import {
   getPayrollRuns,
   getPromotions,
   getAppeals,
+  addApplication as dbAddApplication,
   claimMission as dbClaimMission,
   addMission as dbAddMission,
   updateApplicationStatus as dbUpdateApplicationStatus,
@@ -75,6 +77,8 @@ const App: React.FC = () => {
   const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+  const [isApplicationModalOpen, setApplicationModalOpen] = useState(false);
+  const [applicationType, setApplicationType] = useState<'Guard' | 'Client' | null>(null);
 
   const loadData = () => {
     setUsers(getUsers());
@@ -109,6 +113,24 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => setCurrentUser(null);
+  
+  const handleOpenApplicationModal = (type: 'Guard' | 'Client') => {
+    setApplicationType(type);
+    setApplicationModalOpen(true);
+  };
+
+  const handleCloseApplicationModal = () => {
+    setApplicationModalOpen(false);
+    setApplicationType(null);
+  }
+
+  const handleAddApplication = (type: 'New Guard' | 'New Client', name: string, data: Partial<User & Client>) => {
+    dbAddApplication({ type, name, data });
+    loadData();
+    handleCloseApplicationModal();
+    alert('Application submitted! You will be notified via email once your application has been reviewed by our team.');
+  };
+
 
   const handleClaimMission = (missionId: string, guardId: string) => { 
     const result = dbClaimMission(missionId, guardId);
@@ -214,13 +236,19 @@ const App: React.FC = () => {
         />
       ) : (
         <>
-            <HomePage onOpenLoginModal={() => setLoginModalOpen(true)} />
+            <HomePage onOpenLoginModal={() => setLoginModalOpen(true)} onOpenApplicationModal={handleOpenApplicationModal} />
             <LoginModal 
                 isOpen={isLoginModalOpen} 
                 onClose={() => setLoginModalOpen(false)} 
                 users={users} 
                 onLogin={handleLogin}
             />
+            {applicationType && <ApplicationModal 
+                isOpen={isApplicationModalOpen}
+                onClose={handleCloseApplicationModal}
+                applicationType={applicationType}
+                onSubmit={handleAddApplication}
+            />}
         </>
       )}
     </div>
