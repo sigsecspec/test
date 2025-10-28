@@ -1,5 +1,6 @@
 import { UserRole } from './types.ts';
-import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal } from './types.ts';
+// FIX: Added missing type imports for the new training system.
+import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal, Contract, TrainingModule, UserTrainingProgress } from './types.ts';
 
 // Let's define the shape of our database
 interface Database {
@@ -11,6 +12,7 @@ interface Database {
   applications: Application[];
   approvals: Approval[];
   spotChecks: SpotCheck[];
+  contracts: Contract[];
   hallOfFame: HallOfFameEntry[];
   systemSettings: SystemSettings;
   incidentReports: IncidentReport[];
@@ -19,22 +21,24 @@ interface Database {
   payrollEntries: PayrollEntry[];
   promotions: Promotion[];
   appeals: Appeal[];
+  // FIX: Added tables for the training system.
+  trainingModules: TrainingModule[];
+  userTrainingProgress: UserTrainingProgress[];
 }
 
 // Initial seed data
 const initialData: Database = {
   users: [
-    { id: 'user-1', firstName: 'Admin', lastName: 'Owner', email: 'owner@sss.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
-    { id: 'user-2', firstName: 'Jane', lastName: 'Doe', email: 'coowner@sss.com', role: UserRole.CoOwner, rank: 'ASST CHF (Asst. Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
-    { id: 'user-3', firstName: 'John', lastName: 'Smith', email: 'director@sss.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8 },
-    { id: 'user-4', firstName: 'Emily', lastName: 'Jones', email: 'manager@sss.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 5, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.9 },
-    { id: 'user-5', firstName: 'Robert', lastName: 'Brown', email: 'secretary@sss.com', role: UserRole.Secretary, rank: 'N/A', level: 1, certifications: ['Admin'], weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-6', firstName: 'Mike', lastName: 'Davis', email: 'supervisor@sss.com', role: UserRole.Supervisor, rank: 'SGT (Sergeant)', level: 4, certifications: ['Level 4', 'Supervision', 'First Aid/CPR'], weeklyHours: 0, performanceRating: 4.7 },
-    { id: 'user-7', firstName: 'Sarah', lastName: 'Wilson', email: 'training@sss.com', role: UserRole.TrainingOfficer, rank: 'CPL (Corporal)', level: 4, certifications: ['Level 4', 'Instructor', 'First Aid/CPR'], weeklyHours: 0, performanceRating: 4.6 },
-    { id: 'user-8', firstName: 'David', lastName: 'Clark', email: 'leadguard@sss.com', role: UserRole.LeadGuard, rank: 'PVT (Private)', level: 3, certifications: ['Level 3', 'Lead', 'Taser Certified'], weeklyHours: 0, performanceRating: 4.5 },
-    { id: 'user-9', firstName: 'Chris', lastName: 'Taylor', email: 'guard@sss.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 2, certifications: ['Level 2', 'Pepper Spray Certified'], weeklyHours: 0, performanceRating: 4.2 },
-    { id: 'user-10', firstName: 'Jessica', lastName: 'Miller', email: 'dispatch@sss.com', role: UserRole.Dispatch, rank: 'N/A', level: 1, certifications: ['Dispatch'], weeklyHours: 0, performanceRating: 0 },
-    { id: 'user-11', firstName: 'Kevin', lastName: 'Harris', email: 'client@sss.com', role: UserRole.Client, rank: 'N/A', level: 0, certifications: [], weeklyHours: 0, performanceRating: 0 },
+    // Owner
+    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'm.white@signaturesecurityspecialist.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
+    
+    // Team 1 Operations
+    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'j.lyons@signaturesecurityspecialist.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-1' },
+    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 't.moreno@signaturesecurityspecialist.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-1' },
+    
+    // Team 2 Operations
+    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'b.baker@signaturesecurityspecialist.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-2' },
+    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'r.granum@signaturesecurityspecialist.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-2' },
   ],
   clients: [],
   missions: [],
@@ -43,6 +47,7 @@ const initialData: Database = {
   applications: [],
   approvals: [],
   spotChecks: [],
+  contracts: [],
   systemSettings: {
     companyName: 'Signature Security Specialists',
     payrollCycle: 'Bi-Weekly',
@@ -54,6 +59,18 @@ const initialData: Database = {
   payrollEntries: [],
   promotions: [],
   appeals: [],
+  // FIX: Added seed data for training modules and an empty array for user progress.
+  trainingModules: [
+    { id: 'tm-1', title: 'Level 1 - Basic Security', type: 'guard', duration: '2 hours', content: 'Covers basic security procedures, customer service, incident reporting, and emergency response.', quiz: [{ q: 'What is the first step in an emergency?', a: 'Assess the situation' }] },
+    { id: 'tm-2', title: 'Level 2 - Pepper Spray', type: 'guard', duration: '1.5 hours', content: 'Covers pepper spray usage, defensive tactics, and de-escalation.', quiz: [{ q: 'What is the effective range of pepper spray?', a: '10-15 feet' }] },
+    { id: 'tm-3', title: 'Level 3 - Taser Certified', type: 'guard', duration: '3 hours', content: 'Covers Taser operation, use of force policies, and legal training.', quiz: [{ q: 'What does Taser stand for?', a: "Thomas A. Swift's Electric Rifle" }] },
+    { id: 'tm-4', title: 'Level 4 - Baton Certified', type: 'guard', duration: '4 hours', content: 'Covers baton usage, comprehensive defensive tactics, and advanced use of force.', quiz: [{ q: 'What is the primary target area for a baton strike?', a: 'Large muscle groups' }] },
+    { id: 'tm-5', title: 'Level 5 - Armed Security', type: 'guard', duration: '8 hours', content: 'Covers firearms proficiency, legal implications, and tactical training.', quiz: [{ q: 'What are the four universal firearm safety rules?', a: "Treat every firearm as if it's loaded; Never point a firearm at anything you are not willing to destroy; Keep your finger off the trigger until you are ready to shoot; Be sure of your target and what is beyond it." }] },
+    { id: 'tm-lead-1', title: 'Lead Guard Principles', type: 'lead-guard', duration: '2 hours', content: 'Covers site leadership, team coordination, and client liaison.', quiz: [{ q: 'What is a key responsibility of a Lead Guard?', a: 'Client communication' }] },
+    { id: 'tm-sup-1', title: 'Supervisor Training', type: 'supervisor', duration: '6 hours', content: 'Covers spot checks, quality assurance, and field oversight.', quiz: [{ q: 'How many spot checks are required per shift?', a: '3' }] },
+    { id: 'tm-to-1', title: 'Training Officer Course', type: 'training-officer', duration: '4 hours', content: 'Covers training management and certification tracking.', quiz: [{ q: 'What is the main role of a Training Officer?', a: 'Manage guard training and certifications' }] },
+  ],
+  userTrainingProgress: [],
 };
 
 const DB_KEY = 'sss_db';
@@ -71,8 +88,9 @@ const readDB = (): Database => {
       ...m,
       startTime: new Date(m.startTime),
       endTime: new Date(m.endTime),
-      checkInTime: m.checkInTime ? new Date(m.checkInTime) : undefined,
-      checkOutTime: m.checkOutTime ? new Date(m.checkOutTime) : undefined,
+      checkIns: (m.checkIns || []).map((ci: any) => ({ ...ci, time: new Date(ci.time) })),
+      checkOuts: (m.checkOuts || []).map((co: any) => ({ ...co, time: new Date(co.time) })),
+      reports: (m.reports || []).map((r: any) => ({ ...r, time: new Date(r.time) })),
   }));
    db.spotChecks = (db.spotChecks || []).map((sc: any) => ({
        ...sc,
@@ -89,6 +107,11 @@ const readDB = (): Database => {
     }));
     db.promotions = (db.promotions || []).map((p: any) => ({ ...p, dateApplied: new Date(p.dateApplied) }));
     db.appeals = (db.appeals || []).map((a: any) => ({ ...a, dateSubmitted: new Date(a.dateSubmitted) }));
+    db.contracts = (db.contracts || []).map((c: any) => ({
+      ...c,
+      startDate: new Date(c.startDate),
+      endDate: new Date(c.endDate),
+    }));
 
   // Add new tables if they don't exist
   db.hallOfFame = db.hallOfFame || [];
@@ -99,6 +122,11 @@ const readDB = (): Database => {
   db.payrollEntries = db.payrollEntries || [];
   db.promotions = db.promotions || [];
   db.appeals = db.appeals || [];
+  db.contracts = db.contracts || [];
+  // FIX: Ensure training tables exist on load.
+  db.trainingModules = db.trainingModules || [];
+  db.userTrainingProgress = db.userTrainingProgress || [];
+
 
   return db;
 };
@@ -133,6 +161,28 @@ export const getPayrollRuns = (): PayrollRun[] => readDB().payrollRuns.sort((a, 
 export const getPayrollEntriesForRun = (runId: string): PayrollEntry[] => readDB().payrollEntries.filter(p => p.payrollRunId === runId) || [];
 export const getPromotions = (): Promotion[] => readDB().promotions || [];
 export const getAppeals = (): Appeal[] => readDB().appeals || [];
+export const getContracts = (): Contract[] => readDB().contracts;
+
+export const addContract = (contractData: Omit<Contract, 'id' | 'status'>): void => {
+    const db = readDB();
+    const newContract: Contract = {
+        ...contractData,
+        id: `contract-${Date.now()}`,
+        status: 'Pending'
+    };
+    db.contracts.push(newContract);
+    db.approvals.push({ id: `appr-${Date.now()}`, type: 'Contract', subject: `New Contract: ${contractData.title}`, details: `Client ID: ${contractData.clientId}`, requesterId: 'system' });
+    writeDB(db);
+};
+
+export const updateContractStatus = (contractId: string, status: 'Active' | 'Cancelled'): void => {
+    const db = readDB();
+    const contract = db.contracts.find(c => c.id === contractId);
+    if (contract) {
+        contract.status = status;
+        writeDB(db);
+    }
+};
 
 export const addApplication = (appData: Omit<Application, 'id' | 'status'>): void => {
     const db = readDB();
@@ -145,9 +195,38 @@ export const addApplication = (appData: Omit<Application, 'id' | 'status'>): voi
     writeDB(db);
 };
 
-export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>): Mission => {
+export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy' | 'checkIns' | 'checkOuts' | 'reports'>): Mission => {
     const db = readDB();
-    const newMission: Mission = { ...missionData, id: `mission-${Date.now()}`, status: 'Open', claimedBy: null, incidentIds: [] };
+    const contract = db.contracts.find(c => c.id === missionData.contractId);
+    if (!contract || contract.status !== 'Active') {
+        console.error("Cannot add mission to inactive contract");
+        return missionData as Mission;
+    }
+    
+    const missionDuration = (missionData.endTime.getTime() - missionData.startTime.getTime()) / 3600000;
+    const missionCost = missionDuration * missionData.payRate * missionData.requiredGuards;
+    
+    const missionsOnContract = db.missions.filter(m => m.contractId === missionData.contractId && m.status !== 'Cancelled');
+    const spentBudget = missionsOnContract.reduce((acc, m) => {
+        const duration = (m.endTime.getTime() - m.startTime.getTime()) / 3600000;
+        return acc + (duration * m.payRate * m.requiredGuards);
+    }, 0);
+    const remainingBudget = contract.totalBudget - spentBudget;
+    
+    if (missionCost > remainingBudget) {
+        db.alerts.push({ id: `alert-${Date.now()}`, severity: 'High', message: `Mission "${missionData.title}" exceeds contract budget.`, time: new Date().toISOString(), acknowledged: false });
+    }
+
+    const newMission: Mission = { 
+        ...missionData, 
+        id: `mission-${Date.now()}`, 
+        status: 'Open', 
+        claimedBy: [], 
+        checkIns: [],
+        checkOuts: [],
+        reports: [],
+        incidentIds: [] 
+    };
     db.missions.push(newMission);
     writeDB(db);
     return newMission;
@@ -161,16 +240,20 @@ export const claimMission = (missionId: string, guardId: string): { success: boo
 
     if (!mission || !guard || !client) return { success: false, message: "Invalid data." };
     if (mission.status !== 'Open') return { success: false, message: "Mission is not available." };
+    if (mission.claimedBy.length >= mission.requiredGuards) return { success: false, message: "All slots for this mission are filled." };
+    if (mission.claimedBy.includes(guardId)) return { success: false, message: "You have already claimed this mission." };
     if (client.blacklist.includes(guardId)) return { success: false, message: "You are blacklisted by this client." };
 
     const missionDuration = (mission.endTime.getTime() - mission.startTime.getTime()) / 3600000;
     if (guard.weeklyHours + missionDuration > 40) {
-        // Allow override but create alert
-         db.alerts.push({ id: `alert-${Date.now()}`, severity: 'Medium', message: `Guard ${guard.firstName} ${guard.lastName} exceeded 40hr week limit.`, time: 'now', acknowledged: false });
+         db.alerts.push({ id: `alert-${Date.now()}`, severity: 'Medium', message: `Guard ${guard.firstName} ${guard.lastName} exceeded 40hr week limit.`, time: new Date().toISOString(), acknowledged: false });
     }
     
-    mission.status = 'Claimed';
-    mission.claimedBy = guardId;
+    mission.claimedBy.push(guardId);
+    if (mission.claimedBy.length === mission.requiredGuards) {
+        mission.status = 'Claimed';
+    }
+    
     writeDB(db);
     return { success: true, message: "Mission claimed!" };
 };
@@ -182,9 +265,9 @@ export const updateApplicationStatus = (applicationId: string, status: Applicati
     
     application.status = status;
     if (status === 'Approved') {
-        const id = `user-${Date.now()}`;
         if (application.type === 'New Guard' || application.type === 'New Supervisor') {
             const newUserData = application.data as Partial<User>;
+            const id = `user-${Date.now()}`;
             db.users.push({
                 id,
                 firstName: newUserData.firstName || 'N/A', lastName: newUserData.lastName || 'N/A', email: newUserData.email || `${id}@sss.com`,
@@ -193,12 +276,31 @@ export const updateApplicationStatus = (applicationId: string, status: Applicati
             });
         } else if (application.type === 'New Client') {
             const newClientData = application.data as Partial<Client>;
+            const clientId = `client-${Date.now()}`;
+            const userId = `user-${Date.now() + 1}`;
+
+            // Create a new User for the Client to log in with
+            db.users.push({
+                id: userId,
+                firstName: newClientData.companyName || 'Client',
+                lastName: 'Account',
+                email: newClientData.contactEmail || `${userId}@unknown.com`,
+                role: UserRole.Client,
+                rank: 'Client',
+                level: 0,
+                certifications: [],
+                weeklyHours: 0,
+                performanceRating: 0,
+            });
+
+            // Create the Client profile and link it to the new User
             db.clients.push({
-                id: `client-${Date.now()}`,
+                id: clientId,
                 companyName: newClientData.companyName || 'New Client',
-                contactEmail: newClientData.contactEmail || `contact@${Date.now()}.com`,
-                userId: null, // Initially no user linked
-                whitelist: [], blacklist: []
+                contactEmail: newClientData.contactEmail || 'no-email@provided.com',
+                userId: userId, // Link to the created user
+                whitelist: [],
+                blacklist: [],
             });
         }
     }
@@ -226,35 +328,48 @@ export const addSite = (siteData: Omit<Site, 'id'>): Site => {
     return newSite;
 };
 
-export const missionCheckIn = (missionId: string) => {
+export const missionCheckIn = (missionId: string, guardId: string) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
-    if (mission && mission.status === 'Claimed') {
-        mission.status = 'Active';
-        mission.checkInTime = new Date();
+    if (mission && (mission.status === 'Claimed' || mission.status === 'Active')) {
+        if (mission.checkIns.length === 0) {
+            mission.status = 'Active';
+        }
+        if (!mission.checkIns.some(c => c.guardId === guardId)) {
+            mission.checkIns.push({ guardId, time: new Date() });
+            writeDB(db);
+        }
+    }
+};
+
+export const missionCheckOut = (missionId: string, guardId: string) => {
+    const db = readDB();
+    const mission = db.missions.find(m => m.id === missionId);
+    if (mission && mission.status === 'Active' && mission.checkIns.some(c => c.guardId === guardId) && !mission.checkOuts.some(c => c.guardId === guardId)) {
+        mission.checkOuts.push({ guardId, time: new Date() });
+
+        const checkIn = mission.checkIns.find(c => c.guardId === guardId);
+        if (checkIn) {
+            const duration = (new Date().getTime() - checkIn.time.getTime()) / 3600000;
+            const guard = db.users.find(u => u.id === guardId);
+            if (guard) guard.weeklyHours += duration;
+        }
+
+        if (mission.checkOuts.length >= mission.claimedBy.length) {
+            mission.status = 'AwaitingReport';
+        }
         writeDB(db);
     }
 };
 
-export const missionCheckOut = (missionId: string) => {
+export const submitMissionReport = (missionId: string, guardId: string, report: string) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
-    if (mission && mission.status === 'Active') {
-        mission.status = 'AwaitingReport';
-        mission.checkOutTime = new Date();
-        const duration = (mission.checkOutTime.getTime() - (mission.checkInTime?.getTime() || mission.startTime.getTime())) / 3600000;
-        const guard = db.users.find(u => u.id === mission.claimedBy);
-        if (guard) guard.weeklyHours += duration;
-        writeDB(db);
-    }
-};
-
-export const submitMissionReport = (missionId: string, report: string) => {
-    const db = readDB();
-    const mission = db.missions.find(m => m.id === missionId);
-    if (mission && mission.status === 'AwaitingReport') {
-        mission.status = 'Completed';
-        mission.report = report;
+    if (mission && (mission.status === 'AwaitingReport' || mission.status === 'Active')) {
+        mission.reports.push({ guardId, report, time: new Date() });
+        if (mission.reports.length >= mission.checkOuts.length && mission.checkOuts.length > 0) {
+            mission.status = 'Completed';
+        }
         writeDB(db);
     }
 };
@@ -280,12 +395,14 @@ export const rateMission = (missionId: string, rating: number) => {
     const mission = db.missions.find(m => m.id === missionId);
     if(mission && mission.status === 'Completed' && !mission.clientRating) {
         mission.clientRating = rating;
-        const guard = db.users.find(u => u.id === mission.claimedBy);
-        if(guard) {
-            const completedMissions = db.missions.filter(m => m.claimedBy === guard.id && m.clientRating);
-            const totalRating = completedMissions.reduce((sum, m) => sum + (m.clientRating || 0), 0);
-            guard.performanceRating = totalRating / completedMissions.length;
-        }
+        mission.claimedBy.forEach(guardId => {
+            const guard = db.users.find(u => u.id === guardId);
+            if(guard) {
+                const completedMissions = db.missions.filter(m => m.claimedBy.includes(guard.id) && m.clientRating);
+                const totalRating = completedMissions.reduce((sum, m) => sum + (m.clientRating || 0), 0);
+                guard.performanceRating = totalRating / completedMissions.length;
+            }
+        });
         writeDB(db);
     }
 };
@@ -352,9 +469,12 @@ export const deleteUser = (userId: string): void => {
     if (userId === 'user-1') return;
     db.users = db.users.filter(u => u.id !== userId);
     db.missions.forEach(m => {
-        if (m.claimedBy === userId) {
-            m.claimedBy = null;
-            m.status = 'Open';
+        const index = m.claimedBy.indexOf(userId);
+        if (index > -1) {
+            m.claimedBy.splice(index, 1);
+            if (m.status === 'Claimed') {
+                m.status = 'Open';
+            }
         }
     });
     writeDB(db);
@@ -459,30 +579,33 @@ export const updateVehicle = (vehicleId: string, data: Partial<Vehicle>): void =
 export const createPayrollRun = (startDate: Date, endDate: Date): void => {
     const db = readDB();
     const runId = `pr-${Date.now()}`;
-    const missionsInPeriod = db.missions.filter(m => m.status === 'Completed' && m.checkOutTime && m.checkOutTime >= startDate && m.checkOutTime <= endDate);
+    const missionsInPeriod = db.missions.filter(m => m.status === 'Completed' && m.checkOuts.length > 0 && m.checkOuts[0].time >= startDate && m.checkOuts[0].time <= endDate);
     
     let totalAmount = 0;
     const newEntries: PayrollEntry[] = [];
 
     missionsInPeriod.forEach(mission => {
-        if (!mission.checkOutTime || !mission.checkInTime || !mission.claimedBy) return;
+        mission.checkOuts.forEach(checkout => {
+            const checkin = mission.checkIns.find(ci => ci.guardId === checkout.guardId);
+            if (!checkin) return;
+            
+            const alreadyProcessed = db.payrollEntries.some(e => e.missionId === mission.id && e.userId === checkout.guardId);
+            if (alreadyProcessed) return;
 
-        const alreadyProcessed = db.payrollEntries.some(e => e.missionId === mission.id);
-        if (alreadyProcessed) return;
-
-        const hours = (mission.checkOutTime.getTime() - mission.checkInTime.getTime()) / 3600000;
-        const totalPay = hours * mission.payRate;
-        totalAmount += totalPay;
-        newEntries.push({
-            id: `pe-${mission.id}`,
-            payrollRunId: runId,
-            userId: mission.claimedBy,
-            missionId: mission.id,
-            hours,
-            payRate: mission.payRate,
-            totalPay,
-            paymentConfirmed: false,
-        });
+            const hours = (checkout.time.getTime() - checkin.time.getTime()) / 3600000;
+            const totalPay = hours * mission.payRate;
+            totalAmount += totalPay;
+            newEntries.push({
+                id: `pe-${mission.id}-${checkout.guardId}`,
+                payrollRunId: runId,
+                userId: checkout.guardId,
+                missionId: mission.id,
+                hours,
+                payRate: mission.payRate,
+                totalPay,
+                paymentConfirmed: false,
+            });
+        })
     });
 
     const newRun: PayrollRun = {
@@ -563,4 +686,46 @@ export const updateAppealStatus = (appealId: string, status: 'Approved' | 'Denie
         // Logic to handle approved appeal would go here, e.g., re-opening an application
         writeDB(db);
     }
+};
+
+// FIX: Added missing training functions
+export const getTrainingModules = (): TrainingModule[] => readDB().trainingModules || [];
+
+export const getUserTrainingProgress = (userId: string): UserTrainingProgress[] => {
+    return readDB().userTrainingProgress.filter(p => p.userId === userId) || [];
+};
+
+export const completeTraining = (userId: string, moduleId: string, passed: boolean): void => {
+    const db = readDB();
+    let progress = db.userTrainingProgress.find(p => p.userId === userId && p.moduleId === moduleId);
+
+    if (progress) {
+        if (progress.status === 'Passed' || progress.status === 'Pending Approval') return; // Cannot retake passed/pending
+        progress.attempts += 1;
+        progress.status = passed ? 'Pending Approval' : 'Failed';
+    } else {
+        progress = {
+            userId,
+            moduleId,
+            status: passed ? 'Pending Approval' : 'Failed',
+            attempts: 1,
+        };
+        db.userTrainingProgress.push(progress);
+    }
+
+    if (passed) {
+        const module = db.trainingModules.find(m => m.id === moduleId);
+        const user = db.users.find(u => u.id === userId);
+        if (module && user) {
+             db.approvals.push({
+                id: `appr-train-${Date.now()}`,
+                type: 'Training',
+                subject: `Training Completed: ${module.title}`,
+                details: `${user.firstName} ${user.lastName} has passed the quiz and is awaiting approval.`,
+                requesterId: userId,
+            });
+        }
+    }
+    
+    writeDB(db);
 };

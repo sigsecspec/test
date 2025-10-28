@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import type { Mission, User, Client, SpotCheck } from '../../types.ts';
+// FIX: Import SpotCheckStatus to correctly type the modal props and state.
+import type { Mission, User, Client, SpotCheck, SpotCheckStatus } from '../../types.ts';
 import { getSpotChecksForMission } from '../../database.ts';
 import { XIcon } from '../Icons.tsx';
 
 interface SpotCheckModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (status: SpotCheck['status'], notes: string) => void;
+    // FIX: Corrected prop type to use SpotCheckStatus.
+    onSubmit: (status: SpotCheckStatus, notes: string) => void;
 }
 const SpotCheckModal: React.FC<SpotCheckModalProps> = ({ isOpen, onClose, onSubmit }) => {
-    const [status, setStatus] = useState<SpotCheck['status']>('Guard Present');
+    // FIX: Corrected state type to use SpotCheckStatus.
+    const [status, setStatus] = useState<SpotCheckStatus>('Guard Present');
     const [notes, setNotes] = useState('');
     if (!isOpen) return null;
 
@@ -18,7 +21,8 @@ const SpotCheckModal: React.FC<SpotCheckModalProps> = ({ isOpen, onClose, onSubm
             <div className="relative bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 w-full max-w-lg shadow-xl" onClick={e => e.stopPropagation()}>
                 <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Log Spot Check</h3>
                 <div className="space-y-4">
-                    <select value={status} onChange={e => setStatus(e.target.value as SpotCheck['status'])} className="w-full bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-md py-2 px-3 text-[var(--text-primary)]">
+                    {/* FIX: Corrected select type to use SpotCheckStatus. */}
+                    <select value={status} onChange={e => setStatus(e.target.value as SpotCheckStatus)} className="w-full bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-md py-2 px-3 text-[var(--text-primary)]">
                         <option>Guard Present</option>
                         <option>Guard Absent</option>
                         <option>Uniform OK</option>
@@ -48,9 +52,9 @@ const FieldOversight: React.FC<FieldOversightProps> = ({ missions, users, client
     const [checkingMissionId, setCheckingMissionId] = useState<string|null>(null);
     const activeMissions = missions.filter(m => m.status === 'Active');
 
-    const getUserName = (userId: string | null) => {
-        if (!userId) return 'N/A';
-        const user = users.find(u => u.id === userId);
+    const getUserName = (userIds: string[]) => {
+        if (!userIds || userIds.length === 0) return 'N/A';
+        const user = users.find(u => u.id === userIds[0]);
         return user ? `${user.firstName} ${user.lastName}` : 'Unknown Guard';
     };
 
@@ -69,6 +73,7 @@ const FieldOversight: React.FC<FieldOversightProps> = ({ missions, users, client
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <h3 className="font-bold text-[var(--text-primary)]">{mission.title} @ {mission.site}</h3>
+                                        {/* FIX: Correctly call getUserName with an array */}
                                         <p className="text-sm text-[var(--text-secondary)]">Guard: {getUserName(mission.claimedBy)}</p>
                                     </div>
                                     <button onClick={() => setCheckingMissionId(mission.id)} className="bg-blue-600 text-white font-bold py-1 px-3 text-sm rounded-md hover:bg-blue-500">Log Spot Check</button>
@@ -77,6 +82,7 @@ const FieldOversight: React.FC<FieldOversightProps> = ({ missions, users, client
                                     <div className="mt-3 pt-3 border-t border-[var(--border-tertiary)]">
                                         <h4 className="text-xs font-semibold text-[var(--text-secondary)]">Spot Check Log:</h4>
                                         <ul className="text-xs text-[var(--text-primary)] list-disc list-inside">
+                                            {/* FIX: Accessing status and notes properties which now exist on the simplified SpotCheck type. */}
                                             {spotChecks.map(sc => <li key={sc.id}>{sc.time.toLocaleTimeString()}: {sc.status} - {sc.notes}</li>)}
                                         </ul>
                                     </div>
@@ -95,6 +101,7 @@ const FieldOversight: React.FC<FieldOversightProps> = ({ missions, users, client
                     isOpen={!!checkingMissionId}
                     onClose={() => setCheckingMissionId(null)}
                     onSubmit={(status, notes) => {
+                        // FIX: Passing the correct object shape to onAddSpotCheck based on the new SpotCheck type.
                         onAddSpotCheck({ missionId: checkingMissionId, supervisorId, status, notes });
                         setCheckingMissionId(null);
                     }}

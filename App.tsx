@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal, UserRole } from './types.ts';
+import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, Promotion, Appeal, UserRole, Contract } from './types.ts';
 import DashboardScreen from './components/DashboardScreen.tsx';
 import HomePage from './components/HomePage.tsx';
 import LoginModal from './components/LoginModal.tsx';
@@ -14,6 +14,7 @@ import {
   getAlerts,
   getApplications,
   getApprovals,
+  getContracts,
   getSpotChecksForMission,
   getHallOfFameEntries,
   getSystemSettings,
@@ -57,6 +58,8 @@ import {
   updatePromotionStatus as dbUpdatePromotionStatus,
   addAppeal as dbAddAppeal,
   updateAppealStatus as dbUpdateAppealStatus,
+  addContract as dbAddContract,
+  updateContractStatus as dbUpdateContractStatus,
 } from './database.ts';
 
 const App: React.FC = () => {
@@ -68,6 +71,7 @@ const App: React.FC = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [approvals, setApprovals] = useState<Approval[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [hallOfFameEntries, setHallOfFameEntries] = useState<HallOfFameEntry[]>([]);
   const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
   const [incidentReports, setIncidentReports] = useState<IncidentReport[]>([]);
@@ -88,6 +92,7 @@ const App: React.FC = () => {
     setAlerts(getAlerts());
     setApplications(getApplications());
     setApprovals(getApprovals());
+    setContracts(getContracts());
     setHallOfFameEntries(getHallOfFameEntries());
     setSystemSettings(getSystemSettings());
     setIncidentReports(getIncidentReports());
@@ -139,14 +144,14 @@ const App: React.FC = () => {
     }
     loadData(); 
   };
-  const handleAddMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => { dbAddMission(missionData); loadData(); };
+  const handleAddMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy' | 'checkIns' | 'checkOuts' | 'reports'>) => { dbAddMission(missionData); loadData(); };
   const handleUpdateApplication = (appId: string, status: 'Approved' | 'Denied') => { dbUpdateApplicationStatus(appId, status); loadData(); };
   const handleProcessApproval = (approvalId: string) => { dbRemoveApproval(approvalId); loadData(); };
   const handleAcknowledgeAlert = (alertId: string) => { dbAcknowledgeAlert(alertId); loadData(); };
   const handleAddSite = (siteData: Omit<Site, 'id'>) => { dbAddSite(siteData); loadData(); };
-  const handleMissionCheckIn = (missionId: string) => { dbMissionCheckIn(missionId); loadData(); };
-  const handleMissionCheckOut = (missionId: string) => { dbMissionCheckOut(missionId); loadData(); };
-  const handleSubmitReport = (missionId: string, report: string) => { dbSubmitMissionReport(missionId, report); loadData(); };
+  const handleMissionCheckIn = (missionId: string, guardId: string) => { dbMissionCheckIn(missionId, guardId); loadData(); };
+  const handleMissionCheckOut = (missionId: string, guardId: string) => { dbMissionCheckOut(missionId, guardId); loadData(); };
+  const handleSubmitReport = (missionId: string, guardId: string, report: string) => { dbSubmitMissionReport(missionId, guardId, report); loadData(); };
   const handleAddIncidentReport = (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => { dbAddIncidentReport(reportData); loadData(); };
   const handleRateMission = (missionId: string, rating: number) => { dbRateMission(missionId, rating); loadData(); };
   const handleAddSpotCheck = (spotCheck: Omit<SpotCheck, 'id' | 'time'>) => { dbAddSpotCheck(spotCheck); loadData(); };
@@ -173,6 +178,8 @@ const App: React.FC = () => {
   const handleUpdatePromotionStatus = (id: string, status: 'Approved' | 'Denied') => { dbUpdatePromotionStatus(id, status); loadData(); };
   const handleAddAppeal = (data: Omit<Appeal, 'id' | 'status' | 'dateSubmitted'>) => { dbAddAppeal(data); loadData(); };
   const handleUpdateAppealStatus = (id: string, status: 'Approved' | 'Denied') => { dbUpdateAppealStatus(id, status); loadData(); };
+  const handleAddContract = (data: Omit<Contract, 'id'|'status'>) => { dbAddContract(data); loadData(); };
+  const handleUpdateContractStatus = (id: string, status: 'Active' | 'Cancelled') => { dbUpdateContractStatus(id, status); loadData(); };
 
 
   if (isLoading || !systemSettings) {
@@ -191,6 +198,7 @@ const App: React.FC = () => {
           alerts={alerts}
           applications={applications}
           approvals={approvals}
+          contracts={contracts}
           hallOfFameEntries={hallOfFameEntries}
           systemSettings={systemSettings}
           incidentReports={incidentReports}
@@ -233,6 +241,8 @@ const App: React.FC = () => {
           onUpdatePromotionStatus={handleUpdatePromotionStatus}
           onAddAppeal={handleAddAppeal}
           onUpdateAppealStatus={handleUpdateAppealStatus}
+          onAddContract={handleAddContract}
+          onUpdateContractStatus={handleUpdateContractStatus}
         />
       ) : (
         <>

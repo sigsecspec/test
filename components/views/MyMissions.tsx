@@ -93,9 +93,9 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onSubmit, us
 
 interface MyMissionCardProps {
     mission: Mission;
-    onCheckIn: (id: string) => void;
-    onCheckOut: (id: string) => void;
-    onSubmitReport: (id: string, report: string, incidents: Omit<IncidentReport, 'id' | 'missionId' | 'timestamp'>[]) => void;
+    onCheckIn: (id: string, guardId: string) => void;
+    onCheckOut: (id: string, guardId: string) => void;
+    onSubmitReport: (id: string, guardId: string, report: string, incidents: Omit<IncidentReport, 'id' | 'missionId' | 'timestamp'>[]) => void;
     user: User;
 }
 
@@ -103,14 +103,24 @@ const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onChe
     const [isReportModalOpen, setReportModalOpen] = useState(false);
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     
+    const hasCheckedIn = mission.checkIns.some(c => c.guardId === user.id);
+    const hasCheckedOut = mission.checkOuts.some(c => c.guardId === user.id);
+    const hasReported = mission.reports.some(r => r.guardId === user.id);
+
     const getStatusStyles = () => {
-        switch(mission.status) {
-            case 'Active': return 'bg-blue-100 text-blue-800 border-blue-300';
-            case 'AwaitingReport': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-            case 'Completed': return 'bg-green-100 text-green-800 border-green-300';
-            default: return 'bg-[var(--bg-primary)] text-[var(--text-secondary)] border-[var(--border-primary)]';
-        }
+        if(hasCheckedIn && !hasCheckedOut) return 'bg-blue-100 text-blue-800 border-blue-300';
+        if(hasCheckedOut && !hasReported) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        if(hasReported) return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-[var(--bg-primary)] text-[var(--text-secondary)] border-[var(--border-primary)]';
     };
+
+    const getPersonalStatus = () => {
+        if(hasReported) return 'Reported';
+        if(hasCheckedOut) return 'Awaiting Your Report';
+        if(hasCheckedIn) return 'You are Active';
+        if(mission.status === 'Claimed' || mission.status === 'Active') return 'Awaiting Your Check-In';
+        return mission.status;
+    }
     
     return (
         <>
@@ -119,7 +129,7 @@ const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onChe
                     <div className="flex justify-between items-start">
                         <h3 className="text-lg font-bold text-[var(--text-primary)]">{mission.title}</h3>
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusStyles().split(' ')[0]} ${getStatusStyles().split(' ')[1]}`}>
-                            {mission.status}
+                            {getPersonalStatus()}
                         </span>
                     </div>
                     <p className="text-sm text-[var(--text-secondary)] mt-1">{mission.site}</p>
@@ -129,11 +139,11 @@ const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onChe
                         <p>Start: {mission.startTime.toLocaleString(undefined, options)}</p>
                         <p>End: {mission.endTime.toLocaleString(undefined, options)}</p>
                     </div>
-                    <div className="mt-4">
-                        {mission.status === 'Claimed' && <button onClick={() => onCheckIn(mission.id)} className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-500 transition">Check In</button>}
-                        {mission.status === 'Active' && <button onClick={() => onCheckOut(mission.id)} className="w-full bg-red-600 text-white font-bold py-2 rounded-md hover:bg-red-500 transition">Check Out</button>}
-                        {mission.status === 'AwaitingReport' && <button onClick={() => setReportModalOpen(true)} className="w-full bg-yellow-400 text-black font-bold py-2 rounded-md hover:bg-yellow-300 transition">Submit Report</button>}
-                        {mission.status === 'Completed' && <p className="text-center text-sm text-green-600">Mission Completed</p>}
+                    <div className="mt-4 h-9">
+                        {!hasCheckedIn && (mission.status === 'Claimed' || mission.status === 'Active') && <button onClick={() => onCheckIn(mission.id, user.id)} className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-500 transition">Check In</button>}
+                        {hasCheckedIn && !hasCheckedOut && <button onClick={() => onCheckOut(mission.id, user.id)} className="w-full bg-red-600 text-white font-bold py-2 rounded-md hover:bg-red-500 transition">Check Out</button>}
+                        {hasCheckedOut && !hasReported && <button onClick={() => setReportModalOpen(true)} className="w-full bg-yellow-400 text-black font-bold py-2 rounded-md hover:bg-yellow-300 transition">Submit Report</button>}
+                        {hasReported && <p className="text-center text-sm text-green-600">Your duties are complete.</p>}
                     </div>
                 </div>
             </div>
@@ -142,7 +152,7 @@ const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onChe
                 onClose={() => setReportModalOpen(false)} 
                 user={user}
                 onSubmit={(summary, incidents) => {
-                    onSubmitReport(mission.id, summary, incidents.map(inc => ({ ...inc, missionId: mission.id, reportedById: user.id })));
+                    onSubmitReport(mission.id, user.id, summary, incidents.map(inc => ({ ...inc, missionId: mission.id, reportedById: user.id })));
                 }} 
             />
         </>
@@ -152,17 +162,17 @@ const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onChe
 interface MyMissionsProps {
   user: User;
   missions: Mission[];
-  onCheckIn: (missionId: string) => void;
-  onCheckOut: (missionId: string) => void;
-  onSubmitReport: (missionId: string, report: string) => void;
+  onCheckIn: (missionId: string, guardId: string) => void;
+  onCheckOut: (missionId: string, guardId: string) => void;
+  onSubmitReport: (missionId: string, guardId: string, report: string) => void;
   onAddIncidentReport: (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => void;
 }
 const MyMissions: React.FC<MyMissionsProps> = ({ user, missions, onCheckIn, onCheckOut, onSubmitReport, onAddIncidentReport }) => {
-    const myMissions = missions.filter(m => m.claimedBy === user.id);
+    const myMissions = missions.filter(m => m.claimedBy.includes(user.id));
 
-    const handleReportSubmit = (missionId: string, summary: string, incidents: Omit<IncidentReport, 'id' | 'timestamp'>[]) => {
+    const handleReportSubmit = (missionId: string, guardId: string, summary: string, incidents: Omit<IncidentReport, 'id' | 'timestamp'>[]) => {
         incidents.forEach(inc => onAddIncidentReport(inc));
-        onSubmitReport(missionId, summary);
+        onSubmitReport(missionId, guardId, summary);
     };
 
     return (

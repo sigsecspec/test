@@ -11,10 +11,12 @@ const LiveControl: React.FC<LiveControlProps> = ({ missions, users, clients }) =
     
     const liveMissions = missions.filter(m => ['Claimed', 'Active', 'AwaitingReport'].includes(m.status));
 
-    const getUserName = (userId: string | null) => {
-        if (!userId) return 'N/A';
-        const user = users.find(u => u.id === userId);
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown Guard';
+    const getGuardNames = (guardIds: string[]) => {
+        if (!guardIds || guardIds.length === 0) return 'N/A';
+        return guardIds.map(id => {
+            const user = users.find(u => u.id === id);
+            return user ? `${user.firstName} ${user.lastName}` : 'Unknown Guard';
+        }).join(', ');
     };
 
     const getClientName = (clientId: string) => {
@@ -25,7 +27,8 @@ const LiveControl: React.FC<LiveControlProps> = ({ missions, users, clients }) =
     const getStatusInfo = (mission: Mission) => {
         switch(mission.status) {
             case 'Claimed': return { style: 'border-gray-300 text-gray-500', label: 'AWAITING CHECK-IN'};
-            case 'Active': return { style: 'border-blue-300 text-blue-600', label: `ACTIVE SINCE ${mission.checkInTime?.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`};
+            // Fix: Property 'checkInTime' does not exist on type 'Mission'. Use `checkIns[0].time` instead.
+            case 'Active': return { style: 'border-blue-300 text-blue-600', label: `ACTIVE SINCE ${mission.checkIns[0]?.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`};
             case 'AwaitingReport': return { style: 'border-yellow-400 text-yellow-600', label: 'AWAITING REPORT'};
             default: return { style: 'border-gray-300 text-gray-500', label: mission.status.toUpperCase() };
         }
@@ -48,7 +51,8 @@ const LiveControl: React.FC<LiveControlProps> = ({ missions, users, clients }) =
                             </div>
                             <p className="text-sm text-[var(--text-secondary)] mt-1 flex-grow">{mission.site}</p>
                             <div className="mt-4 pt-4 border-t border-[var(--border-tertiary)] text-sm">
-                                <p className="text-[var(--text-primary)]"><strong className="font-medium text-[var(--text-secondary)]">Guard:</strong> {getUserName(mission.claimedBy)}</p>
+                                {/* Fix: `mission.claimedBy` is an array of strings. `getGuardNames` handles an array. */}
+                                <p className="text-[var(--text-primary)]"><strong className="font-medium text-[var(--text-secondary)]">Guard:</strong> {getGuardNames(mission.claimedBy)}</p>
                                 <p className="text-[var(--text-primary)]"><strong className="font-medium text-[var(--text-secondary)]">Client:</strong> {getClientName(mission.clientId)}</p>
                                 <p className="text-[var(--text-primary)]"><strong className="font-medium text-[var(--text-secondary)]">Time:</strong> {mission.startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {mission.endTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                             </div>

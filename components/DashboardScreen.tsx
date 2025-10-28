@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, Promotion, Appeal } from '../types.ts';
+import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, Promotion, Appeal, Contract } from '../types.ts';
 import Sidebar from './Sidebar.tsx';
 import { ShieldIcon, LogoutIcon, MenuIcon } from './Icons.tsx';
 
@@ -33,6 +33,8 @@ import Payroll from './views/Payroll.tsx';
 import VehicleManagement from './views/VehicleManagement.tsx';
 import Promotions from './views/Promotions.tsx';
 import Appeals from './views/Appeals.tsx';
+import MyContracts from './views/MyContracts.tsx';
+import ContractApprovals from './views/ContractApprovals.tsx';
 
 
 interface DashboardScreenProps {
@@ -44,6 +46,7 @@ interface DashboardScreenProps {
   alerts: Alert[];
   applications: Application[];
   approvals: Approval[];
+  contracts: Contract[];
   hallOfFameEntries: HallOfFameEntry[];
   systemSettings: SystemSettings;
   incidentReports: IncidentReport[];
@@ -53,14 +56,14 @@ interface DashboardScreenProps {
   appeals: Appeal[];
   onLogout: () => void;
   onClaimMission: (missionId: string, guardId: string) => void;
-  onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
+  onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy' | 'checkIns' | 'checkOuts' | 'reports'>) => void;
   onUpdateApplication: (appId: string, status: 'Approved' | 'Denied') => void;
   onProcessApproval: (approvalId: string) => void;
   onAcknowledgeAlert: (alertId: string) => void;
   onAddSite: (siteData: Omit<Site, 'id'>) => void;
-  onCheckIn: (missionId: string) => void;
-  onCheckOut: (missionId: string) => void;
-  onSubmitReport: (missionId: string, report: string) => void;
+  onCheckIn: (missionId: string, guardId: string) => void;
+  onCheckOut: (missionId: string, guardId: string) => void;
+  onSubmitReport: (missionId: string, guardId: string, report: string) => void;
   onAddIncidentReport: (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => void;
   onRateMission: (missionId: string, rating: number) => void;
   onAddSpotCheck: (spotCheck: Omit<SpotCheck, 'id' | 'time'>) => void;
@@ -86,11 +89,13 @@ interface DashboardScreenProps {
   onUpdatePromotionStatus: (id: string, status: 'Approved' | 'Denied') => void;
   onAddAppeal: (data: Omit<Appeal, 'id'|'status'|'dateSubmitted'>) => void;
   onUpdateAppealStatus: (id: string, status: 'Approved' | 'Denied') => void;
+  onAddContract: (contractData: Omit<Contract, 'id'|'status'>) => void;
+  onUpdateContractStatus: (contractId: string, status: 'Active' | 'Cancelled') => void;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
   const { 
-    user, users, missions, clients, sites, alerts, applications, approvals, hallOfFameEntries, systemSettings, 
+    user, users, missions, clients, sites, alerts, applications, approvals, contracts, hallOfFameEntries, systemSettings, 
     incidentReports, vehicles, payrollRuns, promotions, appeals, onLogout, 
     ...handlers
   } = props;
@@ -134,16 +139,19 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
         return <Promotions user={user} users={users} promotions={promotions} onAddPromotion={handlers.onAddPromotion} onUpdatePromotionStatus={handlers.onUpdatePromotionStatus} />;
       // Client Views
       case 'Post Mission':
-        return <PostMission clients={clients} onAddMission={handlers.onAddMission} user={user} sites={sites} />;
+        return <PostMission clients={clients} contracts={contracts} onAddMission={handlers.onAddMission} user={user} sites={sites} />;
       case 'Active Missions':
         return <ActiveMissions user={user} missions={missions} users={users} clients={clients} incidentReports={incidentReports} onRateMission={handlers.onRateMission} />;
       case 'My Sites':
         return <MySites user={user} clients={clients} sites={sites} onAddSite={handlers.onAddSite} onUpdateSite={handlers.onUpdateSite} onDeleteSite={handlers.onDeleteSite} />;
+      case 'My Contracts':
+        const client = clients.find(c => c.userId === user.id);
+        return client ? <MyContracts client={client} contracts={contracts} onAddContract={handlers.onAddContract} /> : null;
       case 'Billing':
         return <Billing user={user} missions={missions} clients={clients} />;
       case 'Guard Roster': // For Client
-        const client = clients.find(c => c.userId === user.id);
-        return client ? <ClientGuardRoster client={client} allGuards={users.filter(u => u.role === UserRole.Guard || u.role === UserRole.LeadGuard)} onUpdateList={handlers.onUpdateClientGuardList}/> : null;
+        const clientForRoster = clients.find(c => c.userId === user.id);
+        return clientForRoster ? <ClientGuardRoster client={clientForRoster} allGuards={users.filter(u => u.role === UserRole.Guard || u.role === UserRole.LeadGuard)} onUpdateList={handlers.onUpdateClientGuardList}/> : null;
       // Management Views
       case 'User Management':
         return <GuardManagement users={users} onUpdateUser={handlers.onUpdateUser} onDeleteUser={handlers.onDeleteUser} />;
@@ -153,6 +161,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
         return <MissionControl missions={missions} users={users} clients={clients} sites={sites} onUpdateMission={handlers.onUpdateMission} onCancelMission={handlers.onCancelMission}/>;
       case 'Approvals':
         return <Approvals approvals={approvals} users={users} onProcessApproval={handlers.onProcessApproval} />;
+      case 'Contract Approvals':
+        return <ContractApprovals contracts={contracts} clients={clients} onUpdateContractStatus={handlers.onUpdateContractStatus} />;
       case 'Analytics':
         return <Analytics users={users} missions={missions} clients={clients} />;
       case 'System Settings':
@@ -178,7 +188,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
         return <Alerts alerts={alerts} onAcknowledge={handlers.onAcknowledgeAlert} />;
       // Secretary Views
       case 'Applications':
-        return <Applications applications={applications} onUpdateApplication={handlers.onUpdateApplication} />;
+        return <Applications applications={applications} user={user} onUpdateApplication={handlers.onUpdateApplication} />;
       case 'Communications':
         return <Communications />;
       case 'Hall of Fame':

@@ -2,8 +2,8 @@ export enum UserRole {
   // Executive
   Owner = "Owner",
   CoOwner = "Co-Owner",
-  DeputyChief = "Deputy Chief",
-  Commander = "Commander",
+  DeputyChief = "Deputy Chief", // Secretary
+  Commander = "Commander", // Dispatch
   // Operations
   OperationsDirector = "Operations Director",
   OperationsManager = "Operations Manager",
@@ -29,6 +29,7 @@ export interface User {
     certifications: string[];
     weeklyHours: number;
     performanceRating: number;
+    teamId?: string; // Operations Team ID
 }
 
 export interface Client {
@@ -38,13 +39,26 @@ export interface Client {
     userId: string | null;
     whitelist: string[]; // Array of Guard user IDs
     blacklist: string[]; // Array of Guard user IDs
+    teamId?: string;
 }
 
 export type MissionStatus = 'Open' | 'Claimed' | 'Active' | 'AwaitingReport' | 'Completed' | 'Cancelled';
 
+export interface Contract {
+    id: string;
+    clientId: string;
+    title: string;
+    status: 'Pending' | 'Active' | 'Completed' | 'Cancelled';
+    startDate: Date;
+    endDate: Date;
+    totalBudget: number;
+    companyCommission: number; // e.g., 0.07 for 7%
+}
+
 export interface Mission {
     id: string;
     clientId: string;
+    contractId: string;
     title: string;
     site: string;
     description: string;
@@ -52,14 +66,18 @@ export interface Mission {
     endTime: Date;
     payRate: number;
     requiredLevel: number;
+    requiredTraining: string[]; // Array of training module IDs
+    requiredGuards: number;
     status: MissionStatus;
-    claimedBy: string | null; // User ID of the guard
-    checkInTime?: Date;
-    checkOutTime?: Date;
-    report?: string;
+    claimedBy: string[];
+    checkIns: { guardId: string, time: Date, selfie?: string }[];
+    checkOuts: { guardId: string, time: Date, selfie?: string }[];
+    reports: { guardId: string, report: string, time: Date }[];
     clientRating?: number; // 1-5 stars
     incidentIds?: string[]; // IDs of related incidents
+    teamId?: string;
 }
+
 
 export interface Site {
   id: string;
@@ -80,26 +98,30 @@ export type ApplicationStatus = 'Pending' | 'Approved' | 'Denied';
 
 export interface Application {
   id: string;
-  type: 'New Guard' | 'New Client' | 'New Supervisor';
+  type: 'New Guard' | 'New Client' | 'New Supervisor' | 'New Operations' | 'New Management';
   name: string;
   status: ApplicationStatus;
   data: Partial<User & Client>;
+  teamCode?: string;
 }
 
 export interface Approval {
   id: string;
-  type: 'Promotion' | 'Overtime' | 'Training';
+  type: 'Promotion' | 'Overtime' | 'Training' | 'Contract';
   subject: string;
   details: string;
   requesterId: string;
 }
+
+// FIX: Simplified SpotCheck to match implementation in FieldOversight.tsx
+export type SpotCheckStatus = 'Guard Present' | 'Guard Absent' | 'Uniform OK' | 'Issue Reported';
 
 export interface SpotCheck {
     id: string;
     missionId: string;
     supervisorId: string;
     time: Date;
-    status: 'Guard Present' | 'Guard Absent' | 'Uniform OK' | 'Issue Reported';
+    status: SpotCheckStatus;
     notes: string;
 }
 
@@ -181,4 +203,28 @@ export interface Appeal {
   reason: string;
   status: AppealStatus;
   dateSubmitted: Date;
+}
+
+// Training System Types
+export interface QuizQuestion {
+    q: string;
+    a: string;
+}
+
+export interface TrainingModule {
+    id: string;
+    title: string;
+    type: 'guard' | 'lead-guard' | 'supervisor' | 'training-officer' | 'operations' | 'management';
+    duration: string;
+    content: string;
+    quiz: QuizQuestion[];
+}
+
+export type UserTrainingStatus = 'Not Started' | 'Passed' | 'Failed' | 'Pending Approval';
+
+export interface UserTrainingProgress {
+    userId: string;
+    moduleId: string;
+    status: UserTrainingStatus;
+    attempts: number;
 }

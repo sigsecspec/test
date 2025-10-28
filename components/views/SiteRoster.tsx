@@ -9,15 +9,17 @@ interface SiteRosterProps {
 
 const SiteRoster: React.FC<SiteRosterProps> = ({ user, missions, users }) => {
     
+    // Fix: `claimedBy` is an array, so use `includes`.
     // Find missions the current lead guard has claimed
-    const myClaimedMissions = missions.filter(m => m.claimedBy === user.id);
+    const myClaimedMissions = missions.filter(m => m.claimedBy.includes(user.id));
     const mySites = [...new Set(myClaimedMissions.map(m => m.site))];
 
     // Find all missions at those same sites
-    const siteMissions = missions.filter(m => mySites.includes(m.site) && m.status === 'Claimed');
+    const siteMissions = missions.filter(m => mySites.includes(m.site) && ['Claimed', 'Active'].includes(m.status));
     
+    // Fix: `claimedBy` is an array. `map` would create an array of arrays. Use `flatMap` to flatten the result.
     // Get unique user IDs of guards at those sites
-    const guardIdsOnSite = [...new Set(siteMissions.map(m => m.claimedBy).filter(Boolean))];
+    const guardIdsOnSite = [...new Set(siteMissions.flatMap(m => m.claimedBy))];
     const guardsOnSite = users.filter(u => guardIdsOnSite.includes(u.id));
 
     return (
@@ -27,7 +29,8 @@ const SiteRoster: React.FC<SiteRosterProps> = ({ user, missions, users }) => {
 
             {mySites.length > 0 ? (
                 mySites.map(site => {
-                    const guardsForSite = guardsOnSite.filter(g => siteMissions.some(m => m.site === site && m.claimedBy === g.id));
+                    // Fix: `claimedBy` is an array, so use `includes`.
+                    const guardsForSite = guardsOnSite.filter(g => siteMissions.some(m => m.site === site && m.claimedBy.includes(g.id)));
                     return (
                         <div key={site} className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 mb-6 shadow-sm">
                             <h3 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 mb-4">{site}</h3>

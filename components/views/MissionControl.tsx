@@ -78,10 +78,12 @@ const MissionControl: React.FC<MissionControlProps> = ({ missions, users, client
         }
     };
 
-    const getUserName = (userId: string | null) => {
-        if (!userId) return 'N/A';
-        const user = users.find(u => u.id === userId);
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown Guard';
+    const getGuardNames = (guardIds: string[]) => {
+        if (guardIds.length === 0) return 'N/A';
+        return guardIds.map(id => {
+            const user = users.find(u => u.id === id);
+            return user ? `${user.firstName} ${user.lastName}` : 'Unknown';
+        }).join(', ');
     };
 
     const getClientName = (clientId: string) => {
@@ -105,7 +107,7 @@ const MissionControl: React.FC<MissionControlProps> = ({ missions, users, client
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Client</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Time</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Status</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Assigned Guard</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Assigned Guards</th>
                                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -115,8 +117,8 @@ const MissionControl: React.FC<MissionControlProps> = ({ missions, users, client
                                     <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-[var(--text-primary)]">{mission.title}</div><div className="text-xs text-[var(--text-secondary)]">{mission.site}</div></td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{getClientName(mission.clientId)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{mission.startTime.toLocaleString(undefined, options)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${ mission.status === 'Open' ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : mission.status === 'Claimed' || mission.status === 'Active' ? 'bg-blue-100 text-blue-800' : mission.status === 'Cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }`}>{mission.status}</span></td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{getUserName(mission.claimedBy)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${ mission.status === 'Open' ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : mission.status === 'Claimed' || mission.status === 'Active' ? 'bg-blue-100 text-blue-800' : mission.status === 'Cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }`}>{mission.status} ({mission.claimedBy.length}/{mission.requiredGuards})</span></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-primary)]">{getGuardNames(mission.claimedBy)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                         {mission.status !== 'Completed' && mission.status !== 'Cancelled' && (
                                             <>

@@ -11,6 +11,15 @@ const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSubmit }) 
     const [rating, setRating] = useState(5);
     if (!isOpen) return null;
 
+    const handleRate = () => {
+        const spokeWithSupervisor = window.confirm("Before rating, please confirm: have you spoken with a Signature Security Specialist Supervisor regarding this mission today?");
+        if (spokeWithSupervisor) {
+            onSubmit(rating);
+        } else {
+            alert("Please ensure you connect with the on-site supervisor to provide feedback on our team's performance. You can rate the mission after this conversation.");
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="relative bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6 w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
@@ -20,7 +29,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSubmit }) 
                         <button key={star} onClick={() => setRating(star)} className={`text-4xl ${star <= rating ? 'text-[var(--accent-primary)]' : 'text-[var(--border-secondary)]'}`}>★</button>
                     ))}
                 </div>
-                <button onClick={() => onSubmit(rating)} className="w-full bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 rounded-md hover:bg-opacity-90">Submit Rating</button>
+                <button onClick={handleRate} className="w-full bg-[var(--accent-primary)] text-[var(--accent-primary-text)] font-bold py-2 rounded-md hover:bg-opacity-90">Submit Rating</button>
                 <button onClick={onClose} className="absolute top-3 right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><XIcon className="h-6 w-6"/></button>
             </div>
         </div>
@@ -42,10 +51,12 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
     const clientProfile = clients.find(c => c.userId === user.id);
     const clientMissions = clientProfile ? missions.filter(m => m.clientId === clientProfile.id) : [];
 
-    const getUserName = (userId: string | null) => {
-        if (!userId) return <span className="text-[var(--text-secondary)]">Unclaimed</span>;
-        const guard = users.find(u => u.id === userId);
-        return guard ? `${guard.firstName} ${guard.lastName}` : 'Unknown Guard';
+    const getGuardNames = (guardIds: string[]) => {
+        if (guardIds.length === 0) return <span className="text-[var(--text-secondary)]">Unclaimed</span>;
+        return guardIds.map(id => {
+            const guard = users.find(u => u.id === id);
+            return guard ? `${guard.firstName} ${guard.lastName}` : 'Unknown';
+        }).join(', ');
     };
 
     const getStatusStyles = (status: Mission['status']) => {
@@ -89,7 +100,7 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
                                         <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Mission</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Date</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Status</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Assigned Guard</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">Assigned Guards</th>
                                         <th className="px-6 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">Actions</th>
                                     </tr>
                                 </thead>
@@ -102,7 +113,7 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
                                             <td className="px-6 py-4"><div className="text-sm font-medium text-[var(--text-primary)]">{mission.title}</div><div className="text-xs text-[var(--text-secondary)]">{mission.site}</div></td>
                                             <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">{mission.startTime.toLocaleDateString()}</td>
                                             <td className="px-6 py-4"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyles(mission.status)}`}>{mission.status}</span></td>
-                                            <td className="px-6 py-4 text-sm text-[var(--text-primary)]">{getUserName(mission.claimedBy)}</td>
+                                            <td className="px-6 py-4 text-sm text-[var(--text-primary)]">{getGuardNames(mission.claimedBy)}</td>
                                             <td className="px-6 py-4 text-right">
                                                 {mission.status === 'Completed' && !mission.clientRating && (
                                                     <button onClick={() => setRatingMissionId(mission.id)} className="text-[var(--accent-primary)] hover:text-opacity-80 text-xs font-semibold">Rate Guard</button>
@@ -110,13 +121,15 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
                                                  {mission.clientRating && <span className="text-xs text-yellow-500">{mission.clientRating} ★</span>}
                                             </td>
                                         </tr>
-                                        {(mission.report || relatedIncidents.length > 0) && (
+                                        {(mission.reports.length > 0 || relatedIncidents.length > 0) && (
                                             <tr className="bg-[var(--bg-primary)]">
                                                 <td colSpan={5} className="px-6 py-3 space-y-2">
-                                                    {mission.report && <>
-                                                        <p className="text-xs text-[var(--text-secondary)] font-semibold">Guard Summary:</p>
-                                                        <p className="text-sm text-[var(--text-primary)] italic">"{mission.report}"</p>
-                                                    </>}
+                                                    {mission.reports.map((report, idx) => (
+                                                        <div key={idx}>
+                                                          <p className="text-xs text-[var(--text-secondary)] font-semibold">Guard Summary ({getGuardNames([report.guardId])}):</p>
+                                                          <p className="text-sm text-[var(--text-primary)] italic">"{report.report}"</p>
+                                                        </div>
+                                                    ))}
                                                     {relatedIncidents.length > 0 && <>
                                                          <p className="text-xs text-[var(--text-secondary)] font-semibold pt-2">Logged Incidents:</p>
                                                          <div className="space-y-2">

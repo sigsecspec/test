@@ -1,13 +1,30 @@
 import React from 'react';
 import { DocumentTextIcon } from '../Icons.tsx';
-import { Application } from '../../types.ts';
+import { Application, User, UserRole } from '../../types.ts';
 
 interface ApplicationsProps {
     applications: Application[];
+    user: User;
     onUpdateApplication: (appId: string, status: 'Approved' | 'Denied') => void;
 }
 
-const Applications: React.FC<ApplicationsProps> = ({ applications, onUpdateApplication }) => {
+const Applications: React.FC<ApplicationsProps> = ({ applications, user, onUpdateApplication }) => {
+    const higherUpRoles = [
+        UserRole.Owner,
+        UserRole.CoOwner,
+        UserRole.DeputyChief,
+        UserRole.OperationsDirector,
+        UserRole.Secretary,
+    ];
+
+    const filteredApplications = applications.filter(app => {
+        const isClientApp = app.type === 'New Client';
+        if (higherUpRoles.includes(user.role)) {
+            return true;
+        }
+        return !isClientApp;
+    });
+
     return (
          <div>
             <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Pending Applications</h2>
@@ -24,8 +41,8 @@ const Applications: React.FC<ApplicationsProps> = ({ applications, onUpdateAppli
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-tertiary)]">
-                            {applications.length > 0 ? (
-                                applications.map((app) => (
+                            {filteredApplications.length > 0 ? (
+                                filteredApplications.map((app) => (
                                     <tr key={app.id} className="hover:bg-[var(--bg-primary)]">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">{app.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{app.type}</td>

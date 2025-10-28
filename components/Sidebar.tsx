@@ -4,7 +4,8 @@ import {
     HomeIcon, ClipboardListIcon, CalendarIcon, UserIcon, AcademicCapIcon, 
     PlusCircleIcon, LocationMarkerIcon, CreditCardIcon, CogIcon, UsersIcon, 
     ChartBarIcon, BriefcaseIcon, CheckCircleIcon, EyeIcon, MapIcon, 
-    BellIcon, DocumentTextIcon, MailIcon, TrophyIcon, FlagIcon, ArrowUpTrayIcon 
+    BellIcon, DocumentTextIcon, MailIcon, TrophyIcon, FlagIcon, ArrowUpTrayIcon,
+    DocumentDuplicateIcon
 } from './Icons.tsx';
 
 // A new icon for Vehicle Management
@@ -23,14 +24,16 @@ interface SidebarProps {
 
 const getDashboardTitle = (role: UserRole) => {
     switch(role) {
-      case UserRole.Owner: case UserRole.CoOwner: return "Company Control";
-      case UserRole.DeputyChief: case UserRole.Commander: return "Executive Command";
+      case UserRole.Owner: return "Company Control";
+      case UserRole.CoOwner: return "Company Control";
+      case UserRole.DeputyChief: return "Admin Support"; // Secretary
+      case UserRole.Commander: return "Live Control"; // Dispatch
       case UserRole.OperationsDirector: return "Strategic Oversight";
       case UserRole.OperationsManager: return "Daily Operations";
       case UserRole.Dispatch: return "Live Control";
       case UserRole.Secretary: return "Admin Support";
-      case UserRole.Supervisor: return "Field Oversight";
-      case UserRole.TrainingOfficer: return "Training Management";
+      case UserRole.Supervisor: return "Field Command";
+      case UserRole.TrainingOfficer: return "Training Command";
       case UserRole.LeadGuard: return "Site Command";
       case UserRole.Guard: return "Field Operations";
       case UserRole.Client: return "Client Portal";
@@ -52,13 +55,21 @@ const baseNavItems: { [key in UserRole]?: { name: string; icon: React.FC<any> }[
     [UserRole.TrainingOfficer]: [ { name: 'Training Management', icon: AcademicCapIcon } ],
     [UserRole.Supervisor]: [
         { name: 'Field Oversight', icon: EyeIcon },
-        { name: 'Training Approvals', icon: AcademicCapIcon },
+        { name: 'Training Approvals', icon: CheckCircleIcon },
     ],
     [UserRole.Dispatch]: [
         { name: 'Live Control', icon: MapIcon },
         { name: 'Alerts', icon: BellIcon },
     ],
+     [UserRole.Commander]: [ // Inherits Dispatch
+        { name: 'Live Control', icon: MapIcon },
+        { name: 'Alerts', icon: BellIcon },
+    ],
     [UserRole.Secretary]: [
+        { name: 'Applications', icon: DocumentTextIcon },
+        { name: 'Communications', icon: MailIcon },
+    ],
+    [UserRole.DeputyChief]: [ // Inherits Secretary
         { name: 'Applications', icon: DocumentTextIcon },
         { name: 'Communications', icon: MailIcon },
     ],
@@ -70,16 +81,18 @@ const baseNavItems: { [key in UserRole]?: { name: string; icon: React.FC<any> }[
     ],
     [UserRole.OperationsDirector]: [
         { name: 'Approvals', icon: CheckCircleIcon },
+        { name: 'Contract Approvals', icon: DocumentDuplicateIcon },
         { name: 'Payroll', icon: CreditCardIcon },
     ],
-    [UserRole.Commander]: [ { name: 'Analytics', icon: ChartBarIcon }, ],
     [UserRole.Owner]: [
+        { name: 'Analytics', icon: ChartBarIcon },
         { name: 'System Settings', icon: CogIcon },
         { name: 'Appeals', icon: FlagIcon },
     ],
     [UserRole.Client]: [
         { name: 'Post Mission', icon: PlusCircleIcon },
         { name: 'Active Missions', icon: ClipboardListIcon },
+        { name: 'My Contracts', icon: DocumentDuplicateIcon },
         { name: 'My Sites', icon: LocationMarkerIcon },
         { name: 'Guard Roster', icon: UsersIcon },
         { name: 'Billing', icon: CreditCardIcon },
@@ -87,14 +100,15 @@ const baseNavItems: { [key in UserRole]?: { name: string; icon: React.FC<any> }[
     ],
 };
 
-// Define the hierarchy for permission inheritance
+// Define the hierarchy for permission inheritance based on the spec
+// A role inherits all permissions from the roles listed in its array.
 const roleHierarchy: { [key in UserRole]: UserRole[] } = {
-    [UserRole.Owner]: [UserRole.CoOwner, UserRole.DeputyChief, UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager, UserRole.Dispatch, UserRole.Secretary, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
-    [UserRole.CoOwner]: [UserRole.DeputyChief, UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager, UserRole.Dispatch, UserRole.Secretary, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
-    [UserRole.DeputyChief]: [UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager, UserRole.Dispatch, UserRole.Secretary, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
-    [UserRole.Commander]: [UserRole.OperationsDirector, UserRole.OperationsManager, UserRole.Dispatch, UserRole.Secretary, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
-    [UserRole.OperationsDirector]: [UserRole.OperationsManager, UserRole.Dispatch, UserRole.Secretary, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
-    [UserRole.OperationsManager]: [UserRole.Dispatch, UserRole.Secretary, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
+    [UserRole.Owner]: [UserRole.CoOwner, UserRole.DeputyChief, UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
+    [UserRole.CoOwner]: [UserRole.DeputyChief, UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
+    [UserRole.DeputyChief]: [UserRole.Secretary, UserRole.Guard], // Is Secretary
+    [UserRole.Commander]: [UserRole.Dispatch, UserRole.Guard], // Is Dispatch
+    [UserRole.OperationsDirector]: [UserRole.OperationsManager, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
+    [UserRole.OperationsManager]: [UserRole.Secretary, UserRole.Supervisor, UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
     [UserRole.Dispatch]: [UserRole.Guard],
     [UserRole.Secretary]: [UserRole.Guard],
     [UserRole.Supervisor]: [UserRole.TrainingOfficer, UserRole.LeadGuard, UserRole.Guard],
@@ -103,6 +117,7 @@ const roleHierarchy: { [key in UserRole]: UserRole[] } = {
     [UserRole.Guard]: [],
     [UserRole.Client]: [],
 };
+
 
 // Function to generate the full list of nav items based on inheritance
 const getNavItemsForRole = (role: UserRole) => {
@@ -129,11 +144,20 @@ const getNavItemsForRole = (role: UserRole) => {
     
     // Client has a static list
     if (role === UserRole.Client) {
-      return [
+      const clientItems = [
         { name: 'Dashboard', icon: HomeIcon },
-        ...baseNavItems[UserRole.Client]!,
-        { name: 'Hall of Fame', icon: TrophyIcon }
+        ...(baseNavItems[UserRole.Client] || [])
       ];
+      // Manually order My Contracts before My Sites
+      const contractsIndex = clientItems.findIndex(i => i.name === 'My Contracts');
+      const sitesIndex = clientItems.findIndex(i => i.name === 'My Sites');
+      if (contractsIndex > sitesIndex) {
+          const contractsItem = clientItems.splice(contractsIndex, 1)[0];
+          clientItems.splice(sitesIndex, 0, contractsItem);
+      }
+      
+      clientItems.push({ name: 'Hall of Fame', icon: TrophyIcon });
+      return clientItems;
     }
     
     return Array.from(navItems.values());
