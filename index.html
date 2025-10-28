@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SSS Security Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add Babel Standalone for in-browser transpilation of TSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
       :root {
         /* New Theme: "Protect with Purpose" */
@@ -73,7 +75,7 @@
 </head>
 <body class="bg-[var(--bg-primary)]">
     <div id="root"></div>
-    <!-- index.tsx is automatically imported by the platform -->
-    <script type="module" src="./index.tsx"></script>
+    <!-- Load and transpile the main TSX script with Babel -->
+    <script type="text/babel" data-presets="typescript,react" data-type="module" src="./index.tsx"></script>
 </body>
 </html>
