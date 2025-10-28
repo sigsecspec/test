@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mission, Client, UserRole } from './types';
-import LoginScreen from './components/LoginScreen';
+import { User, Mission, Client } from './types';
 import DashboardScreen from './components/DashboardScreen';
+import HomePage from './components/HomePage';
+import LoginModal from './components/LoginModal';
 import { 
   initializeDB, 
   getUserByEmail, 
@@ -26,6 +27,7 @@ const App: React.FC = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [approvals, setApprovals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
   // Function to load all data from the database into state
   const loadData = () => {
@@ -53,6 +55,7 @@ const App: React.FC = () => {
     const user = getUserByEmail(email);
     if (user) {
       setCurrentUser(user);
+      setLoginModalOpen(false); // Close modal on successful login
     }
   };
 
@@ -81,7 +84,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-[#c4c4c4] font-sans">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans">
       {currentUser ? (
         <DashboardScreen 
           user={currentUser} 
@@ -97,7 +100,15 @@ const App: React.FC = () => {
           onAddMission={handleAddMission}
         />
       ) : (
-        <LoginScreen onLogin={handleLogin} />
+        <>
+            <HomePage onOpenLoginModal={() => setLoginModalOpen(true)} />
+            <LoginModal 
+                isOpen={isLoginModalOpen} 
+                onClose={() => setLoginModalOpen(false)} 
+                users={users} 
+                onLogin={handleLogin}
+            />
+        </>
       )}
     </div>
   );

@@ -1,59 +1,47 @@
 import React from 'react';
-import { ShieldIcon } from './Icons';
-import { TEST_USERS } from '../constants';
+import { ShieldIcon, UserIcon } from './Icons';
+import { User, UserRole } from '../types';
 
 interface LoginScreenProps {
+  users: User[];
   onLogin: (email: string) => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ users, onLogin }) => {
+  const sortedUsers = [...users].sort((a, b) => {
+    const order = Object.values(UserRole);
+    return order.indexOf(a.role) - order.indexOf(b.role);
+  });
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6">
-      <div className="w-full max-w-md bg-[#0f0f0f] border border-[#535347] rounded-lg shadow-2xl shadow-[#aeae5a]/10 p-8">
-        <div className="text-center mb-8">
-            <ShieldIcon className="w-16 h-16 mx-auto text-[#aeae5a] mb-2" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#c4c4c4]">Signature Security</h1>
-            <h2 className="text-xl sm:text-2xl font-light text-[#aeae5a]">Specialists</h2>
-            <p className="text-[#787876] mt-2">Security Management System</p>
+      <div className="w-full max-w-sm bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-2xl p-6" style={{'--tw-shadow-color': 'var(--shadow-color)'} as React.CSSProperties}>
+        <div className="text-center mb-6">
+            <ShieldIcon className="w-12 h-12 mx-auto text-[var(--accent-primary)] mb-2" />
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">SSS Portal</h1>
+            <p className="text-[var(--text-secondary)] mt-1">Select a profile to log in</p>
         </div>
         
-        <div className="text-center mb-6">
-            <p className="text-[#c4c4c4] text-lg">Select a Role to Preview</p>
-        </div>
-
-        <div className="space-y-3 mb-8 max-h-60 overflow-y-auto pr-2">
-            {Object.entries(TEST_USERS).map(([email, user]) => (
+        <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
+            {sortedUsers.map((user) => (
                 <button
-                    key={email}
-                    onClick={() => onLogin(email)}
-                    className="w-full bg-[#aeae5a] text-[#0f0f0f] font-bold py-2.5 rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0f0f0f] focus:ring-[#aeae5a] transition-transform duration-150 ease-in-out transform hover:scale-105 text-sm"
+                    key={user.id}
+                    onClick={() => onLogin(user.email)}
+                    className="w-full flex items-center text-left bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary-hover)] border border-[var(--border-tertiary)] text-[var(--text-primary)] p-3 rounded-md transition-all duration-150 transform hover:border-[var(--border-primary-hover)]"
                 >
-                    Login as {user.role}
+                  <div className="w-8 h-8 rounded-full bg-[var(--accent-primary)]/20 flex items-center justify-center mr-3 flex-shrink-0">
+                    <UserIcon className="w-5 h-5 text-[var(--accent-primary)]" />
+                  </div>
+                  <div className="flex-grow">
+                    <p className="font-bold text-sm">{user.firstName} {user.lastName}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">{user.role}</p>
+                  </div>
+                  <div className="ml-auto text-right flex-shrink-0">
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">Lvl {user.level}</span>
+                  </div>
                 </button>
             ))}
         </div>
-
-
-        <div className="mt-8 text-center">
-            <p className="text-[#787876] mb-4">or apply to join our team</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button className="w-full bg-transparent border border-[#535347] text-[#c4c4c4] font-semibold py-2 px-4 rounded-md hover:bg-[#535347]/50 hover:border-[#aeae5a] transition">
-                    New Client
-                </button>
-                <button className="w-full bg-transparent border border-[#535347] text-[#c4c4c4] font-semibold py-2 px-4 rounded-md hover:bg-[#535347]/50 hover:border-[#aeae5a] transition">
-                    New Guard
-                </button>
-                <button className="w-full bg-transparent border border-[#535347] text-[#c4c4c4] font-semibold py-2 px-4 rounded-md hover:bg-[#535347]/50 hover:border-[#aeae5a] transition">
-                    New Supervisor
-                </button>
-            </div>
-        </div>
       </div>
-       <footer className="text-center mt-8 text-[#535347] text-sm">
-            <p>&copy; {new Date().getFullYear()} Signature Security Specialists. All rights reserved.</p>
-            <p>Version 1.0.0</p>
-        </footer>
-    </div>
   );
 };
 
