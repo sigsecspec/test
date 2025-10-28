@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { User, Mission, Client } from '../../types';
+import type { User, Mission, Client, IncidentReport, IncidentSeverity } from '../../types';
 import { XIcon } from '../Icons';
 
 interface RatingModalProps {
@@ -27,16 +27,16 @@ const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSubmit }) 
     );
 };
 
-
 interface ActiveMissionsProps {
     user: User;
     missions: Mission[];
     users: User[];
     clients: Client[];
+    incidentReports: IncidentReport[];
     onRateMission: (missionId: string, rating: number) => void;
 }
 
-const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, clients, onRateMission }) => {
+const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, clients, incidentReports, onRateMission }) => {
     
     const [ratingMissionId, setRatingMissionId] = useState<string | null>(null);
     const clientProfile = clients.find(c => c.userId === user.id);
@@ -55,6 +55,14 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
             case 'AwaitingReport': return 'bg-yellow-500/20 text-yellow-400';
             case 'Completed': return 'bg-green-500/20 text-green-400';
             default: return 'bg-[#787876]/20 text-[#787876]';
+        }
+    };
+    
+    const getSeverityStyles = (severity: IncidentSeverity) => {
+        switch(severity) {
+            case 'High': return 'border-red-500/50 bg-red-900/30';
+            case 'Medium': return 'border-yellow-500/50 bg-yellow-900/30';
+            case 'Low': return 'border-blue-500/50 bg-blue-900/30';
         }
     };
 
@@ -86,7 +94,9 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[#535347]/50">
-                                    {clientMissions.map((mission) => (
+                                    {clientMissions.map((mission) => {
+                                        const relatedIncidents = incidentReports.filter(ir => mission.incidentIds?.includes(ir.id));
+                                        return (
                                        <React.Fragment key={mission.id}>
                                         <tr className="hover:bg-[#535347]/10">
                                             <td className="px-6 py-4"><div className="text-sm font-medium text-[#c4c4c4]">{mission.title}</div><div className="text-xs text-[#787876]">{mission.site}</div></td>
@@ -100,16 +110,28 @@ const ActiveMissions: React.FC<ActiveMissionsProps> = ({ user, missions, users, 
                                                  {mission.clientRating && <span className="text-xs text-yellow-400">{mission.clientRating} ★</span>}
                                             </td>
                                         </tr>
-                                        {mission.report && (
+                                        {(mission.report || relatedIncidents.length > 0) && (
                                             <tr className="bg-[#535347]/10">
-                                                <td colSpan={5} className="px-6 py-2">
-                                                    <p className="text-xs text-[#787876] font-semibold">Guard Report:</p>
-                                                    <p className="text-sm text-[#c4c4c4] italic">"{mission.report}"</p>
+                                                <td colSpan={5} className="px-6 py-3 space-y-2">
+                                                    {mission.report && <>
+                                                        <p className="text-xs text-[#787876] font-semibold">Guard Summary:</p>
+                                                        <p className="text-sm text-[#c4c4c4] italic">"{mission.report}"</p>
+                                                    </>}
+                                                    {relatedIncidents.length > 0 && <>
+                                                         <p className="text-xs text-[#787876] font-semibold pt-2">Logged Incidents:</p>
+                                                         <div className="space-y-2">
+                                                            {relatedIncidents.map(inc => (
+                                                                <div key={inc.id} className={`p-2 border rounded-md text-xs ${getSeverityStyles(inc.severity)}`}>
+                                                                    <strong>{inc.type} ({inc.severity})</strong> @ {inc.timestamp.toLocaleTimeString()}: {inc.description}
+                                                                </div>
+                                                            ))}
+                                                         </div>
+                                                    </>}
                                                 </td>
                                             </tr>
                                         )}
                                        </React.Fragment>
-                                    ))}
+                                    )})}
                                 </tbody>
                             </table>
                         </div>

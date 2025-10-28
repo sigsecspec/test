@@ -62,6 +62,7 @@ export interface Mission {
     checkOutTime?: Date;
     report?: string;
     clientRating?: number; // 1-5 stars
+    incidentIds?: string[]; // IDs of related incidents
 }
 
 export interface Site {
@@ -117,4 +118,47 @@ export interface HallOfFameEntry {
   userId: string;
   award: string; // e.g., "Guard of the Month"
   reason: string;
+}
+
+export type IncidentType = 'Theft' | 'Medical' | 'Property Damage' | 'Trespassing' | 'Disturbance' | 'Other';
+export type IncidentSeverity = 'Low' | 'Medium' | 'High';
+
+export interface IncidentReport {
+  id: string;
+  missionId: string;
+  reportedById: string;
+  timestamp: Date;
+  type: IncidentType;
+  severity: IncidentSeverity;
+  description: string;
+}
+
+export type VehicleStatus = 'Available' | 'In Use' | 'Maintenance';
+
+export interface Vehicle {
+  id: string;
+  name: string;
+  licensePlate: string;
+  status: VehicleStatus;
+  assignedMissionId: string | null;
+}
+
+export type PayrollRunStatus = 'Pending' | 'Approved' | 'Paid';
+
+export interface PayrollRun {
+  id: string;
+  startDate: Date;
+  endDate: Date;
+  status: PayrollRunStatus;
+  totalAmount: number;
+}
+
+export interface PayrollEntry {
+  id: string;
+  payrollRunId: string;
+  userId: string;
+  missionId: string;
+  hours: number;
+  payRate: number;
+  totalPay: number;
 }

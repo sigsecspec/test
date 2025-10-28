@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings } from './types';
+import { User, Mission, Client, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry } from './types';
 import DashboardScreen from './components/DashboardScreen';
 import HomePage from './components/HomePage';
 import LoginModal from './components/LoginModal';
@@ -16,6 +16,10 @@ import {
   getSpotChecksForMission,
   getHallOfFameEntries,
   getSystemSettings,
+  getIncidentReports,
+  getVehicles,
+  getPayrollRuns,
+  getPayrollEntriesForRun,
   claimMission as dbClaimMission,
   addMission as dbAddMission,
   updateApplicationStatus as dbUpdateApplicationStatus,
@@ -25,6 +29,7 @@ import {
   missionCheckIn as dbMissionCheckIn,
   missionCheckOut as dbMissionCheckOut,
   submitMissionReport as dbSubmitMissionReport,
+  addIncidentReport as dbAddIncidentReport,
   rateMission as dbRateMission,
   addSpotCheck as dbAddSpotCheck,
   updateUserRank as dbUpdateUserRank,
@@ -40,6 +45,10 @@ import {
   updateSite as dbUpdateSite,
   deleteSite as dbDeleteSite,
   updateSystemSettings as dbUpdateSystemSettings,
+  addVehicle as dbAddVehicle,
+  updateVehicle as dbUpdateVehicle,
+  createPayrollRun as dbCreatePayrollRun,
+  approvePayrollRun as dbApprovePayrollRun,
 } from './database';
 
 const App: React.FC = () => {
@@ -53,6 +62,9 @@ const App: React.FC = () => {
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [hallOfFameEntries, setHallOfFameEntries] = useState<HallOfFameEntry[]>([]);
   const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
+  const [incidentReports, setIncidentReports] = useState<IncidentReport[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [payrollRuns, setPayrollRuns] = useState<PayrollRun[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -66,6 +78,9 @@ const App: React.FC = () => {
     setApprovals(getApprovals());
     setHallOfFameEntries(getHallOfFameEntries());
     setSystemSettings(getSystemSettings());
+    setIncidentReports(getIncidentReports());
+    setVehicles(getVehicles());
+    setPayrollRuns(getPayrollRuns());
   };
 
   useEffect(() => {
@@ -94,6 +109,7 @@ const App: React.FC = () => {
   const handleMissionCheckIn = (missionId: string) => { dbMissionCheckIn(missionId); loadData(); };
   const handleMissionCheckOut = (missionId: string) => { dbMissionCheckOut(missionId); loadData(); };
   const handleSubmitReport = (missionId: string, report: string) => { dbSubmitMissionReport(missionId, report); loadData(); };
+  const handleAddIncidentReport = (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => { dbAddIncidentReport(reportData); loadData(); };
   const handleRateMission = (missionId: string, rating: number) => { dbRateMission(missionId, rating); loadData(); };
   const handleAddSpotCheck = (spotCheck: Omit<SpotCheck, 'id' | 'time'>) => { dbAddSpotCheck(spotCheck); loadData(); };
   const handleUpdateRank = (userId: string, rank: string, level: number) => { dbUpdateUserRank(userId, rank, level); loadData(); };
@@ -110,6 +126,11 @@ const App: React.FC = () => {
   const handleUpdateSite = (siteId: string, data: Partial<Site>) => { dbUpdateSite(siteId, data); loadData(); };
   const handleDeleteSite = (siteId: string) => { dbDeleteSite(siteId); loadData(); };
   const handleUpdateSystemSettings = (settings: SystemSettings) => { dbUpdateSystemSettings(settings); loadData(); };
+  const handleAddVehicle = (data: Omit<Vehicle, 'id'>) => { dbAddVehicle(data); loadData(); };
+  const handleUpdateVehicle = (id: string, data: Partial<Vehicle>) => { dbUpdateVehicle(id, data); loadData(); };
+  const handleCreatePayrollRun = (startDate: Date, endDate: Date) => { dbCreatePayrollRun(startDate, endDate); loadData(); };
+  const handleApprovePayrollRun = (id: string) => { dbApprovePayrollRun(id); loadData(); };
+
 
   if (isLoading || !systemSettings) {
     return <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-[#c4c4c4]">Loading System...</div>
@@ -129,6 +150,9 @@ const App: React.FC = () => {
           approvals={approvals}
           hallOfFameEntries={hallOfFameEntries}
           systemSettings={systemSettings}
+          incidentReports={incidentReports}
+          vehicles={vehicles}
+          payrollRuns={payrollRuns}
           onLogout={handleLogout}
           onClaimMission={handleClaimMission}
           onAddMission={handleAddMission}
@@ -139,6 +163,7 @@ const App: React.FC = () => {
           onCheckIn={handleMissionCheckIn}
           onCheckOut={handleMissionCheckOut}
           onSubmitReport={handleSubmitReport}
+          onAddIncidentReport={handleAddIncidentReport}
           onRateMission={handleRateMission}
           onAddSpotCheck={handleAddSpotCheck}
           onUpdateRank={handleUpdateRank}
@@ -154,6 +179,10 @@ const App: React.FC = () => {
           onUpdateSite={handleUpdateSite}
           onDeleteSite={handleDeleteSite}
           onUpdateSystemSettings={handleUpdateSystemSettings}
+          onAddVehicle={handleAddVehicle}
+          onUpdateVehicle={handleUpdateVehicle}
+          onCreatePayrollRun={handleCreatePayrollRun}
+          onApprovePayrollRun={handleApprovePayrollRun}
         />
       ) : (
         <>

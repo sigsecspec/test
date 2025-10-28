@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings } from '../types';
+import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun } from '../types';
 import Sidebar from './Sidebar';
 import { ShieldIcon, LogoutIcon, MenuIcon } from './Icons';
 
@@ -30,6 +30,8 @@ import Billing from './views/Billing';
 import Earnings from './views/Earnings';
 import ClientGuardRoster from './views/ClientGuardRoster';
 import HallOfFame from './views/HallOfFame';
+import Payroll from './views/Payroll';
+import VehicleManagement from './views/VehicleManagement';
 
 
 interface DashboardScreenProps {
@@ -43,6 +45,9 @@ interface DashboardScreenProps {
   approvals: Approval[];
   hallOfFameEntries: HallOfFameEntry[];
   systemSettings: SystemSettings;
+  incidentReports: IncidentReport[];
+  vehicles: Vehicle[];
+  payrollRuns: PayrollRun[];
   onLogout: () => void;
   onClaimMission: (missionId: string, guardId: string) => void;
   onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
@@ -53,6 +58,7 @@ interface DashboardScreenProps {
   onCheckIn: (missionId: string) => void;
   onCheckOut: (missionId: string) => void;
   onSubmitReport: (missionId: string, report: string) => void;
+  onAddIncidentReport: (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => void;
   onRateMission: (missionId: string, rating: number) => void;
   onAddSpotCheck: (spotCheck: Omit<SpotCheck, 'id' | 'time'>) => void;
   onUpdateRank: (userId: string, rank: string, level: number) => void;
@@ -68,15 +74,20 @@ interface DashboardScreenProps {
   onUpdateSite: (siteId: string, data: Partial<Site>) => void;
   onDeleteSite: (siteId: string) => void;
   onUpdateSystemSettings: (settings: SystemSettings) => void;
+  onAddVehicle: (data: Omit<Vehicle, 'id'>) => void;
+  onUpdateVehicle: (id: string, data: Partial<Vehicle>) => void;
+  onCreatePayrollRun: (startDate: Date, endDate: Date) => void;
+  onApprovePayrollRun: (id: string) => void;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
   const { 
-    user, users, missions, clients, sites, alerts, applications, approvals, hallOfFameEntries, systemSettings, onLogout, 
+    user, users, missions, clients, sites, alerts, applications, approvals, hallOfFameEntries, systemSettings, 
+    incidentReports, vehicles, payrollRuns, onLogout, 
     onClaimMission, onAddMission, onUpdateApplication, onProcessApproval, onAcknowledgeAlert, onAddSite,
-    onCheckIn, onCheckOut, onSubmitReport, onRateMission, onAddSpotCheck, onUpdateRank, onUpdateCerts, onUpdateClientGuardList,
+    onCheckIn, onCheckOut, onSubmitReport, onAddIncidentReport, onRateMission, onAddSpotCheck, onUpdateRank, onUpdateCerts, onUpdateClientGuardList,
     onUpdateMission, onCancelMission, onUpdateUser, onDeleteUser, onAddClient, onUpdateClient, onDeleteClient,
-    onUpdateSite, onDeleteSite, onUpdateSystemSettings
+    onUpdateSite, onDeleteSite, onUpdateSystemSettings, onAddVehicle, onUpdateVehicle, onCreatePayrollRun, onApprovePayrollRun
   } = props;
   const [activeView, setActiveView] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -104,8 +115,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
       // Guard & Lead Views
       case 'Mission Board':
         return <MissionBoard user={user} missions={missions} onClaimMission={onClaimMission} clients={clients} />;
-      case 'My Missions':
-        return <MyMissions user={user} missions={missions} onCheckIn={onCheckIn} onCheckOut={onCheckOut} onSubmitReport={onSubmitReport} />;
+      case 'Mission Hub':
+        return <MyMissions user={user} missions={missions} onCheckIn={onCheckIn} onCheckOut={onCheckOut} onSubmitReport={onSubmitReport} onAddIncidentReport={onAddIncidentReport} />;
       case 'My Profile':
         return <MyProfile user={user} />;
       case 'Training':
@@ -118,7 +129,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
       case 'Post Mission':
         return <PostMission clients={clients} onAddMission={onAddMission} user={user} sites={sites} />;
       case 'Active Missions':
-        return <ActiveMissions user={user} missions={missions} users={users} clients={clients} onRateMission={onRateMission} />;
+        return <ActiveMissions user={user} missions={missions} users={users} clients={clients} incidentReports={incidentReports} onRateMission={onRateMission} />;
       case 'My Sites':
         return <MySites user={user} clients={clients} sites={sites} onAddSite={onAddSite} onUpdateSite={onUpdateSite} onDeleteSite={onDeleteSite} />;
       case 'Billing':
@@ -141,6 +152,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
       case 'System Settings':
         // FIX: Used the aliased component name `SystemSettingsView` to render the component.
         return <SystemSettingsView systemSettings={systemSettings} onUpdateSystemSettings={onUpdateSystemSettings} />;
+      case 'Payroll':
+        return <Payroll payrollRuns={payrollRuns} users={users} onCreatePayrollRun={onCreatePayrollRun} onApprovePayrollRun={onApprovePayrollRun} />;
+      case 'Vehicle Management':
+        return <VehicleManagement vehicles={vehicles} missions={missions} onAddVehicle={onAddVehicle} onUpdateVehicle={onUpdateVehicle} />;
       // Supervisor Views
       case 'Field Oversight':
         return <FieldOversight missions={missions} users={users} clients={clients} supervisorId={user.id} onAddSpotCheck={onAddSpotCheck} />;

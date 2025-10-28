@@ -1,34 +1,87 @@
 import React, { useState } from 'react';
-import type { User, Mission } from '../../types';
-import { XIcon } from '../Icons';
+import type { User, Mission, IncidentReport, IncidentType, IncidentSeverity } from '../../types';
+import { XIcon, PlusCircleIcon } from '../Icons';
+
+const incidentTypes: IncidentType[] = ['Theft', 'Medical', 'Property Damage', 'Trespassing', 'Disturbance', 'Other'];
+const severities: IncidentSeverity[] = ['Low', 'Medium', 'High'];
 
 interface ReportModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (report: string) => void;
+    onSubmit: (report: string, incidents: Omit<IncidentReport, 'id' | 'missionId' | 'reportedById' | 'timestamp'>[]) => void;
+    user: User;
 }
-const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onSubmit }) => {
-    const [report, setReport] = useState('');
+
+const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onSubmit, user }) => {
+    const [summary, setSummary] = useState('');
+    const [incidents, setIncidents] = useState<Omit<IncidentReport, 'id' | 'missionId' | 'reportedById' | 'timestamp'>[]>([]);
+    const [showIncidentForm, setShowIncidentForm] = useState(false);
+    const [currentIncident, setCurrentIncident] = useState({ type: incidentTypes[0], severity: severities[0], description: '' });
+
     if (!isOpen) return null;
+
+    const handleAddIncident = () => {
+        if (currentIncident.description) {
+            setIncidents([...incidents, { ...currentIncident, reportedById: user.id }]);
+            setCurrentIncident({ type: incidentTypes[0], severity: severities[0], description: '' });
+            setShowIncidentForm(false);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(report);
+        onSubmit(summary, incidents);
         onClose();
     };
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="relative bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+            <div className="relative bg-[#0f0f0f] border border-[#535347] rounded-lg p-6 w-full max-w-2xl" onClick={e => e.stopPropagation()}>
                 <h3 className="text-lg font-bold text-[#c4c4c4] mb-4">Submit Mission Report</h3>
                 <form onSubmit={handleSubmit}>
-                    <textarea value={report} onChange={e => setReport(e.target.value)} rows={6}
-                        className="w-full bg-[#1a1a1a] border border-[#535347] rounded-md text-[#c4c4c4] p-2 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a]"
-                        placeholder="Detail any incidents or observations..." required
-                    ></textarea>
-                    <div className="flex justify-end mt-4">
+                    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                        <div>
+                            <label className="block text-sm font-medium text-[#c4c4c4]">Mission Summary</label>
+                            <textarea value={summary} onChange={e => setSummary(e.target.value)} rows={4}
+                                className="mt-1 w-full bg-[#1a1a1a] border border-[#535347] rounded-md text-[#c4c4c4] p-2 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a]"
+                                placeholder="Provide a general summary of the shift..." required
+                            ></textarea>
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-medium text-[#c4c4c4]">Incident Log</h4>
+                            {incidents.length > 0 && (
+                                <ul className="mt-2 space-y-2 text-sm">
+                                    {incidents.map((inc, i) => (
+                                        <li key={i} className="bg-[#1a1a1a] p-2 rounded-md border border-[#535347]/50">
+                                            <strong className="text-[#aeae5a]">{inc.type} ({inc.severity})</strong>: {inc.description}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {showIncidentForm ? (
+                                <div className="mt-2 p-3 bg-[#1a1a1a] border border-[#535347] rounded-md space-y-2">
+                                    <select value={currentIncident.type} onChange={e => setCurrentIncident(p => ({...p, type: e.target.value as IncidentType}))} className="w-full bg-[#0f0f0f] border border-[#535347] rounded-md py-1 px-2 text-[#c4c4c4]">
+                                        {incidentTypes.map(t => <option key={t}>{t}</option>)}
+                                    </select>
+                                    <select value={currentIncident.severity} onChange={e => setCurrentIncident(p => ({...p, severity: e.target.value as IncidentSeverity}))} className="w-full bg-[#0f0f0f] border border-[#535347] rounded-md py-1 px-2 text-[#c4c4c4]">
+                                        {severities.map(s => <option key={s}>{s}</option>)}
+                                    </select>
+                                    <textarea value={currentIncident.description} onChange={e => setCurrentIncident(p => ({...p, description: e.target.value}))} rows={3} placeholder="Describe the incident..." className="w-full bg-[#0f0f0f] border border-[#535347] rounded-md p-2 text-[#c4c4c4]"></textarea>
+                                    <div className="flex justify-end space-x-2">
+                                        <button type="button" onClick={() => setShowIncidentForm(false)} className="text-xs text-[#787876] font-semibold py-1 px-2 rounded-md hover:text-[#c4c4c4]">Cancel</button>
+                                        <button type="button" onClick={handleAddIncident} className="bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded-md hover:bg-blue-500">Add Incident</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button type="button" onClick={() => setShowIncidentForm(true)} className="mt-2 flex items-center text-sm text-[#aeae5a] font-semibold hover:text-opacity-80">
+                                    <PlusCircleIcon className="h-5 w-5 mr-1"/> Log an Incident
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex justify-end mt-6">
                         <button type="submit" className="bg-[#aeae5a] text-[#0f0f0f] font-bold py-2 px-4 rounded-md hover:bg-opacity-90">
-                            Submit Report
+                            Submit Final Report
                         </button>
                     </div>
                 </form>
@@ -38,14 +91,15 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onSubmit }) 
     );
 };
 
-
 interface MyMissionCardProps {
     mission: Mission;
     onCheckIn: (id: string) => void;
     onCheckOut: (id: string) => void;
-    onSubmitReport: (id: string, report: string) => void;
+    onSubmitReport: (id: string, report: string, incidents: Omit<IncidentReport, 'id' | 'missionId' | 'timestamp'>[]) => void;
+    user: User;
 }
-const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onCheckOut, onSubmitReport }) => {
+
+const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onCheckOut, onSubmitReport, user }) => {
     const [isReportModalOpen, setReportModalOpen] = useState(false);
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     
@@ -83,11 +137,17 @@ const MyMissionCard: React.FC<MyMissionCardProps> = ({ mission, onCheckIn, onChe
                     </div>
                 </div>
             </div>
-            <ReportModal isOpen={isReportModalOpen} onClose={() => setReportModalOpen(false)} onSubmit={(report) => onSubmitReport(mission.id, report)} />
+            <ReportModal 
+                isOpen={isReportModalOpen} 
+                onClose={() => setReportModalOpen(false)} 
+                user={user}
+                onSubmit={(summary, incidents) => {
+                    onSubmitReport(mission.id, summary, incidents.map(inc => ({ ...inc, missionId: mission.id, reportedById: user.id })));
+                }} 
+            />
         </>
     );
 };
-
 
 interface MyMissionsProps {
   user: User;
@@ -95,19 +155,32 @@ interface MyMissionsProps {
   onCheckIn: (missionId: string) => void;
   onCheckOut: (missionId: string) => void;
   onSubmitReport: (missionId: string, report: string) => void;
+  onAddIncidentReport: (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => void;
 }
-const MyMissions: React.FC<MyMissionsProps> = ({ user, missions, onCheckIn, onCheckOut, onSubmitReport }) => {
+const MyMissions: React.FC<MyMissionsProps> = ({ user, missions, onCheckIn, onCheckOut, onSubmitReport, onAddIncidentReport }) => {
     const myMissions = missions.filter(m => m.claimedBy === user.id);
+
+    const handleReportSubmit = (missionId: string, summary: string, incidents: Omit<IncidentReport, 'id' | 'timestamp'>[]) => {
+        incidents.forEach(inc => onAddIncidentReport(inc));
+        onSubmitReport(missionId, summary);
+    };
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">My Missions</h2>
-            <p className="text-[#787876] mb-6">Here are the missions you have claimed. Be sure to check in on time.</p>
+            <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">Mission Hub</h2>
+            <p className="text-[#787876] mb-6">Manage your claimed missions, check in/out, and submit detailed post-mission reports.</p>
             
             {myMissions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {myMissions.map(mission => (
-                        <MyMissionCard key={mission.id} mission={mission} onCheckIn={onCheckIn} onCheckOut={onCheckOut} onSubmitReport={onSubmitReport} />
+                        <MyMissionCard 
+                            key={mission.id} 
+                            mission={mission} 
+                            user={user}
+                            onCheckIn={onCheckIn} 
+                            onCheckOut={onCheckOut} 
+                            onSubmitReport={handleReportSubmit} 
+                        />
                     ))}
                 </div>
             ) : (

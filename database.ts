@@ -1,5 +1,5 @@
 import { UserRole } from './types';
-import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings } from './types';
+import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry } from './types';
 
 // Let's define the shape of our database
 interface Database {
@@ -13,65 +13,43 @@ interface Database {
   spotChecks: SpotCheck[];
   hallOfFame: HallOfFameEntry[];
   systemSettings: SystemSettings;
+  incidentReports: IncidentReport[];
+  vehicles: Vehicle[];
+  payrollRuns: PayrollRun[];
+  payrollEntries: PayrollEntry[];
 }
 
 // Initial seed data
 const initialData: Database = {
   users: [
-    { id: 'user-1', firstName: 'Admin', lastName: 'Owner', email: 'owner@sss.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
-    { id: 'user-2', firstName: 'Jane', lastName: 'Doe', email: 'coowner@sss.com', role: UserRole.CoOwner, rank: 'ASST CHF (Asst. Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
-    { id: 'user-3', firstName: 'John', lastName: 'Smith', email: 'director@sss.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8 },
-    { id: 'user-4', firstName: 'Emily', lastName: 'Jones', email: 'manager@sss.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 5, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.9 },
-    { id: 'user-5', firstName: 'Robert', lastName: 'Brown', email: 'secretary@sss.com', role: UserRole.Secretary, rank: 'N/A', level: 1, certifications: ['Admin'], weeklyHours: 0, performanceRating: 5.0 },
-    { id: 'user-6', firstName: 'Mike', lastName: 'Davis', email: 'supervisor@sss.com', role: UserRole.Supervisor, rank: 'SGT (Sergeant)', level: 4, certifications: ['Level 4', 'Supervision'], guardType: 'Base', weeklyHours: 16, performanceRating: 4.7 },
-    { id: 'user-7', firstName: 'Sarah', lastName: 'Wilson', email: 'training@sss.com', role: UserRole.TrainingOfficer, rank: 'CPL (Corporal)', level: 4, certifications: ['Level 4', 'Instructor'], guardType: 'Base', weeklyHours: 40, performanceRating: 4.9 },
-    { id: 'user-8', firstName: 'David', lastName: 'Clark', email: 'leadguard@sss.com', role: UserRole.LeadGuard, rank: 'CPL (Corporal)', level: 3, certifications: ['Level 3', 'Lead'], guardType: 'Base', weeklyHours: 8, performanceRating: 4.6 },
-    { id: 'user-9', firstName: 'Chris', lastName: 'Taylor', email: 'guard@sss.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 2, certifications: ['Level 2'], guardType: 'Flex', weeklyHours: 32, performanceRating: 4.3 },
-    { id: 'user-10', firstName: 'Jessica', lastName: 'Miller', email: 'dispatch@sss.com', role: UserRole.Dispatch, rank: 'N/A', level: 1, certifications: ['Dispatch'], weeklyHours: 0, performanceRating: 5.0 },
+    { id: 'user-1', firstName: 'Admin', lastName: 'Owner', email: 'owner@sss.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-2', firstName: 'Jane', lastName: 'Doe', email: 'coowner@sss.com', role: UserRole.CoOwner, rank: 'ASST CHF (Asst. Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-3', firstName: 'John', lastName: 'Smith', email: 'director@sss.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-4', firstName: 'Emily', lastName: 'Jones', email: 'manager@sss.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 5, certifications: ['Management'], weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-5', firstName: 'Robert', lastName: 'Brown', email: 'secretary@sss.com', role: UserRole.Secretary, rank: 'N/A', level: 1, certifications: ['Admin'], weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-6', firstName: 'Mike', lastName: 'Davis', email: 'supervisor@sss.com', role: UserRole.Supervisor, rank: 'SGT (Sergeant)', level: 4, certifications: ['Level 4', 'Supervision'], guardType: 'Base', weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-7', firstName: 'Sarah', lastName: 'Wilson', email: 'training@sss.com', role: UserRole.TrainingOfficer, rank: 'CPL (Corporal)', level: 4, certifications: ['Level 4', 'Instructor'], guardType: 'Base', weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-8', firstName: 'David', lastName: 'Clark', email: 'leadguard@sss.com', role: UserRole.LeadGuard, rank: 'CPL (Corporal)', level: 3, certifications: ['Level 3', 'Lead'], guardType: 'Base', weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-9', firstName: 'Chris', lastName: 'Taylor', email: 'guard@sss.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 2, certifications: ['Level 2'], guardType: 'Flex', weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-10', firstName: 'Jessica', lastName: 'Miller', email: 'dispatch@sss.com', role: UserRole.Dispatch, rank: 'N/A', level: 1, certifications: ['Dispatch'], weeklyHours: 0, performanceRating: 0 },
     { id: 'user-11', firstName: 'Kevin', lastName: 'Harris', email: 'client@sss.com', role: UserRole.Client, rank: 'N/A', level: 0, certifications: [], weeklyHours: 0, performanceRating: 0 },
   ],
-  clients: [
-      { id: 'client-1', companyName: 'Downtown Mall', contactEmail: 'security@downtownmall.com', userId: 'user-11', whitelist: ['user-8'], blacklist: [] },
-      { id: 'client-2', companyName: 'TechCorp HQ', contactEmail: 'ops@techcorp.com', userId: null, whitelist: [], blacklist: ['user-9'] },
-  ],
-  missions: [
-      { id: 'mission-1', clientId: 'client-1', title: 'Weekend Patrol', site: 'Main Entrance', description: 'Standard patrol duties for the main entrance and surrounding area.', startTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), endTime: new Date(Date.now() + (2 * 24 + 8) * 60 * 60 * 1000), payRate: 28, requiredLevel: 2, status: 'Open', claimedBy: null },
-      { id: 'mission-2', clientId: 'client-2', title: 'Overnight Watch', site: 'TechCorp Main Lobby', description: 'Monitor security cameras and perform hourly checks of the main lobby.', startTime: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), endTime: new Date(Date.now() + (1 * 24 + 8) * 60 * 60 * 1000), payRate: 32, requiredLevel: 3, status: 'Claimed', claimedBy: 'user-8' },
-      { id: 'mission-3', clientId: 'client-1', title: 'Event Security', site: 'West Wing', description: 'Provide crowd control for a special event in the west wing.', startTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), endTime: new Date(Date.now() - (1 * 24 - 6) * 60 * 60 * 1000), payRate: 35, requiredLevel: 4, status: 'Completed', claimedBy: 'user-6', report: 'Event was successful, no major incidents to report.', clientRating: 5 },
-      { id: 'mission-4', clientId: 'client-1', title: 'Morning Shift', site: 'Main Entrance', description: 'Morning patrol duties.', startTime: new Date(Date.now() - 8 * 60 * 60 * 1000), endTime: new Date(Date.now() - 1 * 60 * 60 * 1000), payRate: 28, requiredLevel: 2, status: 'Active', claimedBy: 'user-9', checkInTime: new Date(Date.now() - 8 * 60 * 60 * 1000) },
-  ],
-  sites: [
-    { id: 'site-1', clientId: 'client-1', name: 'Main Entrance', address: '123 Commerce St, Downtown' },
-    { id: 'site-2', clientId: 'client-1', name: 'West Wing', address: '123 Commerce St, Downtown' },
-    { id: 'site-3', clientId: 'client-1', name: 'Loading Bay', address: '125 Commerce St, Downtown (Rear)' },
-    { id: 'site-4', clientId: 'client-2', name: 'TechCorp Main Lobby', address: '456 Innovation Drive' },
-  ],
-  alerts: [
-    { id: 'alert-1', severity: 'High', message: 'Guard D. Clark missed hourly check-in at Downtown Mall.', time: '2 mins ago', acknowledged: false },
-    { id: 'alert-2', severity: 'Medium', message: 'New last-minute mission posted by TechCorp HQ.', time: '5 mins ago', acknowledged: false },
-    { id: 'alert-3', severity: 'Low', message: 'Guard C. Taylor is approaching 40-hour weekly limit.', time: '25 mins ago', acknowledged: true },
-  ],
-  applications: [
-    { id: 'app-1', type: 'New Guard', name: 'Laura Evans', status: 'Pending', data: { firstName: 'Laura', lastName: 'Evans', email: 'laura.e@example.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 1, certifications: ['Level 1'], guardType: 'Flex' } },
-    { id: 'app-2', type: 'New Client', name: 'Global Logistics Inc.', status: 'Pending', data: { companyName: 'Global Logistics Inc.', contactEmail: 'contact@globallogistics.com' } },
-  ],
-  approvals: [
-    { id: 'approval-1', type: 'Promotion', subject: 'Promote Chris Taylor to CPL', details: 'Consistently high ratings and 50+ missions completed.', requesterId: 'user-6' },
-    { id: 'approval-2', type: 'Overtime', subject: 'Approve 8 hours OT for D. Clark', details: 'Emergency coverage needed for TechCorp HQ mission.', requesterId: 'user-10' },
-  ],
-  spotChecks: [
-      { id: 'sc-1', missionId: 'mission-4', supervisorId: 'user-6', time: new Date(Date.now() - 4 * 60 * 60 * 1000), status: 'Guard Present', notes: 'Guard performing duties as expected.'}
-  ],
+  clients: [],
+  missions: [],
+  sites: [],
+  alerts: [],
+  applications: [],
+  approvals: [],
+  spotChecks: [],
   systemSettings: {
     companyName: 'Signature Security Specialists',
     payrollCycle: 'Bi-Weekly',
   },
-  hallOfFame: [
-    { id: 'hof-1', month: 'August 2024', userId: 'user-6', award: 'Guard of the Month', reason: 'For exceptional performance during the Downtown Mall event, receiving multiple client commendations.' },
-    { id: 'hof-2', month: 'August 2024', userId: 'user-8', award: 'Top Performer', reason: 'Completed the most missions (22) with a perfect 5.0 average client rating.' },
-    { id: 'hof-3', month: 'July 2024', userId: 'user-9', award: 'Guard of the Month', reason: 'For identifying and resolving a critical security vulnerability at TechCorp HQ.' },
-    { id: 'hof-4', month: 'June 2024', userId: 'user-8', award: 'Guard of the Month', reason: 'Consistently high performance and dedication, exceeding weekly hour expectations safely.' },
-  ],
+  hallOfFame: [],
+  incidentReports: [],
+  vehicles: [],
+  payrollRuns: [],
+  payrollEntries: [],
 };
 
 const DB_KEY = 'sss_db';
@@ -84,19 +62,35 @@ const readDB = (): Database => {
     return initialData;
   }
   const db = JSON.parse(dbString);
-  db.missions = db.missions.map((m: any) => ({
+  // Date hydration
+  db.missions = (db.missions || []).map((m: any) => ({
       ...m,
       startTime: new Date(m.startTime),
       endTime: new Date(m.endTime),
       checkInTime: m.checkInTime ? new Date(m.checkInTime) : undefined,
       checkOutTime: m.checkOutTime ? new Date(m.checkOutTime) : undefined,
   }));
-   db.spotChecks = db.spotChecks.map((sc: any) => ({
+   db.spotChecks = (db.spotChecks || []).map((sc: any) => ({
        ...sc,
        time: new Date(sc.time),
    }));
-  db.hallOfFame = db.hallOfFame || initialData.hallOfFame;
+   db.incidentReports = (db.incidentReports || []).map((ir: any) => ({
+      ...ir,
+      timestamp: new Date(ir.timestamp),
+   }));
+    db.payrollRuns = (db.payrollRuns || []).map((pr: any) => ({
+      ...pr,
+      startDate: new Date(pr.startDate),
+      endDate: new Date(pr.endDate),
+    }));
+  // Add new tables if they don't exist
+  db.hallOfFame = db.hallOfFame || [];
   db.systemSettings = db.systemSettings || initialData.systemSettings;
+  db.incidentReports = db.incidentReports || [];
+  db.vehicles = db.vehicles || [];
+  db.payrollRuns = db.payrollRuns || [];
+  db.payrollEntries = db.payrollEntries || [];
+
   return db;
 };
 
@@ -124,11 +118,15 @@ export const getApprovals = (): Approval[] => readDB().approvals || [];
 export const getSpotChecksForMission = (missionId: string): SpotCheck[] => readDB().spotChecks.filter(sc => sc.missionId === missionId);
 export const getHallOfFameEntries = (): HallOfFameEntry[] => readDB().hallOfFame || [];
 export const getSystemSettings = (): SystemSettings => readDB().systemSettings;
+export const getIncidentReports = (): IncidentReport[] => readDB().incidentReports || [];
+export const getVehicles = (): Vehicle[] => readDB().vehicles || [];
+export const getPayrollRuns = (): PayrollRun[] => readDB().payrollRuns.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()) || [];
+export const getPayrollEntriesForRun = (runId: string): PayrollEntry[] => readDB().payrollEntries.filter(p => p.payrollRunId === runId) || [];
 
 
 export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>): Mission => {
     const db = readDB();
-    const newMission: Mission = { ...missionData, id: `mission-${Date.now()}`, status: 'Open', claimedBy: null };
+    const newMission: Mission = { ...missionData, id: `mission-${Date.now()}`, status: 'Open', claimedBy: null, incidentIds: [] };
     db.missions.push(newMission);
     writeDB(db);
     return newMission;
@@ -238,6 +236,22 @@ export const submitMissionReport = (missionId: string, report: string) => {
         mission.report = report;
         writeDB(db);
     }
+};
+
+export const addIncidentReport = (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => {
+    const db = readDB();
+    const newReport: IncidentReport = {
+        ...reportData,
+        id: `inc-${Date.now()}`,
+        timestamp: new Date(),
+    };
+    db.incidentReports.push(newReport);
+    const mission = db.missions.find(m => m.id === reportData.missionId);
+    if (mission) {
+        if (!mission.incidentIds) mission.incidentIds = [];
+        mission.incidentIds.push(newReport.id);
+    }
+    writeDB(db);
 };
 
 export const rateMission = (missionId: string, rating: number) => {
@@ -401,4 +415,73 @@ export const updateClientGuardList = (clientId: string, guardId: string, listTyp
     }
     
     writeDB(db);
+};
+
+// Vehicle Management
+export const addVehicle = (vehicleData: Omit<Vehicle, 'id'>): void => {
+    const db = readDB();
+    const newVehicle: Vehicle = { ...vehicleData, id: `veh-${Date.now()}` };
+    db.vehicles.push(newVehicle);
+    writeDB(db);
+};
+
+export const updateVehicle = (vehicleId: string, data: Partial<Vehicle>): void => {
+    const db = readDB();
+    const vehicle = db.vehicles.find(v => v.id === vehicleId);
+    if (vehicle) {
+        Object.assign(vehicle, data);
+    }
+    writeDB(db);
+};
+
+// Payroll Management
+export const createPayrollRun = (startDate: Date, endDate: Date): void => {
+    const db = readDB();
+    const runId = `pr-${Date.now()}`;
+    const missionsInPeriod = db.missions.filter(m => m.status === 'Completed' && m.checkOutTime && m.checkOutTime >= startDate && m.checkOutTime <= endDate);
+    
+    let totalAmount = 0;
+    const newEntries: PayrollEntry[] = [];
+
+    missionsInPeriod.forEach(mission => {
+        if (!mission.checkOutTime || !mission.checkInTime || !mission.claimedBy) return;
+
+        // Check if this mission is already in another payroll run
+        const alreadyProcessed = db.payrollEntries.some(e => e.missionId === mission.id);
+        if (alreadyProcessed) return;
+
+        const hours = (mission.checkOutTime.getTime() - mission.checkInTime.getTime()) / 3600000;
+        const totalPay = hours * mission.payRate;
+        totalAmount += totalPay;
+        newEntries.push({
+            id: `pe-${mission.id}`,
+            payrollRunId: runId,
+            userId: mission.claimedBy,
+            missionId: mission.id,
+            hours,
+            payRate: mission.payRate,
+            totalPay,
+        });
+    });
+
+    const newRun: PayrollRun = {
+        id: runId,
+        startDate,
+        endDate,
+        status: 'Pending',
+        totalAmount
+    };
+
+    db.payrollRuns.push(newRun);
+    db.payrollEntries.push(...newEntries);
+    writeDB(db);
+};
+
+export const approvePayrollRun = (runId: string): void => {
+    const db = readDB();
+    const run = db.payrollRuns.find(r => r.id === runId);
+    if (run) {
+        run.status = 'Approved'; // Can be extended to 'Paid' later
+        writeDB(db);
+    }
 };

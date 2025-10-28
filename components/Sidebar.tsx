@@ -7,6 +7,13 @@ import {
     BellIcon, DocumentTextIcon, MailIcon, TrophyIcon 
 } from './Icons';
 
+// A new icon for Vehicle Management
+const TruckIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5h10.5a1.125 1.125 0 001.125-1.125V6.75a1.125 1.125 0 00-1.125-1.125H3.375A1.125 1.125 0 002.25 6.75v10.5a1.125 1.125 0 001.125 1.125z" />
+    </svg>
+);
+
 interface SidebarProps {
   userRole: UserRole;
   activeView: string;
@@ -48,6 +55,8 @@ const managementNav = [
     { name: 'Guard Management', icon: UsersIcon },
     { name: 'Client Management', icon: BriefcaseIcon },
     { name: 'Mission Control', icon: ClipboardListIcon },
+    { name: 'Vehicle Management', icon: TruckIcon },
+    { name: 'Payroll', icon: CreditCardIcon },
     { name: 'Approvals', icon: CheckCircleIcon },
     { name: 'Analytics', icon: ChartBarIcon },
     { name: 'Hall of Fame', icon: TrophyIcon },
@@ -65,7 +74,7 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Field Oversight', icon: EyeIcon },
         { name: 'Training Approvals', icon: AcademicCapIcon },
-        { name: 'My Missions', icon: CalendarIcon },
+        { name: 'Mission Hub', icon: CalendarIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
         { name: 'Hall of Fame', icon: TrophyIcon },
     ],
@@ -73,13 +82,13 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Training Management', icon: AcademicCapIcon },
         { name: 'User Management', icon: UsersIcon },
-        { name: 'My Missions', icon: CalendarIcon },
+        { name: 'Mission Hub', icon: CalendarIcon },
         { name: 'Hall of Fame', icon: TrophyIcon },
     ],
     [UserRole.LeadGuard]: [
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
-        { name: 'My Missions', icon: CalendarIcon },
+        { name: 'Mission Hub', icon: CalendarIcon },
         { name: 'Site Roster', icon: UsersIcon },
         { name: 'My Earnings', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
@@ -88,7 +97,7 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
     [UserRole.Guard]: [
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
-        { name: 'My Missions', icon: CalendarIcon },
+        { name: 'Mission Hub', icon: CalendarIcon },
         { name: 'My Earnings', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
         { name: 'Training', icon: AcademicCapIcon },
@@ -97,6 +106,7 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
     [UserRole.Dispatch]: [
         { name: 'Live Control', icon: MapIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
+        { name: 'Vehicle Management', icon: TruckIcon },
         { name: 'Guard Management', icon: UsersIcon },
         { name: 'Alerts', icon: BellIcon },
         { name: 'Hall of Fame', icon: TrophyIcon },
@@ -158,7 +168,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, activeView, setActiveView }
             </div>
              <footer className="text-center p-4 text-[#535347] text-xs border-t border-[#535347]">
                 <p>&copy; {new Date().getFullYear()} SSS</p>
-                <p>Version 1.0.0</p>
+                <p>Version 1.1.0</p>
             </footer>
         </div>
     );
