@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mission, Client, UserRole } from '../types';
+import { User, Mission, Client, UserRole, Site, Alert, Application, Approval, SpotCheck } from '../types';
 import Sidebar from './Sidebar';
 import { ShieldIcon, LogoutIcon, MenuIcon } from './Icons';
 
@@ -26,6 +26,8 @@ import Applications from './views/Applications';
 import Communications from './views/Communications';
 import MySites from './views/MySites';
 import Billing from './views/Billing';
+import Earnings from './views/Earnings';
+import ClientGuardRoster from './views/ClientGuardRoster';
 
 
 interface DashboardScreenProps {
@@ -33,17 +35,31 @@ interface DashboardScreenProps {
   users: User[];
   missions: Mission[];
   clients: Client[];
-  sites: any[];
-  alerts: any[];
-  applications: any[];
-  approvals: any[];
+  sites: Site[];
+  alerts: Alert[];
+  applications: Application[];
+  approvals: Approval[];
   onLogout: () => void;
   onClaimMission: (missionId: string, guardId: string) => void;
   onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
+  onUpdateApplication: (appId: string, status: 'Approved' | 'Denied') => void;
+  onProcessApproval: (approvalId: string) => void;
+  onAcknowledgeAlert: (alertId: string) => void;
+  onAddSite: (siteData: Omit<Site, 'id'>) => void;
+  onCheckIn: (missionId: string) => void;
+  onCheckOut: (missionId: string) => void;
+  onSubmitReport: (missionId: string, report: string) => void;
+  onRateMission: (missionId: string, rating: number) => void;
+  onAddSpotCheck: (spotCheck: Omit<SpotCheck, 'id' | 'time'>) => void;
+  onUpdateRank: (userId: string, rank: string, level: number) => void;
+  onUpdateCerts: (userId: string, certs: string[]) => void;
+  onUpdateClientGuardList: (clientId: string, guardId: string, list: 'whitelist' | 'blacklist', action: 'add' | 'remove') => void;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ 
-  user, users, missions, clients, sites, alerts, applications, approvals, onLogout, onClaimMission, onAddMission 
+  user, users, missions, clients, sites, alerts, applications, approvals, onLogout, 
+  onClaimMission, onAddMission, onUpdateApplication, onProcessApproval, onAcknowledgeAlert, onAddSite,
+  onCheckIn, onCheckOut, onSubmitReport, onRateMission, onAddSpotCheck, onUpdateRank, onUpdateCerts, onUpdateClientGuardList
 }) => {
   const [activeView, setActiveView] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -57,7 +73,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               <h2 className="text-2xl font-bold text-[#c4c4c4]">Welcome, {user.firstName}!</h2>
               <p className="text-[#787876]">You are logged in as: <span className="font-semibold text-[#aeae5a]">{user.role}</span></p>
             </div>
-            {/* Render Analytics as the default dashboard view for management */}
             {[UserRole.Owner, UserRole.CoOwner, UserRole.DeputyChief, UserRole.Commander, UserRole.OperationsDirector, UserRole.OperationsManager].includes(user.role) 
               ? <Analytics users={users} missions={missions} clients={clients} />
               : <div className="bg-[#0f0f0f] border border-[#535347] rounded-lg p-6">
@@ -71,55 +86,59 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         );
       // Guard & Lead Views
       case 'Mission Board':
-        return <MissionBoard user={user} missions={missions} onClaimMission={onClaimMission} />;
+        return <MissionBoard user={user} missions={missions} onClaimMission={onClaimMission} clients={clients} />;
       case 'My Missions':
-        return <MyMissions user={user} missions={missions} />;
+        return <MyMissions user={user} missions={missions} onCheckIn={onCheckIn} onCheckOut={onCheckOut} onSubmitReport={onSubmitReport} />;
       case 'My Profile':
         return <MyProfile user={user} />;
       case 'Training':
           return <Training user={user} />;
       case 'Site Roster':
         return <SiteRoster user={user} missions={missions} users={users} />;
+      case 'My Earnings':
+        return <Earnings user={user} missions={missions} />;
       // Client Views
       case 'Post Mission':
-        return <PostMission clients={clients} onAddMission={onAddMission} user={user} />;
+        return <PostMission clients={clients} onAddMission={onAddMission} user={user} sites={sites} />;
       case 'Active Missions':
-        return <ActiveMissions user={user} missions={missions} users={users} clients={clients} />;
+        return <ActiveMissions user={user} missions={missions} users={users} clients={clients} onRateMission={onRateMission} />;
       case 'My Sites':
-        return <MySites user={user} clients={clients} sites={sites} />;
+        return <MySites user={user} clients={clients} sites={sites} onAddSite={onAddSite} />;
       case 'Billing':
         return <Billing user={user} missions={missions} clients={clients} />;
+      case 'Guard Roster': // For Client
+        const client = clients.find(c => c.userId === user.id);
+        return client ? <ClientGuardRoster client={client} allGuards={users.filter(u => u.role === UserRole.Guard || u.role === UserRole.LeadGuard)} onUpdateList={onUpdateClientGuardList}/> : null;
       // Management Views
       case 'Guard Management':
-      case 'Guard Roster': // Re-use component for different sidebar names
       case 'User Management':
-        return <GuardManagement users={users} />;
+        return <GuardManagement users={users} onUpdateRank={onUpdateRank} />;
        case 'Client Management':
         return <ClientManagement clients={clients} users={users} />;
       case 'Mission Control':
         return <MissionControl missions={missions} users={users} clients={clients} />;
       case 'Approvals':
-        return <Approvals approvals={approvals} />;
+        return <Approvals approvals={approvals} users={users} onProcessApproval={onProcessApproval} />;
       case 'Analytics':
         return <Analytics users={users} missions={missions} clients={clients} />;
       case 'System Settings':
         return <SystemSettings />;
       // Supervisor Views
       case 'Field Oversight':
-        return <FieldOversight missions={missions} users={users} clients={clients} />;
+        return <FieldOversight missions={missions} users={users} clients={clients} supervisorId={user.id} onAddSpotCheck={onAddSpotCheck} />;
       case 'Training Approvals':
         return <TrainingApprovals users={users} />;
       // Training Officer Views
       case 'Training Management':
-        return <TrainingManagement users={users} />;
+        return <TrainingManagement users={users} onUpdateCerts={onUpdateCerts} />;
       // Dispatch Views
       case 'Live Control':
         return <LiveControl missions={missions} users={users} clients={clients} />;
       case 'Alerts':
-        return <Alerts alerts={alerts} />;
+        return <Alerts alerts={alerts} onAcknowledge={onAcknowledgeAlert} />;
       // Secretary Views
       case 'Applications':
-        return <Applications applications={applications} />;
+        return <Applications applications={applications} onUpdateApplication={onUpdateApplication} />;
       case 'Communications':
         return <Communications />;
       default:
@@ -134,23 +153,17 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   return (
     <div className="relative min-h-screen md:flex">
-      {/* Mobile menu overlay */}
-       <div 
+      <div 
         className={`fixed inset-0 bg-black/60 z-30 md:hidden ${sidebarOpen ? 'block' : 'hidden'}`} 
         onClick={() => setSidebarOpen(false)}
         aria-hidden="true"
       ></div>
-
-      {/* Mobile Sidebar */}
       <div className={`fixed top-0 left-0 bottom-0 z-40 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
         <Sidebar userRole={user.role} activeView={activeView} setActiveView={(view) => { setActiveView(view); setSidebarOpen(false); }} onLogout={onLogout}/>
       </div>
-
-      {/* Desktop Sidebar */}
       <div className="hidden md:flex md:flex-shrink-0">
          <Sidebar userRole={user.role} activeView={activeView} setActiveView={setActiveView} onLogout={onLogout} />
       </div>
-      
       <div className="flex-1 flex flex-col w-full">
         <header className="bg-[#0f0f0f] border-b border-[#535347] shadow-lg shadow-[#aeae5a]/5 w-full">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">

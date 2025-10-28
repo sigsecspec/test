@@ -1,4 +1,3 @@
-
 export const featureList = [
     { title: "🛡️ For Guards", items: ["Browse and claim available missions", "Real-time earnings tracking", "Comprehensive training programs", "Performance tracking and ratings", "Direct communication with operations"] },
     { title: "👔 For Clients", items: ["Post security missions instantly", "Manage multiple locations", "Request specific lead guards", "Track mission performance", "Flexible payment options"] },

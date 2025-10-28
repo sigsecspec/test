@@ -1,19 +1,14 @@
 import React from 'react';
 import { BellIcon } from '../Icons';
-
-interface Alert {
-  id: string;
-  severity: 'High' | 'Medium' | 'Low';
-  message: string;
-  time: string;
-}
+import { Alert } from '../../types';
 
 interface AlertsProps {
   alerts: Alert[];
+  onAcknowledge: (alertId: string) => void;
 }
 
 
-const Alerts: React.FC<AlertsProps> = ({ alerts }) => {
+const Alerts: React.FC<AlertsProps> = ({ alerts, onAcknowledge }) => {
     const getSeverityColor = (severity: string) => {
         switch (severity) {
             case 'High': return 'text-red-400';
@@ -38,7 +33,9 @@ const Alerts: React.FC<AlertsProps> = ({ alerts }) => {
                                         <p className="text-xs text-[#787876]">{alert.time}</p>
                                     </div>
                                 </div>
-                                <button className="bg-transparent border border-[#535347] text-xs text-[#c4c4c4] font-semibold py-1 px-3 rounded-md hover:bg-[#535347]/50 hover:border-[#aeae5a] transition">
+                                <button 
+                                    onClick={() => onAcknowledge(alert.id)}
+                                    className="bg-transparent border border-[#535347] text-xs text-[#c4c4c4] font-semibold py-1 px-3 rounded-md hover:bg-[#535347]/50 hover:border-[#aeae5a] transition">
                                     Acknowledge
                                 </button>
                             </li>

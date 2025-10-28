@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import type { Client, Mission, User } from '../../types';
+import type { Client, Mission, User, Site } from '../../types';
 
 interface PostMissionProps {
     clients: Client[];
+    sites: Site[];
     onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
     user: User;
 }
 
-const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }) => {
+const PostMission: React.FC<PostMissionProps> = ({ clients, sites, onAddMission, user }) => {
     const [title, setTitle] = useState('');
     const [site, setSite] = useState('');
     const [description, setDescription] = useState('');
@@ -18,16 +19,22 @@ const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }
     const [selectedClient, setSelectedClient] = useState('');
     const [message, setMessage] = useState('');
 
+    const userClientProfile = clients.find(c => c.userId === user.id);
+    const clientSites = sites.filter(s => s.clientId === selectedClient);
+
     useEffect(() => {
-        // If the current user is a client, find their associated client profile
-        const userClientProfile = clients.find(c => c.userId === user.id);
         if (userClientProfile) {
             setSelectedClient(userClientProfile.id);
         } else if (clients.length > 0) {
-            // Otherwise, default to the first client in the list (for management roles)
             setSelectedClient(clients[0].id);
         }
-    }, [clients, user]);
+    }, [clients, user, userClientProfile]);
+    
+    useEffect(() => {
+        if (clientSites.length > 0) {
+            setSite(clientSites[0].name);
+        }
+    }, [clientSites]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -50,7 +57,7 @@ const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }
         setMessage('Mission posted successfully!');
         // Reset form
         setTitle('');
-        setSite('');
+        setSite(clientSites.length > 0 ? clientSites[0].name : '');
         setDescription('');
         setStartTime('');
         setEndTime('');
@@ -59,8 +66,6 @@ const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }
 
         setTimeout(() => setMessage(''), 3000);
     };
-    
-    const userClientProfile = clients.find(c => c.userId === user.id);
 
     return (
         <div>
@@ -86,7 +91,16 @@ const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }
                     </div>
                      <div>
                         <label htmlFor="site" className="block text-sm font-medium text-[#c4c4c4]">Site / Location</label>
-                        <input type="text" id="site" value={site} onChange={e => setSite(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
+                        <select 
+                            id="site" 
+                            value={site} 
+                            onChange={e => setSite(e.target.value)} 
+                            className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]"
+                            required
+                        >
+                           {clientSites.map(s => <option key={s.id} value={s.name}>{s.name} ({s.address})</option>)}
+                           {clientSites.length === 0 && <option disabled>Please add a site first.</option>}
+                        </select>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -113,7 +127,7 @@ const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }
                         <textarea id="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]"></textarea>
                     </div>
                     <div className="flex items-center justify-between">
-                         <button type="submit" className="w-full bg-[#aeae5a] text-[#0f0f0f] font-bold py-2.5 rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0f0f0f] focus:ring-[#aeae5a] transition">
+                         <button type="submit" className="w-full bg-[#aeae5a] text-[#0f0f0f] font-bold py-2.5 rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0f0f0f] focus:ring-[#aeae5a] transition disabled:bg-opacity-50 disabled:cursor-not-allowed" disabled={clientSites.length === 0}>
                             Post Mission
                         </button>
                     </div>

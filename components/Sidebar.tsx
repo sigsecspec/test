@@ -70,7 +70,7 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
     [UserRole.TrainingOfficer]: [
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Training Management', icon: AcademicCapIcon },
-        { name: 'Guard Roster', icon: UsersIcon },
+        { name: 'User Management', icon: UsersIcon },
         { name: 'My Missions', icon: CalendarIcon },
     ],
     [UserRole.LeadGuard]: [
@@ -78,19 +78,21 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'Mission Board', icon: ClipboardListIcon },
         { name: 'My Missions', icon: CalendarIcon },
         { name: 'Site Roster', icon: UsersIcon },
+        { name: 'My Earnings', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
     ],
     [UserRole.Guard]: [
         { name: 'Dashboard', icon: HomeIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
         { name: 'My Missions', icon: CalendarIcon },
+        { name: 'My Earnings', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
         { name: 'Training', icon: AcademicCapIcon },
     ],
     [UserRole.Dispatch]: [
         { name: 'Live Control', icon: MapIcon },
         { name: 'Mission Board', icon: ClipboardListIcon },
-        { name: 'Guard Roster', icon: UsersIcon },
+        { name: 'Guard Management', icon: UsersIcon },
         { name: 'Alerts', icon: BellIcon },
     ],
     [UserRole.Secretary]: [
@@ -104,6 +106,7 @@ const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
         { name: 'Post Mission', icon: PlusCircleIcon },
         { name: 'Active Missions', icon: ClipboardListIcon },
         { name: 'My Sites', icon: LocationMarkerIcon },
+        { name: 'Guard Roster', icon: UsersIcon },
         { name: 'Billing', icon: CreditCardIcon },
         { name: 'My Profile', icon: UserIcon },
     ],

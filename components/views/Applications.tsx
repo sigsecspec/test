@@ -1,18 +1,13 @@
 import React from 'react';
 import { DocumentTextIcon } from '../Icons';
-
-interface Application {
-  id: string;
-  type: string;
-  name: string;
-  status: string;
-}
+import { Application } from '../../types';
 
 interface ApplicationsProps {
     applications: Application[];
+    onUpdateApplication: (appId: string, status: 'Approved' | 'Denied') => void;
 }
 
-const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
+const Applications: React.FC<ApplicationsProps> = ({ applications, onUpdateApplication }) => {
     return (
          <div>
             <h2 className="text-2xl font-bold text-[#c4c4c4] mb-4">Pending Applications</h2>
@@ -34,9 +29,14 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
                                     <tr key={app.id} className="hover:bg-[#535347]/10">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#c4c4c4]">{app.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-[#787876]">{app.type}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#c4c4c4]">{app.status}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" className="text-[#aeae5a] hover:text-opacity-80">Review</a>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-500/20 text-yellow-400">
+                                                {app.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                             <button onClick={() => onUpdateApplication(app.id, 'Denied')} className="text-red-400 hover:text-red-300">Deny</button>
+                                            <button onClick={() => onUpdateApplication(app.id, 'Approved')} className="text-[#aeae5a] hover:text-opacity-80">Approve</button>
                                         </td>
                                     </tr>
                                 ))
