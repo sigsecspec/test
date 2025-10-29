@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { User, Client, Site, Contract } from '../../types';
 import * as db from '../../database';
 import * as Icons from '../Icons';
@@ -9,6 +10,17 @@ const PostMission: React.FC<{ user: User }> = ({ user }) => {
     const [sites, setSites] = useState<Site[]>([]);
     const [contracts, setContracts] = useState<Contract[]>([]);
     
+=======
+import type { Client, Mission, User } from '../../types';
+
+interface PostMissionProps {
+    clients: Client[];
+    onAddMission: (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy'>) => void;
+    user: User;
+}
+
+const PostMission: React.FC<PostMissionProps> = ({ clients, onAddMission, user }) => {
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
     const [title, setTitle] = useState('');
     const [siteId, setSiteId] = useState('');
     const [contractId, setContractId] = useState('');
@@ -17,6 +29,7 @@ const PostMission: React.FC<{ user: User }> = ({ user }) => {
     const [payRate, setPayRate] = useState(25);
     const [requiredGuards, setRequiredGuards] = useState(1);
     const [requiredLevel, setRequiredLevel] = useState(1);
+<<<<<<< HEAD
     const [description, setDescription] = useState('');
 
     useEffect(() => {
@@ -27,6 +40,21 @@ const PostMission: React.FC<{ user: User }> = ({ user }) => {
             setContracts(db.getContracts().filter(c => c.clientId === currentClient.id && c.status === 'Active'));
         }
     }, [user.id]);
+=======
+    const [selectedClient, setSelectedClient] = useState('');
+    const [message, setMessage] = useState('');
+
+    useEffect(() => {
+        // If the current user is a client, find their associated client profile
+        const userClientProfile = clients.find(c => c.userId === user.id);
+        if (userClientProfile) {
+            setSelectedClient(userClientProfile.id);
+        } else if (clients.length > 0) {
+            // Otherwise, default to the first client in the list (for management roles)
+            setSelectedClient(clients[0].id);
+        }
+    }, [clients, user]);
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,8 +81,13 @@ const PostMission: React.FC<{ user: User }> = ({ user }) => {
         alert('Mission posted successfully!');
         // Reset form
         setTitle('');
+<<<<<<< HEAD
         setSiteId('');
         setContractId('');
+=======
+        setSite('');
+        setDescription('');
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
         setStartTime('');
         setEndTime('');
         setPayRate(25);
@@ -63,9 +96,13 @@ const PostMission: React.FC<{ user: User }> = ({ user }) => {
         setDescription('');
     };
     
+<<<<<<< HEAD
     if (!client) {
         return <div className="text-center p-8 bg-white rounded-lg shadow-sm">Your client profile could not be loaded. Please contact support.</div>;
     }
+=======
+    const userClientProfile = clients.find(c => c.userId === user.id);
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
 
     return (
         <div className="animate-in max-w-4xl mx-auto" style={{ animationDelay: "100ms", opacity: 0, transform: "translateY(10px)" }}>
@@ -76,12 +113,22 @@ const PostMission: React.FC<{ user: User }> = ({ user }) => {
                         <label className="block text-sm font-medium text-gray-700">Mission Title</label>
                         <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500" />
                     </div>
+<<<<<<< HEAD
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Contract</label>
                         <select value={contractId} onChange={e => setContractId(e.target.value)} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select a contract</option>
                             {contracts.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
                         </select>
+=======
+                     <div>
+                        <label htmlFor="title" className="block text-sm font-medium text-[#c4c4c4]">Mission Title</label>
+                        <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
+                    </div>
+                     <div>
+                        <label htmlFor="site" className="block text-sm font-medium text-[#c4c4c4]">Site / Location</label>
+                        <input type="text" id="site" value={site} onChange={e => setSite(e.target.value)} className="mt-1 block w-full bg-[#0f0f0f] border border-[#535347] rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#aeae5a] focus:border-[#aeae5a] sm:text-sm text-[#c4c4c4]" required/>
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Site</label>
@@ -106,9 +153,16 @@ const PostMission: React.FC<{ user: User }> = ({ user }) => {
                         <label className="block text-sm font-medium text-gray-700">Required Guards</label>
                         <input type="number" min="1" value={requiredGuards} onChange={e => setRequiredGuards(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500" />
                     </div>
+<<<<<<< HEAD
                      <div>
                         <label className="block text-sm font-medium text-gray-700">Required Guard Level</label>
                         <input type="number" min="1" max="5" value={requiredLevel} onChange={e => setRequiredLevel(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500" />
+=======
+                    <div className="flex items-center justify-between">
+                         <button type="submit" className="w-full bg-[#aeae5a] text-[#0f0f0f] font-bold py-2.5 rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0f0f0f] focus:ring-[#aeae5a] transition">
+                            Post Mission
+                        </button>
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
                     </div>
                 </div>
                  <div>

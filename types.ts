@@ -21,6 +21,7 @@ export const UserRole = {
 export type Role = typeof UserRole[keyof typeof UserRole];
 
 export interface User {
+<<<<<<< HEAD
   id: string;
   firstName: string;
   lastName: string;
@@ -32,12 +33,24 @@ export interface User {
   weeklyHours: number;
   performanceRating: number;
   teamId?: string;
+=======
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: UserRole;
+    rank: string;
+    level: number;
+    certifications: string[];
+    guardType?: GuardType;
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
 }
 
 export interface Client {
     id: string;
     companyName: string;
     contactEmail: string;
+<<<<<<< HEAD
     userId: string;
     whitelist: string[];
     blacklist: string[];
@@ -119,4 +132,23 @@ export interface UserTrainingProgress {
     moduleId: string;
     status: 'Passed' | 'Failed' | 'Pending Approval' | 'Approved' | 'Denied';
     attempts: number;
+=======
+    userId: string | null; // Link to a user account if the client is also a user
+}
+
+export type MissionStatus = 'Open' | 'Claimed' | 'Completed' | 'Cancelled';
+
+export interface Mission {
+    id: string;
+    clientId: string;
+    title: string;
+    site: string;
+    description: string;
+    startTime: Date;
+    endTime: Date;
+    payRate: number;
+    requiredLevel: number;
+    status: MissionStatus;
+    claimedBy: string | null; // User ID of the guard
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
 }

@@ -88,8 +88,70 @@ const sidebarStructure = [
     },
 ];
 
+<<<<<<< HEAD
 const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeView, setActiveView }) => {
     
+=======
+const navItems: { [key: string]: { name: string; icon: React.FC<any> }[] } = {
+    [UserRole.Owner]: managementNav,
+    [UserRole.CoOwner]: managementNav,
+    [UserRole.DeputyChief]: managementNav,
+    [UserRole.Commander]: managementNav,
+    [UserRole.OperationsDirector]: managementNav,
+    [UserRole.OperationsManager]: managementNav,
+    [UserRole.Supervisor]: [
+        { name: 'Dashboard', icon: HomeIcon },
+        { name: 'Field Oversight', icon: EyeIcon },
+        { name: 'Training Approvals', icon: AcademicCapIcon },
+        { name: 'My Missions', icon: CalendarIcon },
+        { name: 'Mission Board', icon: ClipboardListIcon },
+    ],
+    [UserRole.TrainingOfficer]: [
+        { name: 'Dashboard', icon: HomeIcon },
+        { name: 'Training Management', icon: AcademicCapIcon },
+        { name: 'Guard Roster', icon: UsersIcon },
+        { name: 'My Missions', icon: CalendarIcon },
+    ],
+    [UserRole.LeadGuard]: [
+        { name: 'Dashboard', icon: HomeIcon },
+        { name: 'Mission Board', icon: ClipboardListIcon },
+        { name: 'My Missions', icon: CalendarIcon },
+        { name: 'Site Roster', icon: UsersIcon },
+        { name: 'My Profile', icon: UserIcon },
+    ],
+    [UserRole.Guard]: [
+        { name: 'Dashboard', icon: HomeIcon },
+        { name: 'Mission Board', icon: ClipboardListIcon },
+        { name: 'My Missions', icon: CalendarIcon },
+        { name: 'My Profile', icon: UserIcon },
+        { name: 'Training', icon: AcademicCapIcon },
+    ],
+    [UserRole.Dispatch]: [
+        { name: 'Live Control', icon: MapIcon },
+        { name: 'Mission Board', icon: ClipboardListIcon },
+        { name: 'Guard Roster', icon: UsersIcon },
+        { name: 'Alerts', icon: BellIcon },
+    ],
+    [UserRole.Secretary]: [
+        { name: 'Dashboard', icon: HomeIcon },
+        { name: 'Applications', icon: DocumentTextIcon },
+        { name: 'User Management', icon: UsersIcon },
+        { name: 'Communications', icon: MailIcon },
+    ],
+    [UserRole.Client]: [
+        { name: 'Dashboard', icon: HomeIcon },
+        { name: 'Post Mission', icon: PlusCircleIcon },
+        { name: 'Active Missions', icon: ClipboardListIcon },
+        { name: 'My Sites', icon: LocationMarkerIcon },
+        { name: 'Billing', icon: CreditCardIcon },
+        { name: 'My Profile', icon: UserIcon },
+    ],
+};
+
+const Sidebar: React.FC<SidebarProps> = ({ userRole, activeView, setActiveView }) => {
+    const items = navItems[userRole] || navItems[UserRole.Guard];
+
+>>>>>>> parent of e6d8e88 (feat: Migrate to ES Modules for React dependencies)
     return (
         <div className="flex flex-col w-64 bg-[var(--bg-secondary)] border-r border-[var(--border-primary)] h-full overflow-y-auto">
             <div className="flex items-center justify-center h-16 border-b border-[var(--border-primary)] flex-shrink-0 px-4">
