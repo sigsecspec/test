@@ -204,7 +204,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = (props) => {
   };
 
   return (
-    <div className="relative min-h-screen md:flex">
+    <div className="relative h-screen md:flex overflow-hidden">
       <div 
         className={`fixed inset-0 bg-black/60 z-30 md:hidden ${sidebarOpen ? 'block' : 'hidden'}`} 
         onClick={() => setSidebarOpen(false)}

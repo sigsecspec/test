@@ -119,49 +119,110 @@ const roleHierarchy: { [key in UserRole]: UserRole[] } = {
 };
 
 
+// Define the master order of all possible navigation items
+const masterNavOrder: string[] = [
+  'Dashboard',
+  // Guard Section
+  'Mission Board',
+  'Mission Hub',
+  'My Earnings',
+  'Training',
+  'Promotions',
+  // Lead Guard Section
+  'Site Roster',
+  // Supervisor Section
+  'Field Oversight',
+  // Training Officer Section
+  'Training Management',
+  'Training Approvals',
+  // Client Section
+  'Post Mission',
+  'Active Missions',
+  'My Contracts',
+  'My Sites',
+  'Guard Roster',
+  'Billing',
+  // Dispatch Section
+  'Live Control',
+  'Alerts',
+  // Secretary Section
+  'Applications',
+  'Communications',
+  // Operations Section
+  'Mission Control',
+  'User Management',
+  'Client Management',
+  'Vehicle Management',
+  'Approvals',
+  'Contract Approvals',
+  'Payroll',
+  // Executive Section
+  'Analytics',
+  'System Settings',
+  'Appeals',
+  // Universal Section
+  'My Profile',
+  'Hall of Fame',
+];
+
+// Combine all nav items into a single map for easy lookup
+const allNavItems = new Map<string, { name: string; icon: React.FC<any> }>();
+allNavItems.set('Dashboard', { name: 'Dashboard', icon: HomeIcon });
+Object.values(baseNavItems).flat().forEach(item => {
+    if (!allNavItems.has(item.name)) {
+        allNavItems.set(item.name, item);
+    }
+});
+allNavItems.set('Hall of Fame', { name: 'Hall of Fame', icon: TrophyIcon });
+// Ensure My Profile is available if not defined elsewhere
+if (!allNavItems.has('My Profile')) {
+    allNavItems.set('My Profile', { name: 'My Profile', icon: UserIcon });
+}
+
+
 // Function to generate the full list of nav items based on inheritance
 const getNavItemsForRole = (role: UserRole) => {
-    const rolesToInclude = [role, ...(roleHierarchy[role] || [])];
-    const navItems = new Map<string, { name: string; icon: React.FC<any> }>();
+    const rolesToInclude = new Set<UserRole>();
+    const queue: UserRole[] = [role];
+    const visited = new Set<UserRole>();
 
-    // Add base items for all non-client roles
-    if (role !== UserRole.Client) {
-        navItems.set('Dashboard', { name: 'Dashboard', icon: HomeIcon });
+    while (queue.length > 0) {
+        const currentRole = queue.shift()!;
+        if (visited.has(currentRole)) {
+            continue;
+        }
+        visited.add(currentRole);
+        rolesToInclude.add(currentRole);
+
+        const inheritedRoles = roleHierarchy[currentRole] || [];
+        for (const inheritedRole of inheritedRoles) {
+            if (!visited.has(inheritedRole)) {
+                queue.push(inheritedRole);
+            }
+        }
     }
 
+    const permittedItems = new Set<string>();
     rolesToInclude.forEach(r => {
         (baseNavItems[r] || []).forEach(item => {
-            if (!navItems.has(item.name)) {
-                navItems.set(item.name, item);
-            }
+            permittedItems.add(item.name);
         });
     });
-    
-    // Add items for all roles
-    if (!navItems.has('Hall of Fame')) {
-       navItems.set('Hall of Fame', { name: 'Hall of Fame', icon: TrophyIcon });
+
+    // Add universal items
+    permittedItems.add('Dashboard');
+    permittedItems.add('Hall of Fame');
+    // My Profile is universal for all internal roles
+    if (role !== UserRole.Client) {
+        permittedItems.add('My Profile');
     }
-    
-    // Client has a static list
-    if (role === UserRole.Client) {
-      const clientItems = [
-        { name: 'Dashboard', icon: HomeIcon },
-        ...(baseNavItems[UserRole.Client] || [])
-      ];
-      // Manually order My Contracts before My Sites
-      const contractsIndex = clientItems.findIndex(i => i.name === 'My Contracts');
-      const sitesIndex = clientItems.findIndex(i => i.name === 'My Sites');
-      if (contractsIndex > sitesIndex) {
-          const contractsItem = clientItems.splice(contractsIndex, 1)[0];
-          clientItems.splice(sitesIndex, 0, contractsItem);
-      }
-      
-      clientItems.push({ name: 'Hall of Fame', icon: TrophyIcon });
-      return clientItems;
-    }
-    
-    return Array.from(navItems.values());
+
+    // Filter the master list based on permissions and return in the correct order
+    return masterNavOrder
+        .map(name => allNavItems.get(name))
+        .filter(item => item && permittedItems.has(item.name)) as { name: string; icon: React.FC<any> }[];
 };
+
 
 const Sidebar: React.FC<SidebarProps> = ({ userRole, activeView, setActiveView }) => {
     const items = getNavItemsForRole(userRole);
