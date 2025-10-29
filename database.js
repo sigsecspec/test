@@ -1,4 +1,5 @@
 
+
 import { UserRole } from './types.js';
 
 // Initial seed data
@@ -12,13 +13,25 @@ const initialData = {
     { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 't.moreno@signaturesecurityspecialist.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-1' },
     
     // Team 2 Operations
-    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'b.baker@signaturesecurityspecialist.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-2' },
-    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'r.granum@signaturesecurityspecialist.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-2' },
+    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'b.baker@signaturesecurityspecialist.com', role: UserRole.Supervisor, rank: 'SGT (Sergeant)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-2' },
+    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'r.granum@signaturesecurityspecialist.com', role: UserRole.TrainingOfficer, rank: 'CPL (Corporal)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-2' },
+     // Guards
+    { id: 'user-6', firstName: 'Frank', lastName: 'Castle', email: 'f.castle@guard.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 1, certifications: [], weeklyHours: 10, performanceRating: 4.5 },
+    { id: 'user-7', firstName: 'Jessica', lastName: 'Jones', email: 'j.jones@guard.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 2, certifications: ['Level 1 - Basic Security', 'Level 2 - Pepper Spray'], weeklyHours: 25, performanceRating: 4.9 },
+    // Client User
+    { id: 'user-client-1', firstName: 'Stark', lastName: 'Industries', email: 'contact@stark.com', role: UserRole.Client, rank: 'Client', level: 0, certifications: [], weeklyHours: 0, performanceRating: 0 },
+
   ],
-  clients: [],
+  clients: [
+      { id: 'client-1', companyName: 'Stark Industries', contactEmail: 'contact@stark.com', userId: 'user-client-1', whitelist: [], blacklist: [] }
+  ],
   missions: [],
-  sites: [],
-  contracts: [],
+  sites: [
+    { id: 'site-1', clientId: 'client-1', name: 'Stark Tower Main Lobby', address: '200 Park Avenue, New York, NY' }
+  ],
+  contracts: [
+    { id: 'contract-1', clientId: 'client-1', title: 'Stark Tower Security', startDate: new Date('2024-01-01'), endDate: new Date('2024-12-31'), totalBudget: 250000, status: 'Active' }
+  ],
   alerts: [],
   applications: [
       {
@@ -26,21 +39,11 @@ const initialData = {
         type: 'New Guard',
         status: 'Pending',
         data: {
-            firstName: 'Frank',
-            lastName: 'Castle',
-            email: 'f.castle@guard.com',
-            phone: '555-0101',
+            firstName: 'Matt',
+            lastName: 'Murdock',
+            email: 'm.murdock@guard.com',
+            phone: '555-0103',
             role: 'Guard'
-        }
-      },
-      {
-        id: 'app-seed-2',
-        type: 'New Client',
-        status: 'Pending',
-        data: {
-            companyName: 'Stark Industries',
-            contactEmail: 'contact@stark.com',
-            contactPhone: '555-0102'
         }
       }
   ],
@@ -67,7 +70,9 @@ const initialData = {
     { id: 'tm-sup-1', title: 'Supervisor Training', type: 'supervisor', duration: '6 hours', content: 'Covers spot checks, quality assurance, and field oversight.', quiz: [{ q: 'How many spot checks are required per shift?', a: '3' }] },
     { id: 'tm-to-1', title: 'Training Officer Course', type: 'training-officer', duration: '4 hours', content: 'Covers training management and certification tracking.', quiz: [{ q: 'What is the main role of a Training Officer?', a: 'Manage guard training and certifications' }] },
   ],
-  userTrainingProgress: [],
+  userTrainingProgress: [
+      {id: 'utp-seed-1', userId: 'user-7', moduleId: 'tm-1', status: 'Pending Approval', score: 100, submittedAt: new Date()}
+  ],
 };
 
 const DB_KEY = 'sss_db';
@@ -96,6 +101,7 @@ const readDB = () => {
      db.promotions = (db.promotions || []).map((p) => ({ ...p, dateApplied: new Date(p.dateApplied) }));
      db.appeals = (db.appeals || []).map((a) => ({ ...a, dateSubmitted: new Date(a.dateSubmitted) }));
      db.contracts = (db.contracts || []).map((c) => ({ ...c, startDate: new Date(c.startDate), endDate: new Date(c.endDate) }));
+     db.userTrainingProgress = (db.userTrainingProgress || []).map((utp) => ({...utp, submittedAt: utp.submittedAt ? new Date(utp.submittedAt) : null}));
     return db;
   } catch (error) {
     console.error("Error reading from DB, resetting:", error);
@@ -136,6 +142,57 @@ export const getPromotions = () => readDB().promotions || [];
 export const getAppeals = () => readDB().appeals || [];
 export const getContracts = () => readDB().contracts;
 
+export const getTrainingModules = () => readDB().trainingModules || [];
+export const getUserTrainingProgress = (userId) => {
+    const db = readDB();
+    return (db.userTrainingProgress || []).filter(p => p.userId === userId);
+};
+export const getPendingTrainingApprovals = () => {
+    const db = readDB();
+    return (db.userTrainingProgress || []).filter(p => p.status === 'Pending Approval');
+}
+
+export const submitTraining = (userId, moduleId, answers) => {
+    const db = readDB();
+    const module = db.trainingModules.find(m => m.id === moduleId);
+    if (!module) return;
+    const passed = module.quiz.every((q, index) => answers[`q-${index}`]);
+
+    let progress = db.userTrainingProgress.find(p => p.userId === userId && p.moduleId === moduleId);
+    if (!progress) {
+        progress = { id: `utp-${Date.now()}`, userId, moduleId };
+        db.userTrainingProgress.push(progress);
+    }
+    progress.status = passed ? 'Pending Approval' : 'Failed';
+    progress.score = passed ? 100 : 0;
+    progress.submittedAt = new Date();
+    writeDB(db);
+    return passed;
+};
+
+export const updateTrainingProgressStatus = (progressId, status) => {
+    const db = readDB();
+    const progress = db.userTrainingProgress.find(p => p.id === progressId);
+    if(progress) {
+        progress.status = status;
+        if (status === 'Approved') {
+            const user = db.users.find(u => u.id === progress.userId);
+            const module = db.trainingModules.find(m => m.id === progress.moduleId);
+            if(user && module) {
+                if(!user.certifications.includes(module.title)) {
+                    user.certifications.push(module.title);
+                }
+                const levelMatch = module.title.match(/Level (\d+)/);
+                if (levelMatch) {
+                    const newLevel = parseInt(levelMatch[1], 10);
+                    if (user.level < newLevel) user.level = newLevel;
+                }
+            }
+        }
+    }
+    writeDB(db);
+};
+
 export const addContract = (contractData) => {
     const db = readDB();
     const newContract = { ...contractData, id: `contract-${Date.now()}`, status: 'Pending' };
@@ -175,7 +232,7 @@ export const claimMission = (missionId, guardId) => {
     if (mission.status !== 'Open') return { success: false, message: "Mission is not available." };
     if (mission.claimedBy.length >= mission.requiredGuards) return { success: false, message: "All slots for this mission are filled." };
     if (mission.claimedBy.includes(guardId)) return { success: false, message: "You have already claimed this mission." };
-    if (client && client.blacklist.includes(guardId)) return { success: false, message: "You are blacklisted by this client." };
+    if (client && client.blacklist && client.blacklist.includes(guardId)) return { success: false, message: "You are blacklisted by this client." };
 
     mission.claimedBy.push(guardId);
     if (mission.claimedBy.length === mission.requiredGuards) { mission.status = 'Claimed'; }

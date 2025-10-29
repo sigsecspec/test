@@ -1,10 +1,13 @@
 
+
 import * as db from './database.js';
 import { UserRole } from './types.js';
 import { HomePage } from './components/HomePage.js';
 import { DashboardScreen } from './components/DashboardScreen.js';
 import { LoginModal } from './components/LoginModal.js';
 import { ApplicationModal } from './components/ApplicationModal.js';
+import { TrainingModal } from './components/TrainingModal.js';
+import { ContractModal } from './components/ContractModal.js';
 
 // --- State Management ---
 const state = {
@@ -13,6 +16,9 @@ const state = {
     isLoginModalOpen: false,
     isApplicationModalOpen: false,
     applicationType: null,
+    isTrainingModalOpen: false,
+    selectedTrainingModuleId: null,
+    isContractModalOpen: false,
     isLoading: true,
     activeView: 'Dashboard',
     selectedPayrollRunId: null,
@@ -34,6 +40,13 @@ function render() {
     if (state.isApplicationModalOpen && state.applicationType) {
         modalHtml = ApplicationModal({ type: state.applicationType });
     }
+    if (state.isTrainingModalOpen && state.selectedTrainingModuleId) {
+        modalHtml = TrainingModal({ moduleId: state.selectedTrainingModuleId });
+    }
+    if (state.isContractModalOpen) {
+        modalHtml = ContractModal({ user: state.currentUser });
+    }
+
 
     if (state.currentUser) {
         root.innerHTML = DashboardScreen({
@@ -52,24 +65,22 @@ function render() {
 // --- Event Handling ---
 function attachFormEventListeners() {
     const appForm = root.querySelector('#application-form');
-    if (appForm) {
-        appForm.addEventListener('submit', handleApplicationSubmit);
-    }
+    if (appForm) appForm.addEventListener('submit', handleApplicationSubmit);
     
     const postMissionForm = root.querySelector('#post-mission-form');
-    if (postMissionForm) {
-        postMissionForm.addEventListener('submit', handlePostMission);
-    }
+    if (postMissionForm) postMissionForm.addEventListener('submit', handlePostMission);
 
     const payrollForm = root.querySelector('#create-payroll-form');
-    if (payrollForm) {
-        payrollForm.addEventListener('submit', handleCreatePayroll);
-    }
+    if (payrollForm) payrollForm.addEventListener('submit', handleCreatePayroll);
 
     const promotionForm = root.querySelector('#promotion-form');
-    if (promotionForm) {
-        promotionForm.addEventListener('submit', handlePromotionSubmit);
-    }
+    if (promotionForm) promotionForm.addEventListener('submit', handlePromotionSubmit);
+
+    const trainingForm = root.querySelector('#training-form');
+    if (trainingForm) trainingForm.addEventListener('submit', handleTrainingSubmit);
+
+    const contractForm = root.querySelector('#contract-form');
+    if (contractForm) contractForm.addEventListener('submit', handleContractSubmit);
 }
 
 
@@ -145,6 +156,12 @@ function handleUpdatePromotion(promoId, status) {
     refreshAndRender();
 }
 
+function handleUpdateTrainingStatus(progressId, status) {
+    db.updateTrainingProgressStatus(progressId, status);
+    alert(`Training submission has been ${status.toLowerCase()}.`);
+    refreshAndRender();
+}
+
 function openLoginModal() {
     state.isLoginModalOpen = true;
     render();
@@ -156,10 +173,24 @@ function openApplicationModal(type) {
     render();
 }
 
+function openTrainingModal(moduleId) {
+    state.selectedTrainingModuleId = moduleId;
+    state.isTrainingModalOpen = true;
+    render();
+}
+
+function openContractModal() {
+    state.isContractModalOpen = true;
+    render();
+}
+
 function closeAllModals() {
     state.isLoginModalOpen = false;
     state.isApplicationModalOpen = false;
     state.applicationType = null;
+    state.isTrainingModalOpen = false;
+    state.selectedTrainingModuleId = null;
+    state.isContractModalOpen = false;
     render();
 }
 
@@ -221,6 +252,34 @@ function handlePromotionSubmit(e) {
     refreshAndRender();
 }
 
+function handleTrainingSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const answers = Object.fromEntries(formData.entries());
+    const passed = db.submitTraining(state.currentUser.id, state.selectedTrainingModuleId, answers);
+    if(passed) {
+        alert('Quiz submitted! Your results are pending approval.');
+    } else {
+        alert('You did not pass the quiz. Please review the material and try again.');
+    }
+    closeAllModals();
+}
+
+function handleContractSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+     db.addContract({
+        ...data,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+        totalBudget: parseFloat(data.totalBudget),
+    });
+    alert('New contract submitted for approval!');
+    closeAllModals();
+    handleNavigation('MyContracts');
+}
+
 
 function refreshData() {
     console.log("Refreshing application data...");
@@ -256,6 +315,7 @@ function initializeApp() {
         const actions = {
             'open-login': () => openLoginModal(),
             'open-application': () => openApplicationModal(type),
+            'open-contract-modal': () => openContractModal(),
             'close-modal': () => closeAllModals(),
             'login': () => handleLogin(id),
             'logout': () => handleLogout(),
@@ -271,6 +331,9 @@ function initializeApp() {
             'deny-contract': () => handleUpdateContract(id, 'Denied'),
             'approve-promotion': () => handleUpdatePromotion(id, 'Approved'),
             'deny-promotion': () => handleUpdatePromotion(id, 'Denied'),
+            'start-training': () => openTrainingModal(id),
+            'approve-training': () => handleUpdateTrainingStatus(id, 'Approved'),
+            'deny-training': () => handleUpdateTrainingStatus(id, 'Denied'),
             'select-payroll-run': () => {
                 state.selectedPayrollRunId = id;
                 render();
