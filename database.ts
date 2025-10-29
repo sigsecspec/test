@@ -1,33 +1,7 @@
-import { UserRole } from './types.ts';
-// FIX: Added missing type imports for the new training system.
-import type { User, Mission, Client, Site, Alert, Application, Approval, ApplicationStatus, SpotCheck, HallOfFameEntry, SystemSettings, IncidentReport, Vehicle, PayrollRun, PayrollEntry, Promotion, Appeal, Contract, TrainingModule, UserTrainingProgress } from './types.ts';
-
-// Let's define the shape of our database
-interface Database {
-  users: User[];
-  missions: Mission[];
-  clients: Client[];
-  sites: Site[];
-  alerts: Alert[];
-  applications: Application[];
-  approvals: Approval[];
-  spotChecks: SpotCheck[];
-  contracts: Contract[];
-  hallOfFame: HallOfFameEntry[];
-  systemSettings: SystemSettings;
-  incidentReports: IncidentReport[];
-  vehicles: Vehicle[];
-  payrollRuns: PayrollRun[];
-  payrollEntries: PayrollEntry[];
-  promotions: Promotion[];
-  appeals: Appeal[];
-  // FIX: Added tables for the training system.
-  trainingModules: TrainingModule[];
-  userTrainingProgress: UserTrainingProgress[];
-}
+import { UserRole } from './types.js';
 
 // Initial seed data
-const initialData: Database = {
+const initialData = {
   users: [
     // Owner
     { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'm.white@signaturesecurityspecialist.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
@@ -59,7 +33,6 @@ const initialData: Database = {
   payrollEntries: [],
   promotions: [],
   appeals: [],
-  // FIX: Added seed data for training modules and an empty array for user progress.
   trainingModules: [
     { id: 'tm-1', title: 'Level 1 - Basic Security', type: 'guard', duration: '2 hours', content: 'Covers basic security procedures, customer service, incident reporting, and emergency response.', quiz: [{ q: 'What is the first step in an emergency?', a: 'Assess the situation' }] },
     { id: 'tm-2', title: 'Level 2 - Pepper Spray', type: 'guard', duration: '1.5 hours', content: 'Covers pepper spray usage, defensive tactics, and de-escalation.', quiz: [{ q: 'What is the effective range of pepper spray?', a: '10-15 feet' }] },
@@ -76,7 +49,7 @@ const initialData: Database = {
 const DB_KEY = 'sss_db';
 
 // --- Internal DB Functions ---
-const readDB = (): Database => {
+const readDB = () => {
   const dbString = localStorage.getItem(DB_KEY);
   if (!dbString) {
     writeDB(initialData);
@@ -84,30 +57,30 @@ const readDB = (): Database => {
   }
   const db = JSON.parse(dbString);
   // Date hydration
-  db.missions = (db.missions || []).map((m: any) => ({
+  db.missions = (db.missions || []).map((m) => ({
       ...m,
       startTime: new Date(m.startTime),
       endTime: new Date(m.endTime),
-      checkIns: (m.checkIns || []).map((ci: any) => ({ ...ci, time: new Date(ci.time) })),
-      checkOuts: (m.checkOuts || []).map((co: any) => ({ ...co, time: new Date(co.time) })),
-      reports: (m.reports || []).map((r: any) => ({ ...r, time: new Date(r.time) })),
+      checkIns: (m.checkIns || []).map((ci) => ({ ...ci, time: new Date(ci.time) })),
+      checkOuts: (m.checkOuts || []).map((co) => ({ ...co, time: new Date(co.time) })),
+      reports: (m.reports || []).map((r) => ({ ...r, time: new Date(r.time) })),
   }));
-   db.spotChecks = (db.spotChecks || []).map((sc: any) => ({
+   db.spotChecks = (db.spotChecks || []).map((sc) => ({
        ...sc,
        time: new Date(sc.time),
    }));
-   db.incidentReports = (db.incidentReports || []).map((ir: any) => ({
+   db.incidentReports = (db.incidentReports || []).map((ir) => ({
       ...ir,
       timestamp: new Date(ir.timestamp),
    }));
-    db.payrollRuns = (db.payrollRuns || []).map((pr: any) => ({
+    db.payrollRuns = (db.payrollRuns || []).map((pr) => ({
       ...pr,
       startDate: new Date(pr.startDate),
       endDate: new Date(pr.endDate),
     }));
-    db.promotions = (db.promotions || []).map((p: any) => ({ ...p, dateApplied: new Date(p.dateApplied) }));
-    db.appeals = (db.appeals || []).map((a: any) => ({ ...a, dateSubmitted: new Date(a.dateSubmitted) }));
-    db.contracts = (db.contracts || []).map((c: any) => ({
+    db.promotions = (db.promotions || []).map((p) => ({ ...p, dateApplied: new Date(p.dateApplied) }));
+    db.appeals = (db.appeals || []).map((a) => ({ ...a, dateSubmitted: new Date(a.dateSubmitted) }));
+    db.contracts = (db.contracts || []).map((c) => ({
       ...c,
       startDate: new Date(c.startDate),
       endDate: new Date(c.endDate),
@@ -123,7 +96,6 @@ const readDB = (): Database => {
   db.promotions = db.promotions || [];
   db.appeals = db.appeals || [];
   db.contracts = db.contracts || [];
-  // FIX: Ensure training tables exist on load.
   db.trainingModules = db.trainingModules || [];
   db.userTrainingProgress = db.userTrainingProgress || [];
 
@@ -131,41 +103,41 @@ const readDB = (): Database => {
   return db;
 };
 
-const writeDB = (db: Database) => {
+const writeDB = (db) => {
   localStorage.setItem(DB_KEY, JSON.stringify(db));
   window.dispatchEvent(new Event('storage'));
 };
 
 // --- Public API ---
 export const initializeDB = () => { readDB(); };
-export const getUserByEmail = (email: string): User | undefined => readDB().users.find(u => u.email.toLowerCase() === email.toLowerCase());
-export const getUserById = (id: string): User | undefined => readDB().users.find(u => u.id === id);
-export const getUsers = (roles?: UserRole[]): User[] => {
+export const getUserByEmail = (email) => readDB().users.find(u => u.email.toLowerCase() === email.toLowerCase());
+export const getUserById = (id) => readDB().users.find(u => u.id === id);
+export const getUsers = (roles) => {
     const db = readDB();
     if (!roles) return db.users;
     return db.users.filter(u => roles.includes(u.role));
 };
-export const getMissions = (): Mission[] => readDB().missions.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-export const getClients = (): Client[] => readDB().clients;
-export const getClientById = (id: string): Client | undefined => readDB().clients.find(c => c.id === id);
-export const getSites = (): Site[] => readDB().sites || [];
-export const getAlerts = (): Alert[] => readDB().alerts.filter(a => !a.acknowledged) || [];
-export const getApplications = (): Application[] => readDB().applications.filter(a => a.status === 'Pending') || [];
-export const getApprovals = (): Approval[] => readDB().approvals || [];
-export const getSpotChecksForMission = (missionId: string): SpotCheck[] => readDB().spotChecks.filter(sc => sc.missionId === missionId);
-export const getHallOfFameEntries = (): HallOfFameEntry[] => readDB().hallOfFame || [];
-export const getSystemSettings = (): SystemSettings => readDB().systemSettings;
-export const getIncidentReports = (): IncidentReport[] => readDB().incidentReports || [];
-export const getVehicles = (): Vehicle[] => readDB().vehicles || [];
-export const getPayrollRuns = (): PayrollRun[] => readDB().payrollRuns.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()) || [];
-export const getPayrollEntriesForRun = (runId: string): PayrollEntry[] => readDB().payrollEntries.filter(p => p.payrollRunId === runId) || [];
-export const getPromotions = (): Promotion[] => readDB().promotions || [];
-export const getAppeals = (): Appeal[] => readDB().appeals || [];
-export const getContracts = (): Contract[] => readDB().contracts;
+export const getMissions = () => readDB().missions.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+export const getClients = () => readDB().clients;
+export const getClientById = (id) => readDB().clients.find(c => c.id === id);
+export const getSites = () => readDB().sites || [];
+export const getAlerts = () => readDB().alerts.filter(a => !a.acknowledged) || [];
+export const getApplications = () => readDB().applications.filter(a => a.status === 'Pending') || [];
+export const getApprovals = () => readDB().approvals || [];
+export const getSpotChecksForMission = (missionId) => readDB().spotChecks.filter(sc => sc.missionId === missionId);
+export const getHallOfFameEntries = () => readDB().hallOfFame || [];
+export const getSystemSettings = () => readDB().systemSettings;
+export const getIncidentReports = () => readDB().incidentReports || [];
+export const getVehicles = () => readDB().vehicles || [];
+export const getPayrollRuns = () => readDB().payrollRuns.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()) || [];
+export const getPayrollEntriesForRun = (runId) => readDB().payrollEntries.filter(p => p.payrollRunId === runId) || [];
+export const getPromotions = () => readDB().promotions || [];
+export const getAppeals = () => readDB().appeals || [];
+export const getContracts = () => readDB().contracts;
 
-export const addContract = (contractData: Omit<Contract, 'id' | 'status'>): void => {
+export const addContract = (contractData) => {
     const db = readDB();
-    const newContract: Contract = {
+    const newContract = {
         ...contractData,
         id: `contract-${Date.now()}`,
         status: 'Pending'
@@ -175,7 +147,7 @@ export const addContract = (contractData: Omit<Contract, 'id' | 'status'>): void
     writeDB(db);
 };
 
-export const updateContractStatus = (contractId: string, status: 'Active' | 'Cancelled'): void => {
+export const updateContractStatus = (contractId, status) => {
     const db = readDB();
     const contract = db.contracts.find(c => c.id === contractId);
     if (contract) {
@@ -184,9 +156,9 @@ export const updateContractStatus = (contractId: string, status: 'Active' | 'Can
     }
 };
 
-export const addApplication = (appData: Omit<Application, 'id' | 'status'>): void => {
+export const addApplication = (appData) => {
     const db = readDB();
-    const newApplication: Application = {
+    const newApplication = {
         ...appData,
         id: `app-${Date.now()}`,
         status: 'Pending',
@@ -195,12 +167,12 @@ export const addApplication = (appData: Omit<Application, 'id' | 'status'>): voi
     writeDB(db);
 };
 
-export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimedBy' | 'checkIns' | 'checkOuts' | 'reports'>): Mission => {
+export const addMission = (missionData) => {
     const db = readDB();
     const contract = db.contracts.find(c => c.id === missionData.contractId);
     if (!contract || contract.status !== 'Active') {
         console.error("Cannot add mission to inactive contract");
-        return missionData as Mission;
+        return missionData;
     }
     
     const missionDuration = (missionData.endTime.getTime() - missionData.startTime.getTime()) / 3600000;
@@ -217,7 +189,7 @@ export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimed
         db.alerts.push({ id: `alert-${Date.now()}`, severity: 'High', message: `Mission "${missionData.title}" exceeds contract budget.`, time: new Date().toISOString(), acknowledged: false });
     }
 
-    const newMission: Mission = { 
+    const newMission = { 
         ...missionData, 
         id: `mission-${Date.now()}`, 
         status: 'Open', 
@@ -232,7 +204,7 @@ export const addMission = (missionData: Omit<Mission, 'id' | 'status' | 'claimed
     return newMission;
 };
 
-export const claimMission = (missionId: string, guardId: string): { success: boolean, message: string } => {
+export const claimMission = (missionId, guardId) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
     const guard = db.users.find(u => u.id === guardId);
@@ -258,7 +230,7 @@ export const claimMission = (missionId: string, guardId: string): { success: boo
     return { success: true, message: "Mission claimed!" };
 };
 
-export const updateApplicationStatus = (applicationId: string, status: ApplicationStatus): void => {
+export const updateApplicationStatus = (applicationId, status) => {
     const db = readDB();
     const application = db.applications.find(a => a.id === applicationId);
     if (!application) return;
@@ -266,7 +238,7 @@ export const updateApplicationStatus = (applicationId: string, status: Applicati
     application.status = status;
     if (status === 'Approved') {
         if (application.type === 'New Guard' || application.type === 'New Supervisor') {
-            const newUserData = application.data as Partial<User>;
+            const newUserData = application.data;
             const id = `user-${Date.now()}`;
             db.users.push({
                 id,
@@ -275,7 +247,7 @@ export const updateApplicationStatus = (applicationId: string, status: Applicati
                 weeklyHours: 0, performanceRating: 0
             });
         } else if (application.type === 'New Client') {
-            const newClientData = application.data as Partial<Client>;
+            const newClientData = application.data;
             const clientId = `client-${Date.now()}`;
             const userId = `user-${Date.now() + 1}`;
 
@@ -307,28 +279,28 @@ export const updateApplicationStatus = (applicationId: string, status: Applicati
     writeDB(db);
 };
 
-export const removeApproval = (approvalId: string): void => {
+export const removeApproval = (approvalId) => {
     const db = readDB();
     db.approvals = db.approvals.filter(a => a.id !== approvalId);
     writeDB(db);
 };
 
-export const acknowledgeAlert = (alertId: string): void => {
+export const acknowledgeAlert = (alertId) => {
     const db = readDB();
     const alert = db.alerts.find(a => a.id === alertId);
     if (alert) alert.acknowledged = true;
     writeDB(db);
 };
 
-export const addSite = (siteData: Omit<Site, 'id'>): Site => {
+export const addSite = (siteData) => {
     const db = readDB();
-    const newSite: Site = { ...siteData, id: `site-${Date.now()}` };
+    const newSite = { ...siteData, id: `site-${Date.now()}` };
     db.sites.push(newSite);
     writeDB(db);
     return newSite;
 };
 
-export const missionCheckIn = (missionId: string, guardId: string) => {
+export const missionCheckIn = (missionId, guardId) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
     if (mission && (mission.status === 'Claimed' || mission.status === 'Active')) {
@@ -342,7 +314,7 @@ export const missionCheckIn = (missionId: string, guardId: string) => {
     }
 };
 
-export const missionCheckOut = (missionId: string, guardId: string) => {
+export const missionCheckOut = (missionId, guardId) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
     if (mission && mission.status === 'Active' && mission.checkIns.some(c => c.guardId === guardId) && !mission.checkOuts.some(c => c.guardId === guardId)) {
@@ -362,7 +334,7 @@ export const missionCheckOut = (missionId: string, guardId: string) => {
     }
 };
 
-export const submitMissionReport = (missionId: string, guardId: string, report: string) => {
+export const submitMissionReport = (missionId, guardId, report) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
     if (mission && (mission.status === 'AwaitingReport' || mission.status === 'Active')) {
@@ -374,9 +346,9 @@ export const submitMissionReport = (missionId: string, guardId: string, report: 
     }
 };
 
-export const addIncidentReport = (reportData: Omit<IncidentReport, 'id' | 'timestamp'>) => {
+export const addIncidentReport = (reportData) => {
     const db = readDB();
-    const newReport: IncidentReport = {
+    const newReport = {
         ...reportData,
         id: `inc-${Date.now()}`,
         timestamp: new Date(),
@@ -390,7 +362,7 @@ export const addIncidentReport = (reportData: Omit<IncidentReport, 'id' | 'times
     writeDB(db);
 };
 
-export const rateMission = (missionId: string, rating: number) => {
+export const rateMission = (missionId, rating) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
     if(mission && mission.status === 'Completed' && !mission.clientRating) {
@@ -407,14 +379,14 @@ export const rateMission = (missionId: string, rating: number) => {
     }
 };
 
-export const addSpotCheck = (spotCheckData: Omit<SpotCheck, 'id' | 'time'>) => {
+export const addSpotCheck = (spotCheckData) => {
     const db = readDB();
-    const newSpotCheck: SpotCheck = { ...spotCheckData, id: `sc-${Date.now()}`, time: new Date() };
+    const newSpotCheck = { ...spotCheckData, id: `sc-${Date.now()}`, time: new Date() };
     db.spotChecks.push(newSpotCheck);
     writeDB(db);
 };
 
-export const updateUserRank = (userId: string, newRank: string, newLevel: number) => {
+export const updateUserRank = (userId, newRank, newLevel) => {
     const db = readDB();
     const user = db.users.find(u => u.id === userId);
     if (user) {
@@ -424,7 +396,7 @@ export const updateUserRank = (userId: string, newRank: string, newLevel: number
     }
 };
 
-export const updateUserCertifications = (userId: string, certifications: string[]) => {
+export const updateUserCertifications = (userId, certifications) => {
     const db = readDB();
     const user = db.users.find(u => u.id === userId);
     if (user) {
@@ -433,7 +405,7 @@ export const updateUserCertifications = (userId: string, certifications: string[
     }
 };
 
-export const updateMission = (missionId: string, missionData: Partial<Omit<Mission, 'id'>>): Mission | undefined => {
+export const updateMission = (missionId, missionData) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
     if (mission) {
@@ -446,7 +418,7 @@ export const updateMission = (missionId: string, missionData: Partial<Omit<Missi
     return undefined;
 };
 
-export const cancelMission = (missionId: string): void => {
+export const cancelMission = (missionId) => {
     const db = readDB();
     const mission = db.missions.find(m => m.id === missionId);
     if (mission) {
@@ -455,7 +427,7 @@ export const cancelMission = (missionId: string): void => {
     }
 };
 
-export const updateUser = (userId: string, userData: Partial<User>): void => {
+export const updateUser = (userId, userData) => {
     const db = readDB();
     const user = db.users.find(u => u.id === userId);
     if (user) {
@@ -464,7 +436,7 @@ export const updateUser = (userId: string, userData: Partial<User>): void => {
     }
 };
 
-export const deleteUser = (userId: string): void => {
+export const deleteUser = (userId) => {
     const db = readDB();
     if (userId === 'user-1') return;
     db.users = db.users.filter(u => u.id !== userId);
@@ -480,9 +452,9 @@ export const deleteUser = (userId: string): void => {
     writeDB(db);
 };
 
-export const addClient = (clientData: Omit<Client, 'id' | 'userId' | 'whitelist' | 'blacklist'>, linkedUserId?: string): Client => {
+export const addClient = (clientData, linkedUserId) => {
     const db = readDB();
-    const newClient: Client = {
+    const newClient = {
         ...clientData,
         id: `client-${Date.now()}`,
         userId: linkedUserId || null,
@@ -494,7 +466,7 @@ export const addClient = (clientData: Omit<Client, 'id' | 'userId' | 'whitelist'
     return newClient;
 };
 
-export const updateClient = (clientId: string, clientData: Partial<Client>): void => {
+export const updateClient = (clientId, clientData) => {
     const db = readDB();
     const client = db.clients.find(c => c.id === clientId);
     if (client) {
@@ -503,7 +475,7 @@ export const updateClient = (clientId: string, clientData: Partial<Client>): voi
     }
 };
 
-export const deleteClient = (clientId: string): void => {
+export const deleteClient = (clientId) => {
     const db = readDB();
     db.clients = db.clients.filter(c => c.id !== clientId);
     db.missions.forEach(m => {
@@ -514,7 +486,7 @@ export const deleteClient = (clientId: string): void => {
     writeDB(db);
 };
 
-export const updateSite = (siteId: string, siteData: Partial<Site>): void => {
+export const updateSite = (siteId, siteData) => {
     const db = readDB();
     const site = db.sites.find(s => s.id === siteId);
     if (site) {
@@ -523,19 +495,19 @@ export const updateSite = (siteId: string, siteData: Partial<Site>): void => {
     }
 };
 
-export const deleteSite = (siteId: string): void => {
+export const deleteSite = (siteId) => {
     const db = readDB();
     db.sites = db.sites.filter(s => s.id !== siteId);
     writeDB(db);
 };
 
-export const updateSystemSettings = (settings: SystemSettings): void => {
+export const updateSystemSettings = (settings) => {
     const db = readDB();
     db.systemSettings = settings;
     writeDB(db);
 };
 
-export const updateClientGuardList = (clientId: string, guardId: string, listType: 'whitelist' | 'blacklist', action: 'add' | 'remove') => {
+export const updateClientGuardList = (clientId, guardId, listType, action) => {
     const db = readDB();
     const client = db.clients.find(c => c.id === clientId);
     if (!client) return;
@@ -559,14 +531,14 @@ export const updateClientGuardList = (clientId: string, guardId: string, listTyp
 };
 
 // Vehicle Management
-export const addVehicle = (vehicleData: Omit<Vehicle, 'id'>): void => {
+export const addVehicle = (vehicleData) => {
     const db = readDB();
-    const newVehicle: Vehicle = { ...vehicleData, id: `veh-${Date.now()}` };
+    const newVehicle = { ...vehicleData, id: `veh-${Date.now()}` };
     db.vehicles.push(newVehicle);
     writeDB(db);
 };
 
-export const updateVehicle = (vehicleId: string, data: Partial<Vehicle>): void => {
+export const updateVehicle = (vehicleId, data) => {
     const db = readDB();
     const vehicle = db.vehicles.find(v => v.id === vehicleId);
     if (vehicle) {
@@ -576,13 +548,13 @@ export const updateVehicle = (vehicleId: string, data: Partial<Vehicle>): void =
 };
 
 // Payroll Management
-export const createPayrollRun = (startDate: Date, endDate: Date): void => {
+export const createPayrollRun = (startDate, endDate) => {
     const db = readDB();
     const runId = `pr-${Date.now()}`;
     const missionsInPeriod = db.missions.filter(m => m.status === 'Completed' && m.checkOuts.length > 0 && m.checkOuts[0].time >= startDate && m.checkOuts[0].time <= endDate);
     
     let totalAmount = 0;
-    const newEntries: PayrollEntry[] = [];
+    const newEntries = [];
 
     missionsInPeriod.forEach(mission => {
         mission.checkOuts.forEach(checkout => {
@@ -608,7 +580,7 @@ export const createPayrollRun = (startDate: Date, endDate: Date): void => {
         })
     });
 
-    const newRun: PayrollRun = {
+    const newRun = {
         id: runId,
         startDate,
         endDate,
@@ -621,7 +593,7 @@ export const createPayrollRun = (startDate: Date, endDate: Date): void => {
     writeDB(db);
 };
 
-export const approvePayrollRun = (runId: string): void => {
+export const approvePayrollRun = (runId) => {
     const db = readDB();
     const run = db.payrollRuns.find(r => r.id === runId);
     if (run && run.status === 'Pending') {
@@ -630,7 +602,7 @@ export const approvePayrollRun = (runId: string): void => {
     }
 };
 
-export const confirmPayment = (entryId: string): void => {
+export const confirmPayment = (entryId) => {
     const db = readDB();
     const entry = db.payrollEntries.find(e => e.id === entryId);
     if(entry) {
@@ -648,14 +620,14 @@ export const confirmPayment = (entryId: string): void => {
 
 
 // Promotions & Appeals
-export const addPromotion = (promotionData: Omit<Promotion, 'id' | 'status' | 'dateApplied'>): void => {
+export const addPromotion = (promotionData) => {
     const db = readDB();
-    const newPromotion: Promotion = { ...promotionData, id: `promo-${Date.now()}`, status: 'Pending', dateApplied: new Date() };
+    const newPromotion = { ...promotionData, id: `promo-${Date.now()}`, status: 'Pending', dateApplied: new Date() };
     db.promotions.push(newPromotion);
     writeDB(db);
 };
 
-export const updatePromotionStatus = (promotionId: string, status: 'Approved' | 'Denied'): void => {
+export const updatePromotionStatus = (promotionId, status) => {
     const db = readDB();
     const promotion = db.promotions.find(p => p.id === promotionId);
     if (promotion) {
@@ -671,14 +643,14 @@ export const updatePromotionStatus = (promotionId: string, status: 'Approved' | 
     }
 };
 
-export const addAppeal = (appealData: Omit<Appeal, 'id' | 'status' | 'dateSubmitted'>): void => {
+export const addAppeal = (appealData) => {
     const db = readDB();
-    const newAppeal: Appeal = { ...appealData, id: `appeal-${Date.now()}`, status: 'Pending', dateSubmitted: new Date() };
+    const newAppeal = { ...appealData, id: `appeal-${Date.now()}`, status: 'Pending', dateSubmitted: new Date() };
     db.appeals.push(newAppeal);
     writeDB(db);
 };
 
-export const updateAppealStatus = (appealId: string, status: 'Approved' | 'Denied'): void => {
+export const updateAppealStatus = (appealId, status) => {
     const db = readDB();
     const appeal = db.appeals.find(a => a.id === appealId);
     if (appeal) {
@@ -688,14 +660,13 @@ export const updateAppealStatus = (appealId: string, status: 'Approved' | 'Denie
     }
 };
 
-// FIX: Added missing training functions
-export const getTrainingModules = (): TrainingModule[] => readDB().trainingModules || [];
+export const getTrainingModules = () => readDB().trainingModules || [];
 
-export const getUserTrainingProgress = (userId: string): UserTrainingProgress[] => {
+export const getUserTrainingProgress = (userId) => {
     return readDB().userTrainingProgress.filter(p => p.userId === userId) || [];
 };
 
-export const completeTraining = (userId: string, moduleId: string, passed: boolean): void => {
+export const completeTraining = (userId, moduleId, passed) => {
     const db = readDB();
     let progress = db.userTrainingProgress.find(p => p.userId === userId && p.moduleId === moduleId);
 
