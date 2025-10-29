@@ -18,7 +18,7 @@ const state = {
     selectedPayrollRunId: null,
 };
 
-let root = document.getElementById('root');
+const root = document.getElementById('root');
 
 // --- Rendering Engine ---
 function render() {
@@ -29,14 +29,10 @@ function render() {
 
     let modalHtml = '';
     if (state.isLoginModalOpen) {
-        modalHtml = LoginModal({
-            users: state.users,
-        });
+        modalHtml = LoginModal({ users: state.users });
     }
     if (state.isApplicationModalOpen && state.applicationType) {
-        modalHtml = ApplicationModal({
-            type: state.applicationType,
-        });
+        modalHtml = ApplicationModal({ type: state.applicationType });
     }
 
     if (state.currentUser) {
@@ -49,94 +45,12 @@ function render() {
         root.innerHTML = HomePage({}) + modalHtml;
     }
     
-    // After rendering, attach event listeners
-    attachEventListeners();
+    // After rendering, attach event listeners for forms that get re-created
+    attachFormEventListeners();
 }
 
-// --- Event Handling using Delegation ---
-function attachEventListeners() {
-    // Remove previous listeners by cloning and replacing the root element.
-    const newRoot = root.cloneNode(true);
-    if (root.parentNode) {
-        root.parentNode.replaceChild(newRoot, root);
-    }
-    root = newRoot; // IMPORTANT: Update the root reference to the new element in the DOM
-
-    root.addEventListener('click', (e) => {
-        const target = e.target.closest('[data-action]');
-        if (!target) return;
-
-        const action = target.dataset.action;
-        const id = target.dataset.id;
-        const type = target.dataset.type;
-
-        switch(action) {
-            case 'open-login':
-                openLoginModal();
-                break;
-            case 'open-application':
-                openApplicationModal(type);
-                break;
-            case 'close-modal':
-                closeAllModals();
-                break;
-            case 'login':
-                handleLogin(id); // id is email
-                break;
-            case 'logout':
-                handleLogout();
-                break;
-            case 'navigate':
-                handleNavigation(type); // type is view name
-                break;
-            case 'toggle-mobile-menu':
-                document.getElementById('sidebar')?.classList.toggle('-translate-x-full');
-                break;
-            case 'claim-mission':
-                handleClaimMission(id);
-                break;
-            case 'check-in':
-                handleCheckIn(id);
-                break;
-            case 'check-out':
-                handleCheckOut(id);
-                break;
-            case 'update-roster':
-                handleUpdateRoster(target.dataset.guardId, target.dataset.listType);
-                break;
-            case 'approve-application':
-                handleUpdateApplication(id, 'Approved');
-                break;
-            case 'deny-application':
-                handleUpdateApplication(id, 'Denied');
-                break;
-            case 'approve-contract':
-                handleUpdateContract(id, 'Active');
-                break;
-            case 'deny-contract':
-                 handleUpdateContract(id, 'Denied');
-                break;
-            case 'approve-promotion':
-                handleUpdatePromotion(id, 'Approved');
-                break;
-            case 'deny-promotion':
-                 handleUpdatePromotion(id, 'Denied');
-                break;
-            case 'select-payroll-run':
-                state.selectedPayrollRunId = id;
-                render();
-                break;
-            case 'approve-payroll-run':
-                db.approvePayrollRun(id);
-                refreshAndRender();
-                break;
-            case 'confirm-payment':
-                db.confirmPayment(id);
-                refreshAndRender();
-                break;
-        }
-    });
-
+// --- Event Handling ---
+function attachFormEventListeners() {
     const appForm = root.querySelector('#application-form');
     if (appForm) {
         appForm.addEventListener('submit', handleApplicationSubmit);
@@ -206,7 +120,7 @@ function handleCheckOut(missionId) {
 function handleUpdateRoster(guardId, listType) {
     const client = db.getClients().find(c => c.userId === state.currentUser.id);
     if (client) {
-        const list = client[listType];
+        const list = client[listType] || [];
         const action = list.includes(guardId) ? 'remove' : 'add';
         db.updateClientGuardList(client.id, guardId, listType, action);
         refreshAndRender();
@@ -245,6 +159,7 @@ function openApplicationModal(type) {
 function closeAllModals() {
     state.isLoginModalOpen = false;
     state.isApplicationModalOpen = false;
+    state.applicationType = null;
     render();
 }
 
@@ -327,6 +242,54 @@ function initializeApp() {
     db.initializeDB();
     state.isLoading = true;
     render(); // Show loading screen
+
+    // Central event listener using delegation
+    document.body.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+
+        const action = target.dataset.action;
+        const id = target.dataset.id;
+        const type = target.dataset.type;
+        
+        // Use a mapping for cleaner action handling
+        const actions = {
+            'open-login': () => openLoginModal(),
+            'open-application': () => openApplicationModal(type),
+            'close-modal': () => closeAllModals(),
+            'login': () => handleLogin(id),
+            'logout': () => handleLogout(),
+            'navigate': () => handleNavigation(type),
+            'toggle-mobile-menu': () => document.getElementById('sidebar')?.classList.toggle('-translate-x-full'),
+            'claim-mission': () => handleClaimMission(id),
+            'check-in': () => handleCheckIn(id),
+            'check-out': () => handleCheckOut(id),
+            'update-roster': () => handleUpdateRoster(target.dataset.guardId, target.dataset.listType),
+            'approve-application': () => handleUpdateApplication(id, 'Approved'),
+            'deny-application': () => handleUpdateApplication(id, 'Denied'),
+            'approve-contract': () => handleUpdateContract(id, 'Active'),
+            'deny-contract': () => handleUpdateContract(id, 'Denied'),
+            'approve-promotion': () => handleUpdatePromotion(id, 'Approved'),
+            'deny-promotion': () => handleUpdatePromotion(id, 'Denied'),
+            'select-payroll-run': () => {
+                state.selectedPayrollRunId = id;
+                render();
+            },
+            'approve-payroll-run': () => {
+                db.approvePayrollRun(id);
+                refreshAndRender();
+            },
+            'confirm-payment': () => {
+                db.confirmPayment(id);
+                refreshAndRender();
+            },
+        };
+
+        if (actions[action]) {
+            actions[action]();
+        }
+    });
+
 
     refreshData();
     state.isLoading = false;

@@ -171,11 +171,11 @@ export const claimMission = (missionId, guardId) => {
     const guard = db.users.find(u => u.id === guardId);
     const client = db.clients.find(c => c.id === mission?.clientId);
 
-    if (!mission || !guard || !client) return { success: false, message: "Invalid data." };
+    if (!mission || !guard ) return { success: false, message: "Invalid data." };
     if (mission.status !== 'Open') return { success: false, message: "Mission is not available." };
     if (mission.claimedBy.length >= mission.requiredGuards) return { success: false, message: "All slots for this mission are filled." };
     if (mission.claimedBy.includes(guardId)) return { success: false, message: "You have already claimed this mission." };
-    if (client.blacklist.includes(guardId)) return { success: false, message: "You are blacklisted by this client." };
+    if (client && client.blacklist.includes(guardId)) return { success: false, message: "You are blacklisted by this client." };
 
     mission.claimedBy.push(guardId);
     if (mission.claimedBy.length === mission.requiredGuards) { mission.status = 'Claimed'; }
@@ -329,12 +329,10 @@ export const updatePromotionStatus = (promotionId, status) => {
             const user = db.users.find(u => u.id === promotion.userId);
             if (user) {
                 user.role = promotion.toRole;
-                user.rank = promotion.toRole === UserRole.Supervisor ? 'SGT (Sergeant)' : 'CPL (Corporal)';
+                if(promotion.toRole === UserRole.Supervisor) user.rank = 'SGT (Sergeant)';
+                if(promotion.toRole === UserRole.TrainingOfficer) user.rank = 'CPL (Corporal)';
             }
         }
-        writeDB(db);
     }
+    writeDB(db);
 };
-
-export const getTrainingModules = () => readDB().trainingModules || [];
-export const getUserTrainingProgress = (userId) => readDB().userTrainingProgress.filter(p => p.userId === userId) || [];
