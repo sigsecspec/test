@@ -101,40 +101,43 @@ const statList = [
 // --- START: database.js ---
 const initialData = {
   users: [
-    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0 },
-    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8 },
-    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7 },
-    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.8 },
-    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.7 },
-    { id: 'guard-1', firstName: 'John', lastName: 'Doe', email: 'j.doe@example.com', role: UserRole.Guard, rank: Ranks[UserRole.Guard], level: 2, certifications: ['Level 1 - Basic Security', 'Level 2 - Pepper Spray'], teamId: 'team-1', weeklyHours: 15, performanceRating: 4.5 },
-    { id: 'supervisor-1', firstName: 'Jane', lastName: 'Smith', email: 'j.smith@example.com', role: UserRole.Supervisor, rank: Ranks[UserRole.Supervisor], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 30, performanceRating: 4.9 },
-    { id: 'guard-2', firstName: 'Peter', lastName: 'Jones', email: 'p.jones@example.com', role: UserRole.Guard, rank: Ranks[UserRole.Guard], level: 1, certifications: ['Level 1 - Basic Security'], teamId: 'team-2', weeklyHours: 5, performanceRating: 4.2 },
-    { id: 'secretary-1', firstName: 'Susan', lastName: 'Adams', email: 's.adams@example.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0 },
-    { id: 'dispatch-1', firstName: 'Mike', lastName: 'Johnson', email: 'm.johnson@example.com', role: UserRole.Dispatch, rank: Ranks[UserRole.Dispatch], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0 },
-    { id: 'client-1', firstName: 'Acme', lastName: 'Corp', email: 'contact@acme.com', role: UserRole.Client, rank: 'Client', level: 0, certifications: [], teamId: 'team-1' },
-    { id: 'to-1', firstName: 'Chris', lastName: 'Green', email: 'c.green@example.com', role: UserRole.TrainingOfficer, rank: Ranks[UserRole.TrainingOfficer], level: 3, certifications: ['All'], teamId: 'team-1', weeklyHours: 10, performanceRating: 4.8 },
+    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false },
+    // Team 1
+    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
+    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
+    { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
+    // Team 2
+    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
+    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
+    { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
+    // Sample users for testing
+    { id: 'guard-1', firstName: 'John', lastName: 'Doe', email: 'guard@test.com', role: UserRole.Guard, rank: Ranks[UserRole.Guard], level: 2, certifications: [], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.5, needsUniform: true },
+    { id: 'client-1', firstName: 'Test', lastName: 'Client', email: 'client@test.com', role: UserRole.Client, rank: 'Client', level: 0, certifications: [], teamId: 'team-1' },
+    { id: 'supervisor-1', firstName: 'Jane', lastName: 'Smith', email: 'supervisor@test.com', role: UserRole.Supervisor, rank: Ranks[UserRole.Supervisor], level: 4, certifications: [], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.9, needsUniform: true },
   ],
   clients: [
-      { id: 'client-acme', userId: 'client-1', companyName: 'Acme Corp', contactEmail: 'contact@acme.com', teamId: 'team-1', whitelist: [], blacklist: [] }
+      { id: 'client-acme', userId: 'client-1', companyName: 'Test Client Inc.', contactEmail: 'client@test.com', teamId: 'team-1', whitelist: [], blacklist: [] }
   ],
   missions: [],
   sites: [
-      { id: 'site-1', clientId: 'client-acme', name: 'Acme Corp HQ', address: '123 Main St, Anytown, USA' }
+      { id: 'site-1', clientId: 'client-acme', name: 'Test Client HQ', address: '123 Main St, Anytown, USA' }
   ],
-  contracts: [
-    { id: 'contract-1', clientId: 'client-acme', title: 'Acme Corp HQ Security', startDate: new Date('2023-01-01'), endDate: new Date('2024-12-31'), totalBudget: 50000, status: 'Active' }
-  ],
+  contracts: [],
   applications: [],
   promotions: [],
   trainingModules: [
-      { id: 'tm-1', title: 'Level 1 - Basic Security', content: 'This module covers the fundamental duties of a security officer...', quiz: [{q: 'What is the first step in an emergency?', a: 'Assess the situation'}]},
-      { id: 'tm-2', title: 'Level 2 - Pepper Spray', content: 'Proper use and legal implications of pepper spray...', quiz: [{q: 'What is the effective range of your issued spray?', a: '10-12 feet'}]},
-      { id: 'tm-3', title: 'Level 3 - Taser', content: 'Taser operation and safety protocols...', quiz: [{q: 'What does Taser stand for?', a: 'Thomas A. Swift\'s Electric Rifle'}]},
-      { id: 'tm-4', title: 'Level 4 - Baton', content: 'Defensive baton techniques...', quiz: [{q: 'What is a primary target area?', a: 'Large muscle groups'}]},
-      { id: 'tm-5', title: 'Level 5 - Armed', content: 'Firearm safety and use of force...', quiz: [{q: 'What is the most important rule of gun safety?', a: 'Treat every firearm as if it were loaded'}]},
+      { id: 'tm-1', title: 'Bar Security', content: 'This module covers duties specific to bar and nightclub environments...', quiz: [{q: 'What is a key responsibility in a bar setting?', a: 'Monitoring patron intoxication levels'}]},
+      { id: 'tm-2', title: 'Retail Security', content: 'This module covers loss prevention and customer service in a retail setting...', quiz: [{q: 'What does "LP" stand for?', a: 'Loss Prevention'}]},
+      { id: 'tm-3', title: 'Standing Post', content: 'This module covers duties for a stationary security post, such as access control...', quiz: [{q: 'What is the primary function of a standing post?', a: 'Observe and report'}]},
+      { id: 'tm-4', title: 'Level 2 - Pepper Spray', content: 'Proper use and legal implications of pepper spray...', quiz: [{q: 'What is the effective range of your issued spray?', a: '10-12 feet'}]},
+      { id: 'tm-5', title: 'Level 3 - Taser', content: 'Taser operation and safety protocols...', quiz: [{q: 'What does Taser stand for?', a: "Thomas A. Swift's Electric Rifle"}]},
+      { id: 'tm-6', title: 'Level 4 - Baton', content: 'Defensive baton techniques...', quiz: [{q: 'What is a primary target area?', a: 'Large muscle groups'}]},
+      { id: 'tm-7', title: 'Level 5 - Armed', content: 'Firearm safety and use of force...', quiz: [{q: 'What is the most important rule of gun safety?', a: 'Treat every firearm as if it were loaded'}]},
       { id: 'tm-lead', title: 'Site Lead Training', content: 'Leadership, communication, and mission coordination...', quiz: [{q: 'Who must check in first on a mission?', a: 'The Site Lead'}]},
       { id: 'tm-to', title: 'Training Officer Training', content: 'Managing training programs and evaluating guards...', quiz: [{q: 'Who can deny a training submission?', a: 'Operations'}]},
       { id: 'tm-sup', title: 'Supervisor Training', content: 'Spot checks, quality assurance, and leadership...', quiz: [{q: 'How many spot checks are required per mission?', a: '3'}]},
+      { id: 'tm-ops', title: 'Operations Training', content: 'Company vision, values, team management, and part-ownership responsibilities...', quiz: [{q: 'What is the core mission of SSS?', a: 'Protect with purpose and perform with excellence'}]},
+      { id: 'tm-mgmt', title: 'Management Training', content: 'Administrative procedures, system management, and operational protocols...', quiz: [{q: 'Who has ultimate authority over the system?', a: 'Owner/Co-Owner'}]},
   ],
   trainingProgress: [],
   payrollRuns: [],
@@ -164,7 +167,7 @@ function load() {
   if (dbString) {
     try {
       const parsedDB = JSON.parse(dbString);
-      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks'];
+      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
               parsedDB[collection].forEach(item => {
@@ -175,6 +178,8 @@ function load() {
                   if (item.submittedAt) item.submittedAt = new Date(item.submittedAt);
                   if (item.createdAt) item.createdAt = new Date(item.createdAt);
                   if (item.time) item.time = new Date(item.time);
+                  if (item.sentAt) item.sentAt = new Date(item.sentAt);
+                  if (item.receivedAt) item.receivedAt = new Date(item.receivedAt);
               });
           }
       });
@@ -232,6 +237,7 @@ const getPayrollEntriesForRun = (runId) => (_DB.payrollEntries || []).filter(e =
 const getMissionsForSpotCheck = (supervisorId) => {
     const supervisor = getUserById(supervisorId);
     if (!supervisor) return [];
+    // A supervisor can spot check any active mission on their team that they are not a part of.
     return getMissions(supervisor.teamId).filter(m => m.status === 'Active' && !m.claimedBy.includes(supervisorId));
 };
 const getSpotCheckByMissionId = (missionId) => _DB.spotChecks.find(sc => sc.missionId === missionId);
@@ -247,13 +253,13 @@ function updateApplicationStatus(appId, status, teamId = null) {
     if (app) {
         app.status = status;
         if (status === 'Approved') {
-            const roleMap = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer };
+            const roleMap = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer, 'New Operations': UserRole.OperationsManager, 'New Management': UserRole.Secretary };
             const role = roleMap[app.type];
             if (!role) return;
 
             // Assign to a team
             let assignedTeamId = app.data.teamCode || teamId;
-            if (!assignedTeamId && role !== UserRole.Client) {
+            if (!assignedTeamId && role !== UserRole.Client && !executiveRoles.includes(role)) {
                 // Default assignment logic: assign to team with fewest members
                 const teamCounts = _DB.teams.map(t => ({ id: t.id, count: _DB.users.filter(u => u.teamId === t.id).length }));
                 if (teamCounts.length > 0) {
@@ -289,20 +295,32 @@ function updateApplicationStatus(appId, status, teamId = null) {
                 _DB.clients.push(newClient);
             }
         }
-        _DB.applications = _DB.applications.filter(a => a.id !== appId); // Remove from pending
+        // Remove from pending list
+        _DB.applications = _DB.applications.filter(a => a.id !== appId);
     }
     save();
 }
 function addMission(missionData) {
+    const missionId = `mission-${Date.now()}`;
     const newMission = {
         ...missionData,
-        id: `mission-${Date.now()}`,
+        id: missionId,
         status: 'Open',
         claimedBy: [],
         checkIns: {},
         checkOuts: {},
     };
     _DB.missions.push(newMission);
+    // Auto-assign supervisor spot check
+    _DB.alerts.push({
+        id: `alert-${Date.now()}`,
+        severity: 'Info',
+        message: `New mission "${newMission.title}" created. Requires supervisor assignment.`,
+    });
+    // Assign lead guard if selected
+    if(missionData.leadGuardId) {
+        assignLeadGuard(missionId, missionData.leadGuardId);
+    }
     save();
 }
 function claimMission(missionId, userId) {
@@ -336,7 +354,7 @@ function missionCheckIn(missionId, userId, isLead = false, guardToCheckIn = null
 
     if (isLead && isUserTheLead) { // Lead checking in another guard
         if (mission.checkIns[userId] && guardToCheckIn && !mission.checkIns[guardToCheckIn]) {
-            mission.checkIns[guardToCheckIn] = { time: new Date() };
+            mission.checkIns[guardToCheckIn] = { time: new Date(), verifiedBy: userId };
         }
     } else { // Regular or initial lead check-in
         if (leadAssignment && !isUserTheLead && !mission.checkIns[leadAssignment.userId]) {
@@ -361,7 +379,7 @@ function missionCheckOut(missionId, userId, isLead = false, guardToCheckOut = nu
 
     if (isLead && isUserTheLead) { // Lead checking out another guard
         if (guardToCheckOut && !mission.checkOuts[guardToCheckOut]) {
-            mission.checkOuts[guardToCheckOut] = { time: new Date() };
+            mission.checkOuts[guardToCheckOut] = { time: new Date(), verifiedBy: userId };
         }
     } else { // Regular or final lead check-out
          if (isUserTheLead) {
@@ -400,6 +418,14 @@ function updateClientGuardList(clientId, guardId, listType, action) {
 function submitTraining(userId, moduleId, answers) {
     const module = _DB.trainingModules.find(m => m.id === moduleId);
     if (!module) return false;
+
+    // Check for previous attempt with one-attempt rule
+    const existingAttempt = _DB.trainingProgress.find(p => p.userId === userId && p.moduleId === moduleId);
+    if (existingAttempt) {
+        alert("You have already attempted this quiz. Request a retake from a Training Officer or Supervisor.");
+        return null;
+    }
+
     let correct = 0;
     module.quiz.forEach((q, index) => {
         if (answers[`q-${index}`]?.toLowerCase().trim() === q.a.toLowerCase().trim()) {
@@ -415,12 +441,7 @@ function submitTraining(userId, moduleId, answers) {
         submittedAt: new Date(),
         score: (correct / module.quiz.length) * 100,
     };
-    const existingAttempt = _DB.trainingProgress.find(p => p.userId === userId && p.moduleId === moduleId);
-    if(existingAttempt){
-      alert("You have already attempted this quiz. Request a retake from a Training Officer.");
-      return;
-    }
-
+    
     _DB.trainingProgress.push(progress);
     save();
     return passed;
@@ -437,6 +458,7 @@ function updateTrainingProgressStatus(progressId, status) {
             }
         }
         if (status === 'Retake Requested') {
+            // Remove the 'Failed' or 'Pending' attempt to allow a new submission
             _DB.trainingProgress = _DB.trainingProgress.filter(p => p.id !== progressId);
         }
     }
@@ -545,7 +567,8 @@ function addSpotCheck(supervisorId, missionId) {
         status: 'InProgress',
         startTime: new Date(),
         checks: { start: null, mid: null, end: null },
-        finalReport: null
+        finalReport: null,
+        selfies: { start: null, end: null },
     };
     _DB.spotChecks.push(newSpotCheck);
     save();
@@ -554,6 +577,13 @@ function updateSpotCheck(spotCheckId, checkType, checkData) {
     const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
     if(spotCheck) {
         spotCheck.checks[checkType] = checkData;
+        save();
+    }
+}
+function addSpotCheckSelfie(spotCheckId, type, imageData) {
+    const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
+    if(spotCheck) {
+        spotCheck.selfies[type] = imageData; // In a real app, this would be a URL
         save();
     }
 }
@@ -569,6 +599,8 @@ function completeSpotCheck(spotCheckId, report) {
     }
 }
 function assignLeadGuard(missionId, userId) {
+    // remove existing if any
+    _DB.leadGuardAssignments = _DB.leadGuardAssignments.filter(lg => lg.missionId !== missionId);
     const assignment = {
         id: `lg-${Date.now()}`,
         missionId,
@@ -722,47 +754,6 @@ const LoginModal = ({ users }) => {
     `;
 };
 
-const ApplicationModal = ({ type }) => {
-    const renderFormFields = (type) => {
-        const inputStyles = "block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
-        if (type === 'New Guard' || type === 'New Supervisor') {
-            return `
-                <div class="grid grid-cols-2 gap-4">
-                    <input name="firstName" placeholder="First Name" required class="${inputStyles}" />
-                    <input name="lastName" placeholder="Last Name" required class="${inputStyles}" />
-                </div>
-                <input name="email" type="email" placeholder="Email Address" required class="${inputStyles}" />
-                <input name="phone" type="tel" placeholder="Phone Number" required class="${inputStyles}" />
-                <input name="teamCode" placeholder="Team Code (Optional)" class="${inputStyles}" />
-                <input type="hidden" name="role" value="${type === 'New Guard' ? UserRole.Guard : UserRole.Supervisor}" />
-            `;
-        }
-        if (type === 'New Client') {
-             return `
-                <input name="companyName" placeholder="Company Name" required class="${inputStyles}" />
-                <input name="contactEmail" type="email" placeholder="Contact Email" required class="${inputStyles}" />
-                <input name="contactPhone" type="tel" placeholder="Contact Phone" required class="${inputStyles}" />
-                <input name="teamCode" placeholder="Team Code (Optional)" class="${inputStyles}" />
-            `;
-        }
-        return '';
-    }
-    return `
-        <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal">
-            <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-md p-6 border border-[var(--border-primary)]">
-                <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Application for ${type.replace('New ', '')}</h2>
-                <form id="application-form" class="space-y-4">
-                    ${renderFormFields(type)}
-                    <div class="flex justify-end space-x-3 pt-4">
-                         <button type="button" data-action="close-modal" class="px-4 py-2 bg-[var(--border-tertiary)] text-[var(--text-primary)] font-semibold rounded-md hover:bg-[var(--border-secondary)] transition">Cancel</button>
-                         <button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)] transition">Submit Application</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
-};
-
 const TrainingModal = ({ moduleId }) => {
     const module = getTrainingModules().find(m => m.id === moduleId);
     if (!module) return '';
@@ -839,7 +830,6 @@ const ContractModal = ({ user }) => {
 };
 
 const Sidebar = ({ currentUser, activeView }) => {
-    const isSupervisor = currentUser.role === UserRole.Supervisor;
     const sidebarStructure = [
         {
             title: 'Main',
@@ -899,9 +889,9 @@ const Sidebar = ({ currentUser, activeView }) => {
             title: 'Administration',
             roles: [...operationsRoles, ...executiveRoles, ...managementRoles],
             items: [
-                { name: 'Applications', icon: Icons.DocumentText, view: 'Applications', roles: [UserRole.OperationsManager, UserRole.Secretary, ...executiveRoles] },
+                { name: 'Applications', icon: Icons.DocumentText, view: 'Applications', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
                 { name: 'Contract Approvals', icon: Icons.DocumentDuplicate, view: 'ContractApprovals', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: [UserRole.OperationsDirector, ...executiveRoles] },
+                { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: [...operationsRoles, ...executiveRoles] },
                 { name: 'Appeals', icon: Icons.Flag, view: 'Appeals', roles: [UserRole.OperationsDirector, ...executiveRoles] },
                 { name: 'Uniform Distribution', icon: Icons.Truck, view: 'UniformDistribution', roles: [UserRole.Secretary, ...operationsRoles, ...executiveRoles]},
             ]
@@ -994,6 +984,9 @@ const MissionBoard = ({ user }) => {
         } else if (userTraining.status === 'Failed') {
             status = 'Training Failed';
             buttonText = 'Retake';
+        } else if (userTraining.status === 'Denied') {
+            status = 'Training Denied';
+            buttonText = 'Denied';
         } else if (userTraining.status === 'Approved') {
             status = 'Available';
             buttonText = 'Claim Mission';
@@ -1045,7 +1038,7 @@ const MissionBoard = ({ user }) => {
                 <div class="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-sm">
                     ${Icons.ClipboardList({ className: "w-16 h-16 mx-auto text-[var(--text-secondary)] opacity-50" })}
                     <h2 class="mt-4 text-xl font-semibold text-[var(--text-primary)]">No Missions Available</h2>
-                    <p class="mt-1 text-[var(--text-secondary)]">Check back later for new opportunities.</p>
+                    <p class="mt-1 text-[var(--text-secondary)]">Check back later for new opportunities on your team's board.</p>
                 </div>
             `}
         </div>
@@ -1068,11 +1061,7 @@ const MyMissions = ({ user }) => {
     };
     const MissionCard = ({ mission, user }) => {
         const isGuard = !clientRole.includes(user.role);
-        const hasCheckedIn = mission.checkIns && mission.checkIns[user.id];
-        const hasCheckedOut = mission.checkOuts && mission.checkOuts[user.id];
         let actions = '';
-        const now = new Date();
-        const canCheckIn = now >= new Date(mission.startTime) && now <= new Date(mission.endTime);
         const canStartMission = new Date() >= new Date(mission.startTime);
 
         if (isGuard) {
@@ -1120,26 +1109,47 @@ const Training = ({ user }) => {
     const modules = getTrainingModules();
     const progress = getUserTrainingProgress(user.id);
     const getModuleProgress = (moduleId) => progress.find(p => p.moduleId === moduleId);
+    
+    // Filter out special trainings unless the user is eligible
+    let availableModules = modules.filter(module => {
+        if (module.id === 'tm-lead') return false; // Lead guard is assignment-based
+        if (module.id === 'tm-to' || module.id === 'tm-sup' || module.id === 'tm-ops' || module.id === 'tm-mgmt') return false; // Promotion-based
+        return true;
+    });
+
     return `
         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Training Center</h1>
             <div class="space-y-4">
-                ${modules.filter(module => !module.title.includes('Training Officer') && !module.title.includes('Supervisor')).map(module => { // Filter out special trainings
+                ${availableModules.map(module => {
                     const prog = getModuleProgress(module.id);
                     let statusColor = 'bg-[var(--border-tertiary)] text-[var(--text-secondary)]';
-                    let statusText = prog?.status || 'Not Started';
-                    if (prog?.status === 'Approved') statusColor = 'bg-green-100 text-green-800';
-                    if (prog?.status === 'Pending Approval') statusColor = 'bg-yellow-100 text-yellow-800';
-                    if (prog?.status === 'Failed') statusColor = 'bg-red-100 text-red-800';
-                    if (prog?.status === 'Denied') statusColor = 'bg-red-100 text-red-800';
+                    let statusText = 'Not Started';
+                    let actionButton = `<button data-action="start-training" data-id="${module.id}" class="px-4 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-bold rounded-md hover:bg-[var(--accent-secondary-hover)]">Start Training</button>`;
+
+                    if (prog) {
+                        statusText = prog.status;
+                        if (prog.status === 'Approved') {
+                            statusColor = 'bg-green-100 text-green-800';
+                            actionButton = `<span class="font-semibold text-green-600">Completed</span>`;
+                        } else if (prog.status === 'Pending Approval') {
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                            actionButton = `<span class="font-semibold text-yellow-600">Pending</span>`;
+                        } else if (prog.status === 'Failed' || prog.status === 'Denied') {
+                            statusColor = 'bg-red-100 text-red-800';
+                            actionButton = `<button data-action="request-retake-info" class="px-4 py-2 bg-red-500 text-white font-bold rounded-md hover:bg-red-600">Request Retake</button>`;
+                        }
+                    }
+                    
                     return `
                         <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm flex justify-between items-center flex-wrap gap-4">
                             <div class="flex-grow">
                                 <h3 class="font-bold text-lg text-[var(--text-primary)]">${module.title}</h3>
                                 <p class="text-sm text-[var(--text-secondary)]">${module.content.substring(0, 100)}...</p>
                             </div>
-                            <div class="text-right flex-shrink-0">
-                                ${prog ? `<span class="px-3 py-1 text-sm font-semibold rounded-full ${statusColor}">${statusText}</span>` : `<button data-action="start-training" data-id="${module.id}" class="px-4 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-bold rounded-md hover:bg-[var(--accent-secondary-hover)]">Start Training</button>`}
+                            <div class="text-right flex-shrink-0 flex items-center gap-4">
+                                <span class="px-3 py-1 text-sm font-semibold rounded-full ${statusColor}">${statusText}</span>
+                                ${actionButton}
                             </div>
                         </div>
                     `;
@@ -1198,7 +1208,7 @@ const PostMission = ({ user }) => {
                     <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Pay Rate ($/hr)</label><input type="number" min="15" name="payRate" value="25" required class="${inputStyles}" /></div>
                     <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Required Guards</label><input type="number" min="1" name="requiredGuards" value="1" required class="${inputStyles}" /></div>
                     <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Required Guard Level</label><input type="number" min="1" max="5" name="requiredLevel" value="1" required class="${inputStyles}" /></div>
-                    <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Assign Site Lead</label><select name="leadGuardId" class="${inputStyles} bg-white"><option value="">Optional: Select a Lead Guard</option>${getUsers(fieldRoles).map(g => `<option value="${g.id}">${g.firstName} ${g.lastName}</option>`).join('')}</select></div>
+                    <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Assign Site Lead (Optional)</label><select name="leadGuardId" class="${inputStyles} bg-white"><option value="">Select a Lead Guard</option>${client.whitelist.map(gId => getUserById(gId)).filter(Boolean).map(g => `<option value="${g.id}">${g.firstName} ${g.lastName}</option>`).join('')}</select></div>
                 </div>
                 <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Description / Instructions</label><textarea name="description" rows="4" class="${inputStyles}"></textarea></div>
                 <div class="text-right"><button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)]">${Icons.PlusCircle({ className: "w-5 h-5 mr-2" })} Post Mission</button></div>
@@ -1477,4 +1487,856 @@ const Earnings = ({ user }) => {
     <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Earnings & Payroll</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
-            <h2 class="text-xl font-bold text-[var(--text-primary)] mb
+            <h2 class="text-xl font-bold text-[var(--text-primary)] mb-4">Payment History</h2>
+            ${payrollEntries.length > 0 ? `
+            <table class="min-w-full">
+                <thead><tr class="border-b-2 border-[var(--border-primary)]"><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Pay Period</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Hours</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Amount</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Status</th></tr></thead>
+                <tbody class="divide-y divide-[var(--border-primary)]">
+                ${payrollEntries.map(entry => {
+                    const run = payrollRuns.find(r => r.id === entry.runId);
+                    return `<tr>
+                        <td class="py-3 text-sm font-medium text-[var(--text-primary)]">${new Date(run.startDate).toLocaleDateString()} - ${new Date(run.endDate).toLocaleDateString()}</td>
+                        <td class="py-3 text-sm text-[var(--text-secondary)]">${entry.hours.toFixed(2)}</td>
+                        <td class="py-3 text-sm text-[var(--text-secondary)]">$${entry.totalPay.toFixed(2)}</td>
+                        <td class="py-3 text-sm">${entry.paymentConfirmed ? `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid</span>` : `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Processing</span>`}</td>
+                    </tr>`
+                }).join('')}
+                </tbody>
+            </table>
+            ` : `<p class="text-[var(--text-secondary)]">No payment history found.</p>`}
+        </div>
+    </div>
+    `;
+};
+const ClientGuardRoster = ({ user }) => {
+    const client = getClients().find(c => c.userId === user.id);
+    if (!client) return `<div>Loading client data...</div>`;
+    const allGuards = getUsers(fieldRoles);
+    const clientMissions = getMissions().filter(m => m.clientId === client.id);
+    const guardIds = new Set();
+    clientMissions.forEach(mission => mission.claimedBy.forEach(guardId => guardIds.add(guardId)));
+    const guardsWhoWorked = allGuards.filter(guard => guardIds.has(guard.id));
+    return `
+        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+            <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">My Guard Roster</h1>
+            <p class="text-[var(--text-secondary)] mb-6">Manage your preferred guards. Whitelisted guards get priority on your missions, while blacklisted guards cannot claim them.</p>
+            <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
+                <table class="min-w-full leading-normal">
+                    <thead><tr class="bg-[var(--bg-primary)] text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Guard</th><th class="px-5 py-3 font-semibold">Rating</th><th class="px-5 py-3 font-semibold text-center">Actions</th></tr></thead>
+                    <tbody>
+                        ${guardsWhoWorked.map(guard => {
+                            const isWhitelisted = client.whitelist.includes(guard.id);
+                            const isBlacklisted = client.blacklist.includes(guard.id);
+                            return `
+                                <tr class="border-b border-[var(--border-primary)] hover:bg-[var(--bg-primary)]">
+                                    <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${guard.firstName} ${guard.lastName}</p><p class="text-[var(--text-secondary)] whitespace-no-wrap text-xs">${guard.rank}</p></td>
+                                    <td class="px-5 py-4 text-sm"><span class="font-semibold text-green-600">${guard.performanceRating.toFixed(2)} / 5.00</span></td>
+                                    <td class="px-5 py-4 text-sm text-center space-x-2">
+                                        <button data-action="update-roster" data-guard-id="${guard.id}" data-list-type="whitelist" class="px-3 py-1 rounded-full text-xs font-semibold transition-colors ${isWhitelisted ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700 hover:bg-green-100'}">${isWhitelisted ? 'Whitelisted' : 'Whitelist'}</button>
+                                        <button data-action="update-roster" data-guard-id="${guard.id}" data-list-type="blacklist" class="px-3 py-1 rounded-full text-xs font-semibold transition-colors ${isBlacklisted ? 'bg-red-200 text-red-800' : 'bg-gray-200 text-gray-700 hover:bg-red-100'}">${isBlacklisted ? 'Blacklisted' : 'Blacklist'}</button>
+                                    </td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+                 ${guardsWhoWorked.length === 0 ? `<div class="text-center p-8"><p class="text-[var(--text-secondary)]">No guards have worked on your missions yet. Once they do, you can manage your roster here.</p></div>` : ''}
+            </div>
+        </div>
+    `;
+};
+const HallOfFame = ({ user }) => `
+    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Hall of Fame</h1>
+        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
+            <p class="text-[var(--text-primary)]">This view displays leaderboards and recognizes the 'Guard of the Month' based on performance metrics.</p>
+        </div>
+    </div>
+`;
+const Payroll = ({ user, selectedRunId }) => {
+    const runs = getPayrollRuns();
+    const users = getUsers(Object.values(UserRole));
+    const selectedRun = runs.find(r => r.id === selectedRunId) || (runs.length > 0 ? runs[0] : null);
+    const entries = selectedRun ? getPayrollEntriesForRun(selectedRun.id) : [];
+    const getUserName = (id) => { const user = users.find(u => u.id === id); return user ? `${user.firstName} ${user.lastName}` : 'Unknown User'; }
+    const getStatusPill = (status) => {
+        switch(status) {
+            case 'Pending': return 'bg-yellow-100 text-yellow-800';
+            case 'Approved': return 'bg-blue-100 text-blue-800';
+            case 'Paid': return 'bg-green-100 text-green-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    }
+    return `
+        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+            <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Payroll Management</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
+                        <h2 class="text-lg font-bold text-[var(--text-primary)] mb-4">Create New Payroll Run</h2>
+                        <form id="create-payroll-form" class="space-y-4">
+                            <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Start Date</label><input name="startDate" type="date" required class="mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" /></div>
+                            <div><label class="block text-sm font-medium text-[var(--text-secondary)]">End Date</label><input name="endDate" type="date" required class="mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" /></div>
+                            <button type="submit" class="w-full bg-[var(--accent-secondary)] text-white font-bold py-2 px-4 rounded-md hover:bg-[var(--accent-secondary-hover)] transition-colors">Create Run</button>
+                        </form>
+                    </div>
+                    <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
+                        <h2 class="text-lg font-bold text-[var(--text-primary)] mb-4">Payroll Runs</h2>
+                         <ul class="space-y-2 max-h-96 overflow-y-auto">
+                            ${runs.map(run => `<li data-action="select-payroll-run" data-id="${run.id}" class="p-3 rounded-md cursor-pointer transition-colors border ${selectedRun?.id === run.id ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]' : 'hover:bg-[var(--bg-primary)] border-transparent'}"><div class="flex justify-between items-center"><p class="font-semibold text-sm text-[var(--text-primary)]">${new Date(run.startDate).toLocaleDateString()} - ${new Date(run.endDate).toLocaleDateString()}</p><span class="px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusPill(run.status)}">${run.status}</span></div><p class="text-xs text-[var(--text-secondary)]">Total: $${run.totalAmount.toFixed(2)}</p></li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
+                    ${selectedRun ? `
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <div><h2 class="text-xl font-bold text-[var(--text-primary)]">Run Details</h2><p class="text-sm text-[var(--text-secondary)]">${new Date(selectedRun.startDate).toLocaleDateString()} - ${new Date(selectedRun.endDate).toLocaleDateString()}</p></div>
+                                ${selectedRun.status === 'Pending' ? `<button data-action="approve-payroll-run" data-id="${selectedRun.id}" class="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors">Approve Run</button>`: ''}
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead><tr class="border-b-2 border-[var(--border-primary)]"><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Guard</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Hours</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Total Pay</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Status</th></tr></thead>
+                                    <tbody class="divide-y divide-[var(--border-primary)]">
+                                        ${entries.map(entry => `<tr><td class="py-3 text-sm font-medium text-[var(--text-primary)]">${getUserName(entry.userId)}</td><td class="py-3 text-sm text-[var(--text-secondary)]">${entry.hours.toFixed(2)}</td><td class="py-3 text-sm text-[var(--text-secondary)]">$${entry.totalPay.toFixed(2)}</td><td class="py-3 text-sm">${selectedRun.status === 'Approved' && !entry.paymentConfirmed ? `<button data-action="confirm-payment" data-id="${entry.id}" class="bg-blue-500 text-white text-xs font-bold py-1 px-2 rounded hover:bg-blue-600">Mark as Paid</button>` : `<span class="px-2 py-0.5 text-xs font-semibold rounded-full ${entry.paymentConfirmed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${entry.paymentConfirmed ? 'Paid' : 'Unpaid'}</span>`}</td></tr>`).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="flex items-center justify-center h-full text-center">
+                            <div>${Icons.CreditCard({ className: "w-16 h-16 mx-auto text-[var(--text-secondary)] opacity-50" })}<h3 class="mt-4 text-lg font-semibold text-[var(--text-primary)]">Select a Payroll Run</h3><p class="text-[var(--text-secondary)]">Choose a run from the list to see its details.</p></div>
+                        </div>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+};
+const VehicleManagement = ({ user }) => `
+    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Vehicle Management</h1>
+        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
+            <p class="text-[var(--text-primary)]">This view is for tracking the fleet of security vehicles, their maintenance schedules, and assignments.</p>
+        </div>
+    </div>
+`;
+const Promotions = ({ user }) => {
+    const promotions = getPromotions();
+    const users = getUsers(Object.values(UserRole));
+    const isFieldRole = fieldRoles.includes(user.role);
+    const isAdminRole = [...operationsRoles, ...executiveRoles].includes(user.role);
+    const GuardPromotionView = (user, promotions) => {
+        const existingApplication = promotions.find(p => p.userId === user.id && p.status === 'Pending');
+        return `
+            <div>
+                <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Apply for Promotion</h1>
+                ${existingApplication ? `
+                    <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm text-center">
+                        ${Icons.CheckCircle({ className: "w-12 h-12 mx-auto text-green-500 mb-4" })}
+                        <h2 class="text-xl font-bold text-[var(--text-primary)]">Application Submitted</h2>
+                        <p class="text-[var(--text-secondary)]">Your application for the role of <span class="font-semibold">${existingApplication.toRole}</span> is currently <span class="font-semibold">${existingApplication.status}</span>.</p>
+                    </div>
+                ` : `
+                    <form id="promotion-form" class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm space-y-4">
+                        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Promote to Role</label><select name="role" required class="mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 bg-white focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"><option value="" disabled selected>Select a role</option><option value="${UserRole.TrainingOfficer}">Training Officer</option><option value="${UserRole.Supervisor}">Supervisor</option></select></div>
+                        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Reason for Application</label><textarea name="reason" required rows="5" class="mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="Explain why you are a good fit for this role..."></textarea></div>
+                        <div class="text-right"><button type="submit" class="bg-[var(--accent-secondary)] text-white font-bold py-2 px-6 rounded-md hover:bg-[var(--accent-secondary-hover)] transition-colors">Submit</button></div>
+                    </form>
+                `}
+            </div>
+        `;
+    };
+    const AdminPromotionView = (users, promotions) => {
+        const getUserName = (id) => { const u = users.find(u => u.id === id); return u ? `${u.firstName} ${u.lastName}` : 'Unknown'; };
+        const pendingPromotions = promotions.filter(p => p.status === 'Pending');
+        return `
+             <div>
+                <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Promotion Applications</h1>
+                 <div class="space-y-4">
+                    ${pendingPromotions.length > 0 ? pendingPromotions.map(promo => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${getUserName(promo.userId)}</p><p class="text-sm text-[var(--text-secondary)]">Applying for: <span class="font-semibold text-[var(--text-primary)]">${promo.toRole}</span></p></div><div class="space-x-2"><button data-action="approve-promotion" data-id="${promo.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600">Approve</button><button data-action="deny-promotion" data-id="${promo.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">Deny</button></div></div><p class="text-sm text-[var(--text-secondary)] mt-2 pt-2 border-t border-[var(--border-tertiary)]">${promo.reason}</p></div>`).join('') : `<p class="text-[var(--text-secondary)]">No pending promotion applications.</p>`}
+                </div>
+            </div>
+        `;
+    };
+    let content = `<p>You do not have access to this view.</p>`;
+    if (isAdminRole) content = AdminPromotionView(users, promotions);
+    else if (isFieldRole) content = GuardPromotionView(user, promotions);
+    return `
+         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">${content}</div>
+    `;
+};
+const Appeals = ({ user }) => `
+    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Appeals</h1>
+        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
+            <p class="text-[var(--text-primary)]">This view is for managing and reviewing appeals from guards and clients regarding applications, training, or other decisions.</p>
+        </div>
+    </div>
+`;
+const MyContracts = ({ user }) => {
+    const client = getClients().find(c => c.userId === user.id);
+    const contracts = client ? getContracts().filter(c => c.clientId === client.id) : [];
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Active': return 'bg-green-100 text-green-800';
+            case 'Pending': return 'bg-yellow-100 text-yellow-800';
+            case 'Denied': return 'bg-red-100 text-red-800';
+            default: return 'bg-[var(--border-tertiary)] text-[var(--text-secondary)]';
+        }
+    };
+    return `
+        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-[var(--text-primary)]">My Contracts</h1>
+                <button data-action="open-contract-modal" class="px-4 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-bold rounded-md hover:bg-[var(--accent-secondary-hover)]">New Contract</button>
+            </div>
+             <div class="space-y-4">
+                ${contracts.map(contract => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-start"><h3 class="font-bold text-lg text-[var(--text-primary)]">${contract.title}</h3><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(contract.status)}">${contract.status}</span></div><p class="text-sm text-[var(--text-secondary)]">Budget: $${contract.totalBudget.toLocaleString()}</p><p class="text-xs text-[var(--text-secondary)] opacity-70">Expires: ${new Date(contract.endDate).toLocaleDateString()}</p></div>`).join('')}
+            </div>
+        </div>
+    `;
+};
+const ContractApprovals = ({ user }) => {
+    const pendingContracts = getContracts().filter(c => c.status === 'Pending');
+    return `
+         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+            <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Pending Contract Approvals</h1>
+            <div class="space-y-4">
+                ${pendingContracts.length > 0 ? pendingContracts.map(contract => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${contract.title}</p><p class="text-sm text-[var(--text-secondary)]">Budget: $${contract.totalBudget.toLocaleString()}</p></div><div class="space-x-2"><button data-action="approve-contract" data-id="${contract.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button><button data-action="deny-contract" data-id="${contract.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)]">No contracts are pending approval.</p>`}
+            </div>
+        </div>
+    `;
+};
+const TeamManagement = ({ user }) => {
+    const teams = _DB.teams;
+    const users = _DB.users;
+    return `
+    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Team Management</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        ${teams.map(team => {
+            const director = getUserById(team.directorId);
+            const members = users.filter(u => u.teamId === team.id && u.id !== team.directorId);
+            return `
+            <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-4 shadow-sm">
+                <h2 class="text-xl font-bold text-[var(--text-primary)]">${team.name}</h2>
+                <p class="text-sm text-[var(--text-secondary)]">Director: ${director.firstName} ${director.lastName}</p>
+                <div class="mt-4">
+                    <h3 class="font-semibold text-md text-[var(--text-primary)]">Members (${members.length})</h3>
+                    <ul class="mt-2 space-y-1 text-sm text-[var(--text-secondary)] max-h-40 overflow-y-auto">
+                        ${members.map(m => `<li>${m.firstName} ${m.lastName} (${m.role})</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+            `
+        }).join('')}
+        </div>
+    </div>
+    `;
+};
+const UniformDistribution = ({ user }) => {
+    const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary].includes(user.role) ? null : user.teamId;
+    const usersNeedingUniforms = getNeedsUniformUsers(teamId);
+    return `
+     <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Uniform Distribution</h1>
+         <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
+            <table class="min-w-full leading-normal">
+                <thead><tr class="bg-[var(--bg-primary)] text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Employee</th><th class="px-5 py-3 font-semibold">Rank</th><th class="px-5 py-3 font-semibold">Action</th></tr></thead>
+                <tbody>
+                    ${usersNeedingUniforms.map(u => `
+                    <tr class="border-b border-[var(--border-primary)] hover:bg-[var(--bg-primary)]">
+                        <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${u.firstName} ${u.lastName}</p></td>
+                        <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${u.rank}</td>
+                        <td class="px-5 py-4 text-sm"><button data-action="mark-uniform-sent" data-id="${u.id}" class="px-3 py-1 bg-blue-500 text-white rounded-md text-sm font-semibold hover:bg-blue-600">Mark as Sent</button></td>
+                    </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            ${usersNeedingUniforms.length === 0 ? `<div class="p-6 text-center text-[var(--text-secondary)]">No uniforms currently pending distribution.</div>` : ''}
+        </div>
+    </div>
+    `
+};
+const ApplicationView = ({ type }) => {
+    const isOpsOrMgmt = type === 'Operations' || type === 'Management';
+    const inputStyles = "block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
+    const commonFields = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div><label class="block text-sm font-medium text-[var(--text-secondary)]">First Name</label><input name="firstName" required class="${inputStyles}" /></div>
+            <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Last Name</label><input name="lastName" required class="${inputStyles}" /></div>
+            <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Email Address</label><input name="email" type="email" required class="${inputStyles}" /></div>
+            <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Phone Number</label><input name="phone" type="tel" required class="${inputStyles}" /></div>
+        </div>
+        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Team Code (Optional)</label><input name="teamCode" placeholder="Enter if you have one" class="${inputStyles}" /></div>
+    `;
+    const clientFields = `
+        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Company Name</label><input name="companyName" required class="${inputStyles}" /></div>
+        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Contact Email</label><input name="contactEmail" type="email" required class="${inputStyles}" /></div>
+        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Contact Phone</label><input name="contactPhone" type="tel" required class="${inputStyles}" /></div>
+        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Team Code (Optional)</label><input name="teamCode" placeholder="Enter if you have one" class="${inputStyles}" /></div>
+        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Security Needs</label><textarea name="needs" rows="4" class="${inputStyles}" required></textarea></div>
+    `;
+    const opsMgmtFields = `
+         <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Previous Experience</label><textarea name="experience" rows="6" class="${inputStyles}" required placeholder="Detail your relevant experience in security management, operations, or administration."></textarea></div>
+         <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Why do you want to join SSS leadership?</label><textarea name="reason" rows="4" class="${inputStyles}" required></textarea></div>
+         <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Resume/CV Upload</label><input type="file" class="${inputStyles}" /></div>
+    `;
+    return `
+    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="max-w-4xl mx-auto py-8 px-4">
+            <div class="text-center mb-8">
+                <button data-action="back-to-home" class="text-[var(--accent-primary)] hover:underline mb-4">&larr; Back to Home</button>
+                <h1 class="text-3xl font-bold text-[var(--text-primary)]">Apply for ${type}</h1>
+                <p class="text-[var(--text-secondary)] mt-2">Complete the form below to submit your application.</p>
+            </div>
+            <form id="application-form" data-type="New ${type}" class="bg-[var(--bg-secondary)] p-8 border border-[var(--border-primary)] rounded-lg shadow-md space-y-6">
+                ${type === 'Client' ? clientFields : commonFields}
+                ${isOpsOrMgmt ? opsMgmtFields : ''}
+                <div class="pt-4 flex justify-end">
+                    <button type="submit" class="px-8 py-3 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)] transition">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    `;
+}
+
+const GuardMissionDashboard = ({ user, mission }) => {
+    return `
+    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-[var(--border-primary)]">
+                <div>
+                    <h1 class="text-2xl font-bold text-[var(--text-primary)]">Mission Dashboard: ${mission.title}</h1>
+                    <p class="text-[var(--text-secondary)]">Status: <span class="font-semibold text-yellow-600">${mission.status}</span></p>
+                </div>
+                <button data-action="exit-mission-dashboard" class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">Exit Dashboard</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 space-y-4">
+                    <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                        <h3 class="font-bold text-lg">Mission Actions</h3>
+                        <div class="flex space-x-4 mt-2">
+                           <button class="flex-1 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Take 10 Min Break</button>
+                           <button class="flex-1 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Take 30 Min Break</button>
+                        </div>
+                    </div>
+                    <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                         <h3 class="font-bold text-lg">Reporting</h3>
+                         <div class="flex space-x-4 mt-2">
+                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Incident Report</button>
+                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Note</button>
+                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Upload Picture</button>
+                         </div>
+                    </div>
+                </div>
+                <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                    <h3 class="font-bold text-lg mb-2">Mission Chat</h3>
+                    <div class="h-48 bg-white border rounded p-2 mb-2 overflow-y-auto">
+                        <p class="text-xs text-gray-500">Chat messages will appear here...</p>
+                    </div>
+                    <input type="text" placeholder="Type a message..." class="w-full p-2 border rounded-md" />
+                </div>
+            </div>
+
+             <div class="mt-6 pt-6 border-t border-[var(--border-primary)] text-center">
+                 <button data-action="mission-checkout" data-id="${mission.id}" class="px-8 py-3 bg-green-500 text-white font-bold text-lg rounded-md hover:bg-green-600">Check-Out of Mission</button>
+             </div>
+        </div>
+    </div>
+    `;
+};
+const LeadGuardMissionDashboard = ({ user, mission }) => {
+    const guardsOnMission = mission.claimedBy.map(id => getUserById(id)).filter(Boolean);
+    const hasCheckedIn = (guardId) => !!mission.checkIns[guardId];
+    const hasCheckedOut = (guardId) => !!mission.checkOuts[guardId];
+
+    return `
+    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-[var(--border-primary)]">
+                <div>
+                    <h1 class="text-2xl font-bold text-[var(--text-primary)]">Site Lead Dashboard: ${mission.title}</h1>
+                    <p class="text-[var(--text-secondary)]">You are the point of contact for this mission.</p>
+                </div>
+                <button data-action="exit-mission-dashboard" class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">Exit Dashboard</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-lg mb-2">Guard Roster Management</h3>
+                    <div class="space-y-2">
+                    ${guardsOnMission.map(guard => `
+                        <div class="bg-[var(--bg-primary)] p-3 rounded-md border border-[var(--border-tertiary)] flex items-center justify-between">
+                           <div>
+                             <p class="font-semibold">${guard.firstName} ${guard.lastName} ${guard.id === user.id ? '(You)' : ''}</p>
+                             <p class="text-xs text-gray-500">${hasCheckedOut(guard.id) ? 'Checked Out' : hasCheckedIn(guard.id) ? 'Checked In' : 'Pending'}</p>
+                           </div>
+                           ${guard.id !== user.id ? `
+                           <div class="flex space-x-2">
+                                <button data-action="lead-checkin" data-mission-id="${mission.id}" data-guard-id="${guard.id}" ${!hasCheckedIn(user.id) || hasCheckedIn(guard.id) ? 'disabled' : ''} class="px-2 py-1 text-xs font-semibold rounded-md bg-green-200 text-green-800 disabled:bg-gray-100 disabled:text-gray-400">Check In</button>
+                                <button data-action="lead-checkout" data-mission-id="${mission.id}" data-guard-id="${guard.id}" ${!hasCheckedIn(guard.id) || hasCheckedOut(guard.id) ? 'disabled' : ''} class="px-2 py-1 text-xs font-semibold rounded-md bg-red-200 text-red-800 disabled:bg-gray-100 disabled:text-gray-400">Check Out</button>
+                           </div>
+                           `: ''}
+                        </div>
+                    `).join('')}
+                    </div>
+                </div>
+                 <div>
+                    <h3 class="font-bold text-lg mb-2">Your Actions</h3>
+                     <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                         <h3 class="font-bold text-lg">Reporting</h3>
+                         <div class="flex space-x-4 mt-2">
+                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Incident Report</button>
+                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Note</button>
+                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Upload Picture</button>
+                         </div>
+                    </div>
+                 </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-[var(--border-primary)] text-center">
+                 <button data-action="mission-checkout" data-id="${mission.id}" class="px-8 py-3 bg-green-500 text-white font-bold text-lg rounded-md hover:bg-green-600">Check-Out (Self)</button>
+             </div>
+        </div>
+    </div>
+    `;
+};
+const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
+    const guardsOnMission = mission.claimedBy.map(id => getUserById(id)).filter(Boolean);
+    const renderCheckForm = (checkType) => {
+        const isDone = !!spotCheck.checks[checkType];
+        if (isDone) return `<div class="p-4 bg-green-100 text-green-800 rounded-md font-semibold">${checkType.charAt(0).toUpperCase() + checkType.slice(1)} check complete.</div>`;
+        return `
+            <form class="spot-check-form" data-check-type="${checkType}">
+                <h4 class="font-bold mb-2">Guards on Site:</h4>
+                ${guardsOnMission.map(g => `
+                    <div class="mb-2 p-2 border rounded-md">
+                        <p class="font-semibold">${g.firstName} ${g.lastName}</p>
+                        <div class="flex items-center space-x-4 mt-1">
+                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-present" class="mr-2"/> Present</label>
+                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-uniform" class="mr-2"/> Uniform OK</label>
+                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-gear" class="mr-2"/> Gear OK</label>
+                        </div>
+                        <label class="block text-sm mt-2">Photo of Guard:</label>
+                        <input type="file" name="${g.id}-photo" class="text-xs" />
+                    </div>
+                `).join('')}
+                <button type="submit" class="mt-2 w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Complete ${checkType} Check</button>
+            </form>
+        `;
+    };
+    
+    return `
+     <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-[var(--border-primary)]">
+                <div>
+                    <h1 class="text-2xl font-bold text-[var(--text-primary)]">Spot Check: ${mission.title}</h1>
+                    <p class="text-[var(--text-secondary)]">Verify guard presence and performance.</p>
+                </div>
+                <button data-action="exit-mission-dashboard" class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">Exit Spot Check</button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-[var(--text-secondary)]">Initial Attendance Verification (Selfie)</label>
+                ${spotCheck.selfies.start ? `<p class="text-sm text-green-600">Selfie uploaded.</p>` : `<input type="file" id="start-selfie" class="mt-1 block w-full text-sm" />`}
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-lg border-b pb-1 mb-2">First Spot Check</h3>
+                    ${renderCheckForm('start')}
+                </div>
+                 <div>
+                    <h3 class="font-semibold text-lg border-b pb-1 mb-2">Mid-Shift Spot Check</h3>
+                     ${spotCheck.checks.start ? renderCheckForm('mid') : `<p class="text-sm text-gray-500">Complete first check to enable.</p>`}
+                </div>
+                <div>
+                    <h3 class="font-semibold text-lg border-b pb-1 mb-2">Final Spot Check</h3>
+                     ${spotCheck.checks.mid ? renderCheckForm('end') : `<p class="text-sm text-gray-500">Complete mid-shift check to enable.</p>`}
+                </div>
+            </div>
+
+             <div class="mt-6 pt-6 border-t border-[var(--border-primary)]">
+                <h3 class="font-semibold text-lg mb-2">Final Report</h3>
+                <textarea id="final-spot-report" placeholder="Enter your final mission report here..." rows="5" class="w-full p-2 border rounded-md" ${!spotCheck.checks.end ? 'disabled' : ''}></textarea>
+                <label class="block text-sm font-medium text-[var(--text-secondary)] mt-2">Final Attendance Verification (Selfie)</label>
+                <input type="file" id="end-selfie" class="mt-1 block w-full text-sm" ${!spotCheck.checks.end ? 'disabled' : ''}/>
+                <button data-action="complete-spot-check" data-id="${spotCheck.id}" class="mt-4 w-full p-3 bg-green-500 text-white font-bold rounded-md hover:bg-green-600 disabled:bg-gray-300" ${!spotCheck.checks.end ? 'disabled' : ''}>Submit Final Report</button>
+            </div>
+        </div>
+    </div>
+    `;
+};
+
+// --- START: MAIN APP LOGIC ---
+const state = {
+    currentUser: null,
+    users: [],
+    isLoginModalOpen: false,
+    isTrainingModalOpen: false,
+    selectedTrainingModuleId: null,
+    isContractModalOpen: false,
+    isLoading: true,
+    activeView: 'Home',
+    activeMissionId: null,
+    selectedPayrollRunId: null,
+};
+const root = document.getElementById('root');
+
+function render() {
+    if (!root) return;
+    if (state.isLoading) {
+        root.innerHTML = `<div class="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-secondary)]">Loading System...</div>`;
+        return;
+    }
+    let modalHtml = '';
+    if (state.isLoginModalOpen) modalHtml = LoginModal({ users: state.users });
+    if (state.isTrainingModalOpen && state.selectedTrainingModuleId) modalHtml = TrainingModal({ moduleId: state.selectedTrainingModuleId });
+    if (state.isContractModalOpen && state.currentUser) modalHtml = ContractModal({ user: state.currentUser });
+    
+    if (state.currentUser) {
+        root.innerHTML = DashboardScreen({
+            currentUser: state.currentUser,
+            activeView: state.activeView,
+            activeMissionId: state.activeMissionId,
+            selectedPayrollRunId: state.selectedPayrollRunId,
+        }) + modalHtml;
+    } else if (['GuardApplication', 'ClientApplication', 'OperationsApplication'].includes(state.activeView)) {
+        const viewType = state.activeView.replace('Application','');
+        root.innerHTML = ApplicationView({type: viewType});
+    } else {
+        root.innerHTML = HomePage() + modalHtml;
+    }
+    attachFormEventListeners();
+}
+
+function attachFormEventListeners() {
+    if (!root) return;
+    const forms = [
+        { id: '#application-form', handler: handleApplicationSubmit },
+        { id: '#post-mission-form', handler: handlePostMission },
+        { id: '#create-payroll-form', handler: handleCreatePayroll },
+        { id: '#promotion-form', handler: handlePromotionSubmit },
+        { id: '#training-form', handler: handleTrainingSubmit },
+        { id: '#contract-form', handler: handleContractSubmit },
+        { selector: '.spot-check-form', handler: handleSpotCheckSubmit },
+    ];
+    forms.forEach(formInfo => {
+        if(formInfo.id) {
+            const form = root.querySelector(formInfo.id);
+            if (form) form.addEventListener('submit', formInfo.handler);
+        } else if (formInfo.selector) {
+            const forms = root.querySelectorAll(formInfo.selector);
+            forms.forEach(form => form.addEventListener('submit', formInfo.handler));
+        }
+    });
+}
+
+function handleLogin(email) {
+    const user = getUserByEmail(email);
+    if (user) {
+        state.currentUser = user;
+        state.activeView = 'Dashboard';
+        closeAllModals();
+    } else {
+        alert('User not found.');
+    }
+}
+function handleLogout() {
+    state.currentUser = null;
+    state.activeView = 'Home';
+    render();
+}
+function handleNavigation(view) {
+    state.activeView = view;
+    state.activeMissionId = null; // Exit mission dashboard on navigation
+    render();
+    const contentArea = document.getElementById('dashboard-content');
+    if(contentArea) contentArea.scrollTop = 0;
+}
+function handleClaimMission(missionId) {
+    if (!state.currentUser) return;
+    const result = claimMission(missionId, state.currentUser.id);
+    alert(result.message);
+    refreshAndRender();
+}
+function handleStartMission(missionId) {
+    if (!state.currentUser) return;
+    // Simulate selfie
+    if(confirm("Verify attendance with a selfie?")) {
+        state.activeMissionId = missionId;
+        missionCheckIn(missionId, state.currentUser.id);
+        refreshAndRender();
+    }
+}
+function handleMissionCheckout(missionId) {
+     if (!state.currentUser) return;
+     if(confirm("Verify checkout with a selfie?")) {
+        missionCheckOut(missionId, state.currentUser.id);
+        state.activeMissionId = null;
+        alert("You have successfully checked out.");
+        refreshAndRender();
+    }
+}
+function handleLeadGuardAction(missionId, guardId, action) {
+    if (!state.currentUser) return;
+    if(action === 'checkin') {
+        missionCheckIn(missionId, state.currentUser.id, true, guardId);
+    } else {
+        missionCheckOut(missionId, state.currentUser.id, true, guardId);
+    }
+    refreshAndRender();
+}
+function handleUpdateRoster(guardId, listType) {
+    if (!state.currentUser) return;
+    const client = getClients().find(c => c.userId === state.currentUser.id);
+    if (client) {
+        const list = client[listType] || [];
+        const action = list.includes(guardId) ? 'remove' : 'add';
+        updateClientGuardList(client.id, guardId, listType, action);
+        refreshAndRender();
+    }
+}
+function handleUpdateApplication(appId, status) {
+    updateApplicationStatus(appId, status);
+    alert(`Application ${status.toLowerCase()}.`);
+    refreshAndRender();
+}
+function handleUpdateContract(contractId, status) {
+    updateContractStatus(contractId, status);
+    alert(`Contract ${status.toLowerCase()}.`);
+    refreshAndRender();
+}
+function handleUpdatePromotion(promoId, status) {
+    updatePromotionStatus(promoId, status);
+    alert(`Promotion ${status.toLowerCase()}.`);
+    refreshAndRender();
+}
+function handleUpdateTrainingStatus(progressId, status) {
+    updateTrainingProgressStatus(progressId, status);
+    alert(`Training submission has been ${status.toLowerCase()}.`);
+    refreshAndRender();
+}
+function handleStartSpotCheck(missionId) {
+    if (!state.currentUser) return;
+    addSpotCheck(state.currentUser.id, missionId);
+    state.activeMissionId = missionId;
+    refreshAndRender();
+}
+function openLoginModal() {
+    state.isLoginModalOpen = true;
+    render();
+}
+function openTrainingModal(moduleId) {
+    state.selectedTrainingModuleId = moduleId;
+    state.isTrainingModalOpen = true;
+    render();
+}
+function openContractModal() {
+    state.isContractModalOpen = true;
+    render();
+}
+function closeAllModals() {
+    state.isLoginModalOpen = false;
+    state.isTrainingModalOpen = false;
+    state.selectedTrainingModuleId = null;
+    state.isContractModalOpen = false;
+    render();
+}
+function handleApplicationSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const appType = form.dataset.type;
+    if (!appType) return;
+    addApplication({ type: appType, data });
+    alert('Application submitted successfully! It will be reviewed by our team.');
+    handleNavigation('Home');
+}
+function handlePostMission(e) {
+    e.preventDefault();
+    if (!state.currentUser) return;
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    const client = getClients().find(c => c.userId === state.currentUser.id);
+    if(!client) {
+        alert("Could not find client profile.");
+        return;
+    }
+    const newMission = {
+        title: data.title, contractId: data.contractId, siteId: data.siteId, 
+        description: data.description, clientId: client.id, 
+        startTime: new Date(data.startTime), endTime: new Date(data.endTime),
+        payRate: parseFloat(data.payRate), requiredGuards: parseInt(data.requiredGuards, 10), 
+        requiredLevel: parseInt(data.requiredLevel, 10),
+        requiredTrainingId: data.requiredTrainingId,
+        leadGuardId: data.leadGuardId || null,
+    };
+    addMission(newMission);
+    alert('Mission posted successfully!');
+    handleNavigation('MyMissions');
+}
+function handleCreatePayroll(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const startDate = new Date(formData.get('startDate'));
+    const endDate = new Date(formData.get('endDate'));
+    if (startDate >= endDate) {
+        alert('Start date must be before end date.');
+        return;
+    }
+    createPayrollRun(startDate, endDate);
+    alert('Payroll run created.');
+    refreshAndRender();
+}
+function handlePromotionSubmit(e) {
+    e.preventDefault();
+    if (!state.currentUser) return;
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    addPromotion({ userId: state.currentUser.id, toRole: data.role, reason: data.reason });
+    alert('Promotion application submitted.');
+    refreshAndRender();
+}
+function handleTrainingSubmit(e) {
+    e.preventDefault();
+    if (!state.currentUser || !state.selectedTrainingModuleId) return;
+    const formData = new FormData(e.target);
+    const answers = Object.fromEntries(formData.entries());
+    const passed = submitTraining(state.currentUser.id, state.selectedTrainingModuleId, answers);
+    if (passed === null) return; // Means they already attempted
+    if(passed) {
+        alert('Quiz submitted! Your results are pending approval.');
+    } else {
+        alert('You did not pass the quiz. Please review the material and request a retake.');
+    }
+    closeAllModals();
+}
+function handleContractSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+     addContract({ clientId: data.clientId, title: data.title, startDate: new Date(data.startDate), endDate: new Date(data.endDate), totalBudget: parseFloat(data.totalBudget) });
+    alert('New contract submitted for approval!');
+    closeAllModals();
+    handleNavigation('MyContracts');
+}
+function handleSpotCheckSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const checkType = form.dataset.checkType;
+    const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
+    if (!spotCheck) return;
+    updateSpotCheck(spotCheck.id, checkType, data);
+    alert(`${checkType} check submitted.`);
+    refreshAndRender();
+}
+function handleCompleteSpotCheck(spotCheckId) {
+    const report = document.getElementById('final-spot-report')?.value;
+    const endSelfie = document.getElementById('end-selfie')?.files[0];
+    if (!report) {
+        alert('Please fill out the final report.');
+        return;
+    }
+     if (!endSelfie) {
+        alert('Please upload a final selfie for verification.');
+        return;
+    }
+    completeSpotCheck(spotCheckId, report);
+    addSpotCheckSelfie(spotCheckId, 'end', 'simulated_image_data_end');
+    alert('Spot check completed and final report submitted.');
+    state.activeMissionId = null;
+    refreshAndRender();
+}
+function refreshData() {
+    console.log("Refreshing application data...");
+    state.users = getUsers();
+    if (state.currentUser) {
+        state.currentUser = getUserById(state.currentUser.id) || null;
+    }
+}
+function refreshAndRender() {
+    refreshData();
+    render();
+}
+function initializeApp() {
+    console.log("Initializing SSS App...");
+    initializeDB();
+    state.isLoading = true;
+    render();
+    document.body.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+
+        if (target.dataset.action === 'close-modal' && e.target !== target) return;
+
+        const { action, id } = target.dataset;
+        const { type, guardId, listType, missionId } = target.dataset;
+        
+        const actions = {
+            'open-login': () => openLoginModal(),
+            'close-modal': () => closeAllModals(),
+            'login': () => handleLogin(id),
+            'logout': () => handleLogout(),
+            'navigate': () => handleNavigation(type),
+            'back-to-home': () => handleNavigation('Home'),
+            'toggle-mobile-menu': () => document.getElementById('sidebar')?.classList.toggle('-translate-x-full'),
+            'claim-mission': () => handleClaimMission(id),
+            'start-mission': () => handleStartMission(id),
+            'mission-checkout': () => handleMissionCheckout(id),
+            'lead-checkin': () => handleLeadGuardAction(missionId, guardId, 'checkin'),
+            'lead-checkout': () => handleLeadGuardAction(missionId, guardId, 'checkout'),
+            'view-mission-dashboard': () => { state.activeMissionId = id; render(); },
+            'exit-mission-dashboard': () => { state.activeMissionId = null; render(); },
+            'update-roster': () => handleUpdateRoster(guardId, listType),
+            'approve-application': () => handleUpdateApplication(id, 'Approved'),
+            'deny-application': () => handleUpdateApplication(id, 'Denied'),
+            'approve-contract': () => handleUpdateContract(id, 'Active'),
+            'deny-contract': () => handleUpdateContract(id, 'Denied'),
+            'approve-promotion': () => handleUpdatePromotion(id, 'Approved'),
+            'deny-promotion': () => handleUpdatePromotion(id, 'Denied'),
+            'start-training': () => openTrainingModal(id),
+            'approve-training': () => handleUpdateTrainingStatus(id, 'Approved'),
+            'request-retake': () => handleUpdateTrainingStatus(id, 'Retake Requested'),
+            'deny-training': () => handleUpdateTrainingStatus(id, 'Denied'),
+            'request-retake-info': () => alert("Please contact a Training Officer or Supervisor to request a retake."),
+            'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
+            'approve-payroll-run': () => { if(id) approvePayrollRun(id); refreshAndRender(); },
+            'confirm-payment': () => { if(id) confirmPayment(id); refreshAndRender(); },
+            'open-contract-modal': () => openContractModal(),
+            'start-spot-check': () => handleStartSpotCheck(id),
+            'complete-spot-check': () => handleCompleteSpotCheck(id),
+            'mark-uniform-sent': () => { markUniformSent(id); refreshAndRender(); },
+            'confirm-uniform-received': () => { confirmUniformReceived(id); refreshAndRender(); },
+        };
+        if (actions[action]) actions[action]();
+    });
+    // Add file input listener for spot check selfies
+    document.body.addEventListener('change', (e) => {
+        if (e.target.matches('#start-selfie')) {
+            const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
+            if(spotCheck) {
+                addSpotCheckSelfie(spotCheck.id, 'start', 'simulated_image_data_start');
+                alert('Start selfie uploaded.');
+                refreshAndRender();
+            }
+        }
+    });
+    refreshData();
+    state.isLoading = false;
+    render();
+    window.addEventListener('storage', () => {
+        console.log('Database updated, refreshing data via storage event.');
+        load();
+        refreshAndRender();
+    });
+}
+
+initializeApp();
