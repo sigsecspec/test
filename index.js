@@ -82,35 +82,18 @@ const statList = [
 // --- START: database.js ---
 const initialData = {
   users: [
-    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'm.white@signaturesecurityspecialist.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
-    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'j.lyons@signaturesecurityspecialist.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-1' },
-    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 't.moreno@signaturesecurityspecialist.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-1' },
-    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'b.baker@signaturesecurityspecialist.com', role: UserRole.Supervisor, rank: 'SGT (Sergeant)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-2' },
-    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'r.granum@signaturesecurityspecialist.com', role: UserRole.TrainingOfficer, rank: 'CPL (Corporal)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-2' },
-    { id: 'user-6', firstName: 'Frank', lastName: 'Castle', email: 'f.castle@guard.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 1, certifications: [], weeklyHours: 10, performanceRating: 4.5 },
-    { id: 'user-7', firstName: 'Jessica', lastName: 'Jones', email: 'j.jones@guard.com', role: UserRole.Guard, rank: 'OFC (Officer)', level: 2, certifications: ['Level 1 - Basic Security', 'Level 2 - Pepper Spray'], weeklyHours: 25, performanceRating: 4.9 },
-    { id: 'user-client-1', firstName: 'Stark', lastName: 'Industries', email: 'contact@stark.com', role: UserRole.Client, rank: 'Client', level: 0, certifications: [], weeklyHours: 0, performanceRating: 0 },
+    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: 'CHF (Chief)', level: 5, certifications: ['All'], weeklyHours: 0, performanceRating: 5.0 },
+    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-1' },
+    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-1' },
+    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: 'CAP (Captain)', level: 5, certifications: ['Management', 'Tactical'], weeklyHours: 0, performanceRating: 4.8, teamId: 'team-2' },
+    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: 'LT (Lieutenant)', level: 4, certifications: ['Management'], weeklyHours: 0, performanceRating: 4.7, teamId: 'team-2' },
   ],
-  clients: [
-    { id: 'client-1', companyName: 'Stark Industries', contactEmail: 'contact@stark.com', userId: 'user-client-1', whitelist: [], blacklist: [] }
-  ],
-  missions: [
-      { id: 'mission-1', clientId: 'client-1', siteId: 'site-1', contractId: 'contract-1', title: 'Lobby Security Patrol', description: 'Monitor main lobby and greet visitors.', startTime: new Date(Date.now() + 2 * 60 * 60 * 1000), endTime: new Date(Date.now() + 10 * 60 * 60 * 1000), payRate: 28, requiredGuards: 2, requiredLevel: 2, status: 'Open', claimedBy: [], checkIns: [], checkOuts: [] },
-      { id: 'mission-2', clientId: 'client-1', siteId: 'site-1', contractId: 'contract-1', title: 'Overnight Watch', description: 'Secure the perimeter and monitor cameras.', startTime: new Date(Date.now() + 24 * 60 * 60 * 1000), endTime: new Date(Date.now() + 32 * 60 * 60 * 1000), payRate: 32, requiredGuards: 1, requiredLevel: 3, status: 'Open', claimedBy: [], checkIns: [], checkOuts: [] },
-  ],
-  sites: [
-    { id: 'site-1', clientId: 'client-1', name: 'Stark Tower Main Lobby', address: '200 Park Avenue, New York, NY' }
-  ],
-  contracts: [
-    { id: 'contract-1', clientId: 'client-1', title: 'Stark Tower Security', startDate: new Date('2024-01-01'), endDate: new Date('2024-12-31'), totalBudget: 500000, status: 'Active' },
-  ],
-  applications: [
-      { id: 'app-1', type: 'New Guard', data: { firstName: 'Peter', lastName: 'Parker', email: 'p.parker@test.com'}, status: 'Pending'},
-      { id: 'app-2', type: 'New Client', data: { companyName: 'Daily Bugle', contactEmail: 'j.j.j@dailybugle.com'}, status: 'Pending'},
-  ],
-  promotions: [
-    {id: 'promo-1', userId: 'user-7', toRole: UserRole.TrainingOfficer, reason: 'I have extensive experience and would like to help train new recruits.', status: 'Pending', submittedAt: new Date() }
-  ],
+  clients: [],
+  missions: [],
+  sites: [],
+  contracts: [],
+  applications: [],
+  promotions: [],
   trainingModules: [
       { id: 'tm-1', title: 'Level 1 - Basic Security Procedures', content: 'This module covers the fundamental duties of a security officer...', quiz: [{q: 'What is the first step in an emergency?', a: 'Assess the situation'}]},
       { id: 'tm-2', title: 'Level 2 - Pepper Spray Certification', content: 'Proper use and legal implications of pepper spray...', quiz: [{q: 'What is the effective range of your issued spray?', a: '10-12 feet'}]},
@@ -118,10 +101,7 @@ const initialData = {
   trainingProgress: [],
   payrollRuns: [],
   payrollEntries: [],
-  alerts: [
-      { id: 'alert-1', severity: 'High', message: 'Unidentified vehicle reported at Site B. All guards be advised.'},
-      { id: 'alert-2', severity: 'Medium', message: 'System maintenance scheduled for 2:00 AM tonight.'},
-  ],
+  alerts: [],
   systemSettings: {
       companyName: 'Signature Security Specialist',
       payrollCycle: 'Bi-Weekly',
@@ -135,21 +115,27 @@ function save() {
 function load() {
   const dbString = localStorage.getItem('sss_db');
   if (dbString) {
-    const parsedDB = JSON.parse(dbString);
-    const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns'];
-    collectionsWithDates.forEach(collection => {
-        if(parsedDB[collection]) {
-            parsedDB[collection].forEach(item => {
-                if (item.startTime) item.startTime = new Date(item.startTime);
-                if (item.endTime) item.endTime = new Date(item.endTime);
-                if (item.startDate) item.startDate = new Date(item.startDate);
-                if (item.endDate) item.endDate = new Date(item.endDate);
-                if (item.submittedAt) item.submittedAt = new Date(item.submittedAt);
-            });
-        }
-    });
-    _DB = parsedDB;
-    return true;
+    try {
+      const parsedDB = JSON.parse(dbString);
+      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns'];
+      collectionsWithDates.forEach(collection => {
+          if(parsedDB[collection]) {
+              parsedDB[collection].forEach(item => {
+                  if (item.startTime) item.startTime = new Date(item.startTime);
+                  if (item.endTime) item.endTime = new Date(item.endTime);
+                  if (item.startDate) item.startDate = new Date(item.startDate);
+                  if (item.endDate) item.endDate = new Date(item.endDate);
+                  if (item.submittedAt) item.submittedAt = new Date(item.submittedAt);
+              });
+          }
+      });
+      _DB = parsedDB;
+      return true;
+    } catch (e) {
+      console.error("Failed to parse DB from localStorage. It might be corrupted. Resetting DB.", e);
+      localStorage.removeItem('sss_db'); // Clear corrupted data
+      return false;
+    }
   }
   return false;
 }
