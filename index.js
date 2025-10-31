@@ -1,4 +1,3 @@
-
 // --- CONSOLIDATED APPLICATION FILE ---
 // This file contains all JavaScript logic for the application,
 // refactored and expanded to be fully functional based on the owner's plan.
@@ -103,25 +102,17 @@ const initialData = {
   users: [
     { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false },
     // Team 1
+    { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
     { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
     { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
-    { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
     // Team 2
+    { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
     { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
     { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
-    { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
-    // Sample users for testing
-    { id: 'guard-1', firstName: 'John', lastName: 'Doe', email: 'guard@test.com', role: UserRole.Guard, rank: Ranks[UserRole.Guard], level: 2, certifications: [], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.5, needsUniform: true },
-    { id: 'client-1', firstName: 'Test', lastName: 'Client', email: 'client@test.com', role: UserRole.Client, rank: 'Client', level: 0, certifications: [], teamId: 'team-1' },
-    { id: 'supervisor-1', firstName: 'Jane', lastName: 'Smith', email: 'supervisor@test.com', role: UserRole.Supervisor, rank: Ranks[UserRole.Supervisor], level: 4, certifications: [], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.9, needsUniform: true },
   ],
-  clients: [
-      { id: 'client-acme', userId: 'client-1', companyName: 'Test Client Inc.', contactEmail: 'client@test.com', teamId: 'team-1', whitelist: [], blacklist: [] }
-  ],
+  clients: [],
   missions: [],
-  sites: [
-      { id: 'site-1', clientId: 'client-acme', name: 'Test Client HQ', address: '123 Main St, Anytown, USA' }
-  ],
+  sites: [],
   contracts: [],
   applications: [],
   promotions: [],
@@ -1969,6 +1960,98 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
             </div>
         </div>
     </div>
+    `;
+};
+
+const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId }) => {
+    let viewContent = '';
+
+    // Mission Dashboard override if a mission is active
+    if (activeMissionId) {
+        const mission = getMissions().find(m => m.id === activeMissionId);
+        if (mission) {
+            const leadAssignment = getLeadGuardAssignment(mission.id);
+            const isLead = leadAssignment && leadAssignment.userId === currentUser.id;
+            const isSupervisor = currentUser.role === UserRole.Supervisor;
+            const spotCheck = getSpotCheckByMissionId(mission.id);
+
+            if (spotCheck && isSupervisor && spotCheck.supervisorId === currentUser.id) {
+                viewContent = SupervisorSpotCheckDashboard({ user: currentUser, mission, spotCheck });
+            } else if (isLead) {
+                viewContent = LeadGuardMissionDashboard({ user: currentUser, mission });
+            } else {
+                viewContent = GuardMissionDashboard({ user: currentUser, mission });
+            }
+        } else {
+             viewContent = `<p>Error: Mission not found.</p>`;
+             // Reset state if mission is invalid
+             state.activeMissionId = null; 
+        }
+    } else {
+        // Regular view routing
+        const viewMap = {
+            'MyProfile': () => MyProfile({ user: currentUser }),
+            'MissionBoard': () => MissionBoard({ user: currentUser }),
+            'MyMissions': () => MyMissions({ user: currentUser }),
+            'Training': () => Training({ user: currentUser }),
+            'Earnings': () => Earnings({ user: currentUser }),
+            'HallOfFame': () => HallOfFame({ user: currentUser }),
+            'Promotions': () => Promotions({ user: currentUser }),
+            'PostMission': () => PostMission({ user: currentUser }),
+            'MySites': () => MySites({ user: currentUser }),
+            'MyContracts': () => MyContracts({ user: currentUser }),
+            'Billing': () => Billing({ user: currentUser }),
+            'ClientGuardRoster': () => ClientGuardRoster({ user: currentUser }),
+            'FieldOversight': () => FieldOversight({ user: currentUser }),
+            'TrainingManagement': () => TrainingManagement({ user: currentUser }),
+            'MissionControl': () => MissionControl({ user: currentUser }),
+            'ActiveMissions': () => ActiveMissions({ user: currentUser }),
+            'GuardManagement': () => GuardManagement({ user: currentUser }),
+            'ClientManagement': () => ClientManagement({ user: currentUser }),
+            'SiteRoster': () => SiteRoster({ user: currentUser }),
+            'Communications': () => Communications({ user: currentUser }),
+            'Alerts': () => Alerts({ user: currentUser }),
+            'VehicleManagement': () => VehicleManagement({ user: currentUser }),
+            'Applications': () => Applications({ user: currentUser }),
+            'ContractApprovals': () => ContractApprovals({ user: currentUser }),
+            'Appeals': () => Appeals({ user: currentUser }),
+            'UniformDistribution': () => UniformDistribution({ user: currentUser }),
+            'TeamManagement': () => TeamManagement({ user: currentUser }),
+            'Payroll': () => Payroll({ user: currentUser, selectedRunId: selectedPayrollRunId }),
+            'Analytics': () => Analytics({ user: currentUser }),
+            'LiveControl': () => LiveControl({ user: currentUser }),
+            'SystemSettings': () => SystemSettings({ user: currentUser }),
+        };
+        
+        // Default to Dashboard view
+        if (activeView === 'Dashboard') {
+            viewContent = `
+            <div class="p-6">
+                <h1 class="text-3xl font-bold text-[var(--text-primary)]">Welcome back, ${currentUser.firstName}!</h1>
+                <p class="text-[var(--text-secondary)] mt-2">This is your central command. Select an option from the sidebar to get started.</p>
+            </div>`;
+        } else if (viewMap[activeView]) {
+            viewContent = viewMap[activeView]();
+        } else {
+            viewContent = `<div>View "${activeView}" not found.</div>`;
+        }
+    }
+
+    return `
+        <div class="flex h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+            ${Sidebar({ currentUser, activeView })}
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <header class="h-16 bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] flex items-center justify-end px-6 flex-shrink-0">
+                    <button data-action="logout" class="flex items-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors">
+                        ${Icons.Logout({ className: "w-5 h-5 mr-2" })}
+                        Logout
+                    </button>
+                </header>
+                <main id="dashboard-content" class="flex-1 overflow-y-auto p-6">
+                    ${viewContent}
+                </main>
+            </div>
+        </div>
     `;
 };
 
