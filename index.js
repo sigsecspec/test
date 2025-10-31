@@ -1153,24 +1153,32 @@ const Sidebar = ({ currentUser, activeView, isCollapsed = false }) => {
     `;
 };
 const BottomNavBar = ({ currentUser, activeView }) => {
-    const sidebarStructure = getSidebarStructure(currentUser);
-    const primaryMobileNav = [
+    let primaryNav = [
         { name: 'Dashboard', icon: Icons.Home, view: 'Dashboard' },
-        fieldRoles.includes(currentUser.role) ? { name: 'Missions', icon: Icons.ClipboardList, view: 'MissionBoard' } : null,
-        clientRole.includes(currentUser.role) ? { name: 'Post', icon: Icons.PlusCircle, view: 'PostMission' } : null,
-        [UserRole.Supervisor, UserRole.TrainingOfficer].includes(currentUser.role) ? { name: 'Oversight', icon: Icons.Eye, view: 'FieldOversight' } : null,
-        adminRoles.includes(currentUser.role) ? { name: 'Control', icon: Icons.Map, view: 'MissionControl' } : null,
-        { name: 'Profile', icon: Icons.User, view: 'MyProfile' },
-    ].filter(Boolean);
+    ];
+
+    if (fieldRoles.includes(currentUser.role)) {
+        primaryNav.push({ name: 'Missions', icon: Icons.ClipboardList, view: 'MissionBoard' });
+        primaryNav.push({ name: 'Training', icon: Icons.AcademicCap, view: 'Training' });
+    } else if (clientRole.includes(currentUser.role)) {
+        primaryNav.push({ name: 'Post', icon: Icons.PlusCircle, view: 'PostMission' });
+        primaryNav.push({ name: 'My Missions', icon: Icons.Calendar, view: 'MyMissions' });
+    } else if ([...operationsRoles, ...executiveRoles, ...managementRoles].includes(currentUser.role)) {
+        primaryNav.push({ name: 'Control', icon: Icons.Map, view: 'MissionControl' });
+        primaryNav.push({ name: 'Guards', icon: Icons.Users, view: 'GuardManagement' });
+    }
+    
+    primaryNav.push({ name: 'Menu', icon: Icons.Menu, action: 'open-mobile-menu' });
+
 
     return `
         <div class="bottom-nav fixed bottom-0 left-0 right-0 h-20 bg-[var(--bg-secondary)] border-t border-[var(--border-primary)] md:hidden z-40">
-            <div class="grid h-full max-w-lg grid-cols-${primaryMobileNav.length} mx-auto font-medium">
-                ${primaryMobileNav.map(item => {
+            <div class="grid h-full max-w-lg grid-cols-${primaryNav.length} mx-auto font-medium">
+                ${primaryNav.map(item => {
                     const isActive = activeView === item.view;
                     const Icon = item.icon;
                     return `
-                        <button type="button" data-action="navigate" data-type="${item.view}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-[var(--bg-tertiary)] group">
+                        <button type="button" data-action="${item.action || 'navigate'}" data-type="${item.view || ''}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-[var(--bg-tertiary)] group">
                             ${Icon({ className: `w-6 h-6 mb-1 ${isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}` })}
                             <span class="text-xs ${isActive ? 'text-[var(--accent-primary)] font-bold' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}">${item.name}</span>
                         </button>
@@ -1178,6 +1186,58 @@ const BottomNavBar = ({ currentUser, activeView }) => {
                 }).join('')}
             </div>
         </div>
+    `;
+};
+const MobileMenu = ({ currentUser, activeView }) => {
+    const sidebarStructure = getSidebarStructure(currentUser);
+    return `
+    <div class="fixed inset-0 bg-black/60 z-50 md:hidden animate-in" data-action="close-mobile-menu">
+        <div class="absolute inset-y-0 left-0 w-4/5 max-w-sm bg-[var(--accent-secondary)] text-white shadow-xl flex flex-col" style="animation: slideIn 0.3s ease-out forwards;" data-menu-panel>
+            <div class="flex items-center justify-between h-16 border-b border-white/10 px-4 flex-shrink-0">
+                <div>
+                    <p class="font-bold">${currentUser.firstName} ${currentUser.lastName}</p>
+                    <p class="text-xs opacity-70">${currentUser.role}</p>
+                </div>
+                <button data-action="close-mobile-menu" class="p-2 -mr-2">
+                    ${Icons.X({ className: "w-6 h-6" })}
+                </button>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-4">
+                ${sidebarStructure.map((group) => {
+                    const accessibleItems = group.items.filter(item => item.roles.includes(currentUser.role));
+                    if (accessibleItems.length === 0) return '';
+                    return `
+                        <div>
+                            <h3 class="px-4 pt-4 pb-2 text-xs font-semibold uppercase opacity-50 tracking-wider">${group.title}</h3>
+                            <ul class="space-y-1">
+                                ${accessibleItems.map((item) => {
+                                    const isActive = activeView === item.view;
+                                    const Icon = item.icon;
+                                    const linkClasses = `flex items-center text-sm font-medium transition-colors px-4 py-3 rounded-md mx-2`;
+                                    const activeClasses = 'bg-black/20 text-white font-bold';
+                                    const inactiveClasses = 'text-white/70 hover:bg-black/20 hover:text-white';
+                                    return `
+                                        <li>
+                                            <a href="#" data-action="navigate" data-type="${item.view}" class="${linkClasses} ${isActive ? activeClasses : inactiveClasses}">
+                                                ${Icon({ className: 'w-6 h-6 flex-shrink-0 mr-3' })}
+                                                <span>${item.name}</span>
+                                            </a>
+                                        </li>
+                                    `;
+                                }).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }).join('')}
+            </nav>
+            <div class="p-4 border-t border-white/10 flex-shrink-0">
+                <button data-action="logout" class="w-full flex items-center text-sm font-medium text-white/70 hover:text-white transition-colors">
+                    ${Icons.Logout({ className: "w-5 h-5 mr-3" })}
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
     `;
 };
 
@@ -2327,7 +2387,7 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
     </div>
     `;
 };
-const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId, selectedModal }) => {
+const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId, selectedModal, isMobileMenuOpen }) => {
     let viewContent = '';
 
     if (activeMissionId) {
@@ -2426,6 +2486,10 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
             <!-- Mobile Bottom Nav -->
             ${BottomNavBar({ currentUser, activeView })}
 
+            <!-- Mobile Slide-out Menu -->
+            ${isMobileMenuOpen ? MobileMenu({ currentUser, activeView }) : ''}
+
+            <!-- Modals -->
             ${modalHtml}
         </div>
     `;
@@ -2440,6 +2504,7 @@ const state = {
     activeMissionId: null,
     selectedPayrollRunId: null,
     selectedModal: { type: null, id: null },
+    isMobileMenuOpen: false,
 };
 const root = document.getElementById('root');
 
@@ -2457,6 +2522,7 @@ function render() {
             activeMissionId: state.activeMissionId,
             selectedPayrollRunId: state.selectedPayrollRunId,
             selectedModal: state.selectedModal,
+            isMobileMenuOpen: state.isMobileMenuOpen,
         });
     } else if (['GuardApplication', 'ClientApplication', 'OperationsApplication'].includes(state.activeView)) {
         const viewType = state.activeView.replace('Application','');
@@ -2513,11 +2579,13 @@ function handleLogin(email) {
 function handleLogout() {
     state.currentUser = null;
     state.activeView = 'Home';
+    state.isMobileMenuOpen = false;
     render();
 }
 function handleNavigation(view) {
     state.activeView = view;
     state.activeMissionId = null;
+    state.isMobileMenuOpen = false;
     render();
     const contentArea = document.getElementById('dashboard-content');
     if(contentArea) contentArea.scrollTop = 0;
@@ -2739,13 +2807,18 @@ function initializeApp() {
     document.body.addEventListener('click', (e) => {
         const target = e.target.closest('[data-action]');
         if (!target) return;
+        
         const { action, id, type, guardId, listType, missionId } = target.dataset;
+
+        if (action === 'close-mobile-menu' && e.target.closest('[data-menu-panel]')) return;
         if(action === 'close-modal-backdrop' && e.target.closest('[data-modal-content]')) return;
         
         const actions = {
             'open-login': () => openModal('Login'),
             'close-modal': closeModal,
             'close-modal-backdrop': closeModal,
+            'open-mobile-menu': () => { state.isMobileMenuOpen = true; render(); },
+            'close-mobile-menu': () => { state.isMobileMenuOpen = false; render(); },
             'login': () => handleLogin(id),
             'logout': handleLogout,
             'navigate': () => handleNavigation(type),
@@ -2770,48 +2843,43 @@ function initializeApp() {
             'deny-training': () => handleUpdateTrainingStatus(id, 'Denied'),
             'request-retake-info': () => alert("Please contact a Training Officer or Supervisor to request a retake."),
             'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
-            'approve-payroll-run': () => { if(id) approvePayrollRun(id); refreshAndRender(); },
-            'confirm-payment': () => { if(id) confirmPayment(id); refreshAndRender(); },
+            'approve-payroll-run': () => { approvePayrollRun(id); alert('Payroll run approved.'); refreshAndRender(); },
+            'confirm-payment': () => { confirmPayment(id); refreshAndRender(); },
             'open-contract-modal': () => openModal('Contract'),
             'open-site-modal': () => openModal('Site'),
-            'approve-site': () => handleUpdateSiteApproval(id, 'Approved'),
-            'deny-site': () => handleUpdateSiteApproval(id, 'Denied'),
-            'start-spot-check': () => handleStartSpotCheck(id),
-            'complete-spot-check': () => handleCompleteSpotCheck(id),
-            'mark-uniform-sent': () => { markUniformSent(id); refreshAndRender(); },
-            'confirm-uniform-received': () => { confirmUniformReceived(id); refreshAndRender(); },
             'open-mission-details': () => openModal('MissionDetails', id),
             'open-user-details': () => openModal('UserDetails', id),
+            'mark-uniform-sent': () => { markUniformSent(id); refreshAndRender(); },
+            'start-spot-check': () => handleStartSpotCheck(id),
+            'complete-spot-check': () => handleCompleteSpotCheck(id),
+            'approve-site': () => handleUpdateSiteApproval(id, 'Approved'),
+            'deny-site': () => handleUpdateSiteApproval(id, 'Denied'),
         };
-        if (actions[action]) actions[action]();
-    });
 
-    document.body.addEventListener('change', (e) => {
-        if (e.target.matches('#start-selfie')) {
-            const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
-            if(spotCheck) {
-                addSpotCheckSelfie(spotCheck.id, 'start', 'simulated_image_data_start');
-                alert('Start selfie uploaded.');
-                refreshAndRender();
-            }
-        }
-        if (e.target.matches('#add-site-checkbox')) {
-            const fields = document.getElementById('new-site-fields');
-            if (fields) {
-                fields.classList.toggle('hidden', !e.target.checked);
-                fields.querySelectorAll('input').forEach(input => input.required = e.target.checked);
-            }
+        if (actions[action]) {
+            actions[action]();
         }
     });
 
-    refreshData();
+    // Event Delegation for dynamically added elements like the contract modal checkbox
+    root.addEventListener('change', e => {
+        if (e.target && e.target.id === 'add-site-checkbox') {
+            const siteFields = root.querySelector('#new-site-fields');
+            const siteInputs = siteFields ? siteFields.querySelectorAll('input') : [];
+            if (e.target.checked) {
+                if (siteFields) siteFields.classList.remove('hidden');
+                siteInputs.forEach(input => input.required = true);
+            } else {
+                if (siteFields) siteFields.classList.add('hidden');
+                siteInputs.forEach(input => input.required = false);
+            }
+        }
+    });
+
     state.isLoading = false;
-    render();
-    window.addEventListener('storage', () => {
-        console.log('Database updated, refreshing data via storage event.');
-        load();
-        refreshAndRender();
-    });
+    refreshAndRender();
 }
+
+window.addEventListener('storage', refreshAndRender);
 
 initializeApp();
