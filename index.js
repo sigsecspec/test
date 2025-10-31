@@ -1,6 +1,7 @@
 // --- CONSOLIDATED APPLICATION FILE ---
 // This file contains all JavaScript logic for the application,
 // refactored and expanded to be fully functional based on the owner's plan.
+// It includes a complete UI/UX overhaul with distinct layouts for mobile, tablet, and desktop.
 
 // --- START: types.js ---
 const UserRole = {
@@ -667,23 +668,25 @@ function confirmUniformReceived(userId) {
 
 // --- START: COMPONENTS ---
 const HomePage = () => `
-    <div id="home-page">
-        <header class="sticky top-0 z-30 bg-[var(--bg-secondary)]/80 backdrop-blur-sm border-b border-[var(--border-primary)]">
+    <div id="home-page" class="bg-[var(--bg-secondary)]">
+        <header class="sticky top-0 z-40 bg-[var(--bg-secondary)]/80 backdrop-blur-md border-b border-[var(--border-primary)]">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <div class="flex items-center">
-                        <div class="font-bold text-lg text-[var(--text-primary)]">
-                            <span>Signature</span> <span class="text-[var(--accent-primary)]">Security Specialist</span>
+                        <div class="font-bold text-xl text-[var(--text-primary)] tracking-tight">
+                            <span>Signature</span><span class="text-[var(--accent-primary)]">Security</span>
                         </div>
                     </div>
-                    <nav class="hidden md:flex items-center space-x-1">
-                        <a href="#home" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">Home</a>
-                        <a href="#features" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">Features</a>
-                        <a href="#how-it-works" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">How It Works</a>
-                        <button data-action="open-login" class="ml-4 px-4 py-2 rounded-md text-sm font-medium border border-[var(--border-primary)] text-[var(--text-primary)] hover:border-[var(--border-primary-hover)] hover:text-[var(--accent-primary)] transition-colors">Portal Login</button>
+                    <nav class="hidden md:flex items-center space-x-2">
+                        <a href="#home" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Home</a>
+                        <a href="#features" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Features</a>
+                        <a href="#how-it-works" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">How It Works</a>
+                        <button data-action="open-login" class="ml-4 px-4 py-2 rounded-md text-sm font-semibold border border-[var(--accent-secondary)] text-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] hover:text-[var(--accent-secondary-text)] transition-all duration-200">
+                            Portal Login
+                        </button>
                     </nav>
                     <div class="md:hidden">
-                        <button data-action="toggle-mobile-menu" class="text-[var(--text-primary)]">
+                        <button data-action="open-login" class="text-[var(--text-primary)]">
                            ${Icons.Menu({ className: "h-6 w-6" })}
                         </button>
                     </div>
@@ -691,50 +694,54 @@ const HomePage = () => `
             </div>
         </header>
         <main>
-            <section id="home" class="text-center py-20 md:py-32 bg-[var(--bg-secondary)]">
-                <div class="container mx-auto px-4">
-                    <h1 class="text-4xl md:text-6xl font-extrabold text-[var(--text-primary)]">Professional Security Management Platform</h1>
-                    <p class="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-[var(--text-secondary)]">Connecting businesses with certified security professionals through our comprehensive digital platform. Streamline operations, manage missions, and ensure safety with our all-in-one solution.</p>
-                    <div class="mt-8 flex flex-wrap justify-center gap-4">
-                        <button data-action="navigate" data-type="GuardApplication" class="px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Join as Guard</button>
-                        <button data-action="navigate" data-type="ClientApplication" class="px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105">Hire Security</button>
-                        <button data-action="navigate" data-type="OperationsApplication" class="px-6 py-3 rounded-md font-bold bg-[var(--bg-primary)] border border-[var(--border-secondary)] text-[var(--text-primary)] transition-transform duration-200 hover:scale-105 hover:border-[var(--accent-primary)]">Join Operations</button>
+            <section id="home" class="relative text-center py-20 md:py-32 lg:py-40 bg-[var(--bg-secondary)] overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-gray-100 opacity-80"></div>
+                <div class="absolute inset-0 pattern-dots text-gray-200/50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+                <div class="container mx-auto px-4 relative">
+                    <h1 class="text-4xl md:text-6xl font-extrabold text-[var(--text-primary)] tracking-tighter">Professional Security, <br class="hidden md:block" /> Perfected by Technology.</h1>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-[var(--text-secondary)]">Connecting qualified professionals with clients who demand excellence. Our platform ensures safety, accountability, and operational superiority.</p>
+                    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button data-action="navigate" data-type="GuardApplication" class="w-full sm:w-auto px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105 shadow-lg hover:shadow-xl">Join as Guard</button>
+                        <button data-action="navigate" data-type="ClientApplication" class="w-full sm:w-auto px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-secondary-text)] transition-transform duration-200 hover:scale-105 shadow-lg hover:shadow-xl">Hire Security</button>
                     </div>
+                    <button data-action="navigate" data-type="OperationsApplication" class="mt-4 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors">or, Join our Operations Team &rarr;</button>
                 </div>
             </section>
-            <section class="py-16 bg-[var(--bg-primary)]">
+            <section class="py-16 bg-[var(--bg-tertiary)] border-y border-[var(--border-primary)]">
                 <div class="container mx-auto px-4">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        ${statList.map(stat => `<div class="text-center"><h2 class="text-4xl font-bold text-[var(--accent-primary)]">${stat.value}</h2><p class="mt-1 text-[var(--text-secondary)]">${stat.label}</p></div>`).join('')}
+                        ${statList.map(stat => `<div class="text-center animate-in"><h2 class="text-3xl lg:text-4xl font-bold text-[var(--accent-primary)]">${stat.value}</h2><p class="mt-1 text-sm text-[var(--text-secondary)]">${stat.label}</p></div>`).join('')}
                     </div>
                 </div>
             </section>
             <section id="features" class="py-20 bg-[var(--bg-secondary)]">
                  <div class="container mx-auto px-4">
-                     <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold">Platform Features</h2><p class="mt-2 text-[var(--text-secondary)]">Everything you need to manage security operations efficiently</p></div>
+                     <div class="text-center mb-16"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">A Unified Platform for Modern Security</h2><p class="mt-3 text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">Everything you need to manage security operations efficiently and effectively.</p></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                         ${featureList.map(feature => `
-                             <div class="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-6">
-                                 <h3 class="text-xl font-bold mb-4">${feature.title}</h3>
-                                 <ul class="space-y-2 text-[var(--text-secondary)] list-disc list-inside">
-                                     ${feature.items.map(item => `<li>${item}</li>`).join('')}
+                         ${featureList.map((feature, index) => `
+                             <div class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:border-[var(--accent-primary)]/50 animate-in" style="animation-delay: ${index * 100}ms">
+                                 <h3 class="text-xl font-bold mb-4 text-[var(--accent-secondary)]">${feature.title}</h3>
+                                 <ul class="space-y-2 text-[var(--text-secondary)]">
+                                     ${feature.items.map(item => `<li class="flex items-start"><span class="text-[var(--accent-primary)] mr-2 mt-1">&#10003;</span><span>${item}</span></li>`).join('')}
                                  </ul>
                              </div>
                         `).join('')}
                     </div>
                 </div>
             </section>
-             <section id="how-it-works" class="py-20 bg-[var(--bg-primary)]">
+             <section id="how-it-works" class="py-20 bg-[var(--bg-tertiary)] border-t border-[var(--border-primary)]">
                 <div class="container mx-auto px-4">
-                    <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold">How It Works</h2></div>
-                    <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                       <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6"><h3 class="text-xl font-bold mb-4">For Security Guards</h3><ol class="list-decimal list-inside space-y-2 text-[var(--text-secondary)]"><li><strong>Apply Online</strong> - Submit your application and certifications</li><li><strong>Complete Training</strong> - Take required training modules</li><li><strong>Get Approved</strong> - Officers review your certifications</li><li><strong>Browse Missions</strong> - See available missions</li><li><strong>Claim & Work</strong> - Accept missions and start earning</li><li><strong>Get Paid</strong> - Receive payment after completion</li></ol></div>
-                       <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-6"><h3 class="text-xl font-bold mb-4">For Businesses</h3><ol class="list-decimal list-inside space-y-2 text-[var(--text-secondary)]"><li><strong>Apply Online</strong> - Submit your business information</li><li><strong>Get Verified</strong> - Complete verification process</li><li><strong>Set Up Contract</strong> - Create security contracts</li><li><strong>Post Missions</strong> - Create missions with requirements</li><li><strong>Guards Assigned</strong> - Certified guards accept missions</li><li><strong>Monitor Performance</strong> - Track missions and rate guards</li></ol></div>
+                    <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">Simple, Streamlined, Secure</h2></div>
+                    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                       <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-8 animate-in"><h3 class="text-2xl font-bold mb-4">For Security Guards</h3><ol class="list-decimal list-inside space-y-3 text-[var(--text-secondary)]"><li><strong>Apply Online:</strong> Submit your application and certifications in minutes.</li><li><strong>Complete Training:</strong> Access our library of mission-specific training modules.</li><li><strong>Get Approved:</strong> Our officers review and approve your qualifications.</li><li><strong>Browse & Claim:</strong> See available missions and claim the ones that fit your schedule.</li><li><strong>Work & Earn:</strong> Complete your mission and track your earnings in real-time.</li></ol></div>
+                       <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-8 animate-in-delay"><h3 class="text-2xl font-bold mb-4">For Businesses</h3><ol class="list-decimal list-inside space-y-3 text-[var(--text-secondary)]"><li><strong>Apply for Service:</strong> Submit your business information and security needs.</li><li><strong>Get Verified:</strong> We'll verify your business and set up your account.</li><li><strong>Post Missions:</strong> Easily create missions with detailed requirements.</li><li><strong>Get Coverage:</strong> Qualified, certified guards will claim and cover your missions.</li><li><strong>Monitor & Rate:</strong> Track mission progress and provide valuable feedback.</li></ol></div>
                     </div>
                 </div>
             </section>
-            <footer id="contact" class="bg-[var(--accent-secondary)] text-white py-12">
-                <div class="container mx-auto px-4">
+            <footer id="contact" class="bg-[var(--accent-secondary)] text-[var(--text-light)] py-12">
+                <div class="container mx-auto px-4 text-center">
+                    <p class="font-bold text-lg">Signature Security Specialist</p>
+                    <p class="text-sm opacity-80">Protect with Purpose and Perform with Excellence.</p>
                      <div class="mt-8 pt-8 border-t border-white/10 text-center text-sm opacity-70">
                         <p>© ${new Date().getFullYear()} Signature Security Specialist. All rights reserved.</p>
                     </div>
@@ -751,7 +758,7 @@ const LoginModal = ({ users }) => {
         return order.indexOf(a.role) - order.indexOf(b.role);
     });
     return `
-        <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+        <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
             <div class="relative bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-2xl w-full max-w-sm" data-modal-content>
                 <div class="p-6">
                     <div class="text-center mb-6">
@@ -761,23 +768,23 @@ const LoginModal = ({ users }) => {
                     </div>
                     <div class="space-y-2 max-h-80 overflow-y-auto pr-2">
                         ${sortedUsers.map(user => `
-                            <button data-action="login" data-id="${user.email}" class="w-full flex items-center text-left bg-[var(--bg-primary)] hover:bg-[var(--border-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] p-3 rounded-md transition-all duration-150 transform hover:border-[var(--border-primary-hover)]">
-                                <div class="w-8 h-8 rounded-full bg-[var(--accent-primary)]/20 flex items-center justify-center mr-3 flex-shrink-0">
+                            <button data-action="login" data-id="${user.email}" class="w-full flex items-center text-left bg-[var(--bg-tertiary)] hover:bg-[var(--border-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] p-3 rounded-lg transition-all duration-150 transform hover:border-[var(--accent-primary)] hover:scale-[1.02]">
+                                <div class="w-10 h-10 rounded-full bg-[var(--accent-primary)]/20 flex items-center justify-center mr-3 flex-shrink-0">
                                     ${Icons.User({ className: 'w-5 h-5 text-[var(--accent-primary)]' })}
                                 </div>
                                 <div class="flex-grow">
-                                    <p class="font-bold text-sm">${user.firstName} ${user.lastName}</p>
+                                    <p class="font-semibold">${user.firstName} ${user.lastName}</p>
                                     <p class="text-xs text-[var(--text-secondary)]">${user.role}</p>
                                 </div>
                                 <div class="ml-auto text-right flex-shrink-0">
-                                    ${user.role !== UserRole.Client ? `<span class="px-2 py-0.5 text-xs rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">Lvl ${user.level}</span>` : ''}
+                                    ${user.role !== UserRole.Client ? `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-[var(--accent-secondary)] text-[var(--accent-secondary-text)]">Lvl ${user.level}</span>` : ''}
                                 </div>
                             </button>
                         `).join('')}
                     </div>
                 </div>
                 <button data-action="close-modal" class="absolute top-3 right-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-                    ${Icons.X({ className: 'w-8 h-8' })}
+                    ${Icons.X({ className: 'w-6 h-6' })}
                 </button>
             </div>
         </div>
@@ -787,27 +794,27 @@ const TrainingModal = ({ moduleId }) => {
     const module = getTrainingModules().find(m => m.id === moduleId);
     if (!module) return '';
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)]" data-modal-content>
-            <div class="flex justify-between items-center p-6 border-b border-[var(--border-primary)]">
+    <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)] flex flex-col h-full md:h-auto md:max-h-[90vh]" data-modal-content>
+            <div class="flex justify-between items-center p-5 border-b border-[var(--border-primary)] flex-shrink-0">
                 <h2 class="text-2xl font-bold text-[var(--text-primary)]">${module.title}</h2>
                 <button data-action="close-modal" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                     ${Icons.X({ className: 'w-6 h-6' })}
                 </button>
             </div>
-            <div class="max-h-[70vh] overflow-y-auto p-6">
+            <div class="overflow-y-auto p-6 flex-grow">
                 <p class="text-[var(--text-secondary)] mb-6">${module.content}</p>
-                <div class="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
-                    <p class="font-bold">Audio Version</p>
-                    <p class="text-sm">An audio player for the training content would appear here.</p>
+                <div class="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800">
+                    <p class="font-bold">Audio Version Available</p>
+                    <p class="text-sm">In a full implementation, an audio player for the training content would appear here for accessibility.</p>
                 </div>
                 <h3 class="text-xl font-bold text-[var(--text-primary)] mb-4">Quiz</h3>
-                <p class="text-sm text-red-600 mb-4 font-semibold">You only get one attempt at this quiz. If you fail, you must request a retake from a Training Officer or Supervisor.</p>
+                <p class="text-sm text-red-700 bg-red-50 p-3 rounded-md border border-red-200 mb-4 font-semibold">You only get one attempt at this quiz. If you fail, you must request a retake from a Training Officer or Supervisor.</p>
                 <form id="training-form" class="space-y-4">
                     ${module.quiz.map((q, index) => `
                         <div>
                             <p class="font-semibold">${index + 1}. ${q.q}</p>
-                            <input name="q-${index}" placeholder="Your Answer" required class="mt-2 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 bg-[var(--bg-primary)]" />
+                            <input name="q-${index}" placeholder="Your Answer" required class="mt-2 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 bg-[var(--bg-tertiary)]" />
                         </div>
                     `).join('')}
                     <div class="flex justify-end pt-4">
@@ -822,9 +829,9 @@ const TrainingModal = ({ moduleId }) => {
 const ContractModal = ({ user }) => {
     const client = getClients().find(c => c.userId === user.id);
     if (!client) return '';
-    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
+    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-tertiary)]";
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+    <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
         <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg border border-[var(--border-primary)] max-h-[90vh] overflow-y-auto" data-modal-content>
             <div class="p-6">
                 <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Create New Contract</h2>
@@ -834,7 +841,7 @@ const ContractModal = ({ user }) => {
                         <label class="block text-sm font-medium text-[var(--text-secondary)]">Contract Title</label>
                         <input name="title" placeholder="e.g., Downtown Office Security" required class="${inputStyles}" />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-[var(--text-secondary)]">Start Date</label>
                             <input name="startDate" type="date" required class="${inputStyles}" />
@@ -877,9 +884,9 @@ const ContractModal = ({ user }) => {
 const SiteModal = ({ user }) => {
     const client = getClients().find(c => c.userId === user.id);
     if (!client) return '';
-    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
+    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-tertiary)]";
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+    <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
         <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg p-6 border border-[var(--border-primary)]" data-modal-content>
             <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Request New Site</h2>
             <form id="site-request-form" class="space-y-4">
@@ -912,43 +919,43 @@ const MissionDetailsModal = ({ missionId, user }) => {
     const isGuard = fieldRoles.includes(user.role);
 
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)]" data-modal-content>
-            <div class="p-6 border-b border-[var(--border-primary)]">
+    <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)] flex flex-col h-full md:h-auto md:max-h-[90vh]" data-modal-content>
+            <div class="p-5 border-b border-[var(--border-primary)] flex-shrink-0">
                 <h2 class="text-2xl font-bold text-[var(--text-primary)]">${mission.title}</h2>
                 <p class="text-[var(--text-secondary)]">${client.companyName} at ${site.name}</p>
             </div>
-            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+            <div class="p-6 overflow-y-auto space-y-6 flex-grow">
                 <div>
-                    <h3 class="font-bold text-lg mb-2">Details</h3>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
+                    <h3 class="font-bold text-lg mb-2 text-[var(--accent-secondary)]">Mission Details</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">
                         <p><strong>Pay Rate:</strong> $${mission.payRate}/hr</p>
                         <p><strong>Level Req:</strong> ${mission.requiredLevel}</p>
-                        <p><strong>Start:</strong> ${new Date(mission.startTime).toLocaleString()}</p>
-                        <p><strong>End:</strong> ${new Date(mission.endTime).toLocaleString()}</p>
-                        <p class="col-span-2"><strong>Location:</strong> ${site.address}</p>
-                        <p class="col-span-2"><strong>Training:</strong> ${requiredTraining.title}</p>
+                        <p><strong>Start Time:</strong> ${new Date(mission.startTime).toLocaleString()}</p>
+                        <p><strong>End Time:</strong> ${new Date(mission.endTime).toLocaleString()}</p>
+                        <p class="sm:col-span-2"><strong>Location:</strong> ${site.address}</p>
+                        <p class="sm:col-span-2"><strong>Training Req:</strong> ${requiredTraining.title}</p>
                     </div>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg mb-2">Instructions</h3>
-                    <p class="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">${mission.description || 'No specific instructions provided.'}</p>
+                    <h3 class="font-bold text-lg mb-2 text-[var(--accent-secondary)]">Instructions</h3>
+                    <p class="text-sm text-[var(--text-secondary)] whitespace-pre-wrap bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">${mission.description || 'No specific instructions provided.'}</p>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg mb-2">Assigned Guards (${guards.length}/${mission.requiredGuards})</h3>
+                    <h3 class="font-bold text-lg mb-2 text-[var(--accent-secondary)]">Assigned Guards (${guards.length}/${mission.requiredGuards})</h3>
                     <ul class="space-y-2">
                         ${guards.map(g => `
-                            <li class="flex items-center text-sm p-2 bg-[var(--bg-primary)] rounded-md">
-                                ${Icons.User({className: 'w-4 h-4 mr-2 text-[var(--text-secondary)]'})}
-                                <span>${g.firstName} ${g.lastName} ${leadGuard?.userId === g.id ? '<span class="text-xs font-bold text-[var(--accent-primary)]">(Lead)</span>' : ''}</span>
+                            <li class="flex items-center text-sm p-3 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-primary)]">
+                                ${Icons.User({className: 'w-5 h-5 mr-3 text-[var(--text-secondary)]'})}
+                                <span class="font-semibold">${g.firstName} ${g.lastName} ${leadGuard?.userId === g.id ? '<span class="ml-2 text-xs font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-2 py-0.5 rounded-full">LEAD</span>' : ''}</span>
                             </li>
                         `).join('')}
-                        ${guards.length === 0 ? '<li class="text-sm text-[var(--text-secondary)] italic">No guards have claimed this mission yet.</li>' : ''}
+                        ${guards.length === 0 ? '<li class="text-sm text-[var(--text-secondary)] italic p-3 bg-[var(--bg-tertiary)] rounded-lg border border-dashed border-[var(--border-primary)]">No guards have claimed this mission yet.</li>' : ''}
                     </ul>
                 </div>
             </div>
-            <div class="p-4 bg-[var(--bg-primary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3">
-                <button data-action="close-modal" class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Close</button>
+            <div class="p-4 bg-[var(--bg-tertiary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3 flex-shrink-0">
+                <button data-action="close-modal" class="px-4 py-2 bg-white text-gray-800 font-semibold rounded-md hover:bg-gray-100 border border-[var(--border-secondary)]">Close</button>
                 ${isGuard && !mission.claimedBy.includes(user.id) && mission.claimedBy.length < mission.requiredGuards ? `<button data-action="claim-mission" data-id="${mission.id}" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Claim Mission</button>` : ''}
             </div>
         </div>
@@ -964,45 +971,45 @@ const UserDetailsModal = ({ userId, currentUser }) => {
     const allModules = getTrainingModules();
 
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)]" data-modal-content>
-            <div class="p-6 border-b border-[var(--border-primary)]">
+    <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)] flex flex-col h-full md:h-auto md:max-h-[90vh]" data-modal-content>
+            <div class="p-5 border-b border-[var(--border-primary)] flex-shrink-0">
                 <h2 class="text-2xl font-bold text-[var(--text-primary)]">${user.firstName} ${user.lastName}</h2>
                 <p class="text-[var(--text-secondary)]">${user.role} - ${user.rank}</p>
             </div>
             <form id="user-details-form" data-user-id="${user.id}">
-                <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+                <div class="p-6 overflow-y-auto space-y-6 flex-grow">
                     <div>
-                        <h3 class="font-bold text-lg mb-2">Profile Details</h3>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
+                        <h3 class="font-bold text-lg mb-2 text-[var(--accent-secondary)]">Profile Details</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">
                             <p><strong>Email:</strong> ${user.email}</p>
                             <p><strong>Rating:</strong> ${user.performanceRating.toFixed(2)}</p>
-                            <div>
-                                <label for="user-level" class="font-bold">Level:</label>
-                                <input id="user-level" name="level" type="number" min="1" max="5" value="${user.level}" ${!isAdmin ? 'disabled' : ''} class="ml-2 w-16 p-1 border rounded-md" />
+                            <div class="flex items-center">
+                                <label for="user-level" class="font-bold mr-2">Level:</label>
+                                <input id="user-level" name="level" type="number" min="1" max="5" value="${user.level}" ${!isAdmin ? 'disabled' : ''} class="w-20 p-1 border rounded-md bg-white disabled:bg-gray-100" />
                             </div>
-                             <div>
-                                <label for="user-team" class="font-bold">Team:</label>
-                                <select id="user-team" name="teamId" ${!isAdmin ? 'disabled' : ''} class="ml-2 p-1 border rounded-md bg-white">
+                             <div class="flex items-center">
+                                <label for="user-team" class="font-bold mr-2">Team:</label>
+                                <select id="user-team" name="teamId" ${!isAdmin ? 'disabled' : ''} class="p-1 border rounded-md bg-white disabled:bg-gray-100">
                                     ${teams.map(t => `<option value="${t.id}" ${user.teamId === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
                                 </select>
                             </div>
                         </div>
                     </div>
                      <div>
-                        <h3 class="font-bold text-lg mb-2">Training & Certifications</h3>
-                        <ul class="space-y-1 text-sm">
+                        <h3 class="font-bold text-lg mb-2 text-[var(--accent-secondary)]">Training & Certifications</h3>
+                        <ul class="space-y-1 text-sm bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">
                         ${allModules.map(mod => {
                             const prog = userTrainings.find(p => p.moduleId === mod.id);
                             const status = prog ? prog.status : 'Not Started';
                             const color = { 'Approved': 'text-green-600', 'Pending Approval': 'text-yellow-600', 'Failed': 'text-red-600', 'Denied': 'text-red-800'}[status] || 'text-gray-500';
-                            return `<li class="flex justify-between"><span>${mod.title}</span><span class="font-semibold ${color}">${status}</span></li>`
+                            return `<li class="flex justify-between items-center py-1"><span class="text-[var(--text-primary)]">${mod.title}</span><span class="font-semibold px-2 py-0.5 rounded-full text-xs ${color.replace('text-', 'bg-').replace('-600', '/10').replace('-800', '/10')}">${status}</span></li>`
                         }).join('')}
                         </ul>
                     </div>
                 </div>
-                <div class="p-4 bg-[var(--bg-primary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3">
-                    <button type="button" data-action="close-modal" class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Close</button>
+                <div class="p-4 bg-[var(--bg-tertiary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3 flex-shrink-0">
+                    <button type="button" data-action="close-modal" class="px-4 py-2 bg-white text-gray-800 font-semibold rounded-md hover:bg-gray-100 border border-[var(--border-secondary)]">Close</button>
                     ${isAdmin ? `<button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Save Changes</button>` : ''}
                 </div>
             </form>
@@ -1011,113 +1018,122 @@ const UserDetailsModal = ({ userId, currentUser }) => {
     `;
 };
 
-// --- START: SIDEBAR ---
-const Sidebar = ({ currentUser, activeView }) => {
-    const sidebarStructure = [
-        {
-            title: 'Main',
-            roles: [...allInternalRoles, ...clientRole],
-            items: [
-                { name: 'Dashboard', icon: Icons.Home, view: 'Dashboard', roles: [...allInternalRoles, ...clientRole] },
-                { name: 'My Profile', icon: Icons.User, view: 'MyProfile', roles: [...allInternalRoles, ...clientRole] },
-            ]
-        },
-        {
-            title: 'Guard Portal',
-            roles: fieldRoles,
-            items: [
-                { name: 'Mission Board', icon: Icons.ClipboardList, view: 'MissionBoard', roles: fieldRoles },
-                { name: 'My Missions', icon: Icons.Calendar, view: 'MyMissions', roles: fieldRoles },
-                { name: 'Training', icon: Icons.AcademicCap, view: 'Training', roles: fieldRoles },
-                { name: 'Earnings', icon: Icons.CreditCard, view: 'Earnings', roles: fieldRoles },
-                { name: 'Hall of Fame', icon: Icons.Trophy, view: 'HallOfFame', roles: fieldRoles },
-                { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: fieldRoles },
-            ]
-        },
-        {
-            title: 'Client Portal',
-            roles: clientRole,
-            items: [
-                { name: 'Post Mission', icon: Icons.PlusCircle, view: 'PostMission', roles: clientRole },
-                { name: 'Active Missions', icon: Icons.Calendar, view: 'MyMissions', roles: clientRole },
-                { name: 'My Sites', icon: Icons.LocationMarker, view: 'MySites', roles: clientRole },
-                { name: 'My Contracts', icon: Icons.DocumentDuplicate, view: 'MyContracts', roles: clientRole },
-                { name: 'Billing', icon: Icons.CreditCard, view: 'Billing', roles: clientRole },
-                { name: 'Guard Roster', icon: Icons.Users, view: 'ClientGuardRoster', roles: clientRole },
-            ]
-        },
-        {
-            title: 'Field Leadership',
-            roles: [UserRole.Supervisor, UserRole.TrainingOfficer],
-            items: [
-                { name: 'Field Oversight', icon: Icons.Eye, view: 'FieldOversight', roles: [UserRole.Supervisor] },
-                { name: 'Training Management', icon: Icons.AcademicCap, view: 'TrainingManagement', roles: [UserRole.Supervisor, UserRole.TrainingOfficer] },
-            ]
-        },
-        {
-            title: 'Operations',
-            roles: [...operationsRoles, ...executiveRoles, ...managementRoles],
-            items: [
-                { name: 'Mission Control', icon: Icons.Map, view: 'MissionControl', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
-                { name: 'Active Missions', icon: Icons.Flag, view: 'ActiveMissions', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
-                { name: 'Guard Management', icon: Icons.Users, view: 'GuardManagement', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Client Management', icon: Icons.Briefcase, view: 'ClientManagement', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
-                { name: 'Site Roster', icon: Icons.LocationMarker, view: 'SiteRoster', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Communications', icon: Icons.Mail, view: 'Communications', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
-                { name: 'Alerts', icon: Icons.Bell, view: 'Alerts', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
-                { name: 'Vehicle Management', icon: Icons.Truck, view: 'VehicleManagement', roles: [...operationsRoles, UserRole.Dispatch, ...executiveRoles] },
-            ]
-        },
-        {
-            title: 'Administration',
-            roles: [...operationsRoles, ...executiveRoles, ...managementRoles],
-            items: [
-                { name: 'Applications', icon: Icons.DocumentText, view: 'Applications', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
-                { name: 'Contract Approvals', icon: Icons.DocumentDuplicate, view: 'ContractApprovals', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Site Approvals', icon: Icons.CheckCircle, view: 'SiteApprovals', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Appeals', icon: Icons.Flag, view: 'Appeals', roles: [UserRole.OperationsDirector, ...executiveRoles] },
-                { name: 'Uniform Distribution', icon: Icons.Truck, view: 'UniformDistribution', roles: [UserRole.Secretary, ...operationsRoles, ...executiveRoles]},
-            ]
-        },
-        {
-            title: 'Executive',
-            roles: executiveRoles,
-            items: [
-                { name: 'Team Management', icon: Icons.Users, view: 'TeamManagement', roles: executiveRoles },
-                { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...operationsRoles, ...executiveRoles] },
-                { name: 'Live Control', icon: Icons.Shield, view: 'LiveControl', roles: executiveRoles },
-                { name: 'System Settings', icon: Icons.Cog, view: 'SystemSettings', roles: executiveRoles },
-            ]
-        },
-    ];
+// --- START: NAVIGATION COMPONENTS ---
+const getSidebarStructure = (currentUser) => [
+    {
+        title: 'Main',
+        roles: [...allInternalRoles, ...clientRole],
+        items: [
+            { name: 'Dashboard', icon: Icons.Home, view: 'Dashboard', roles: [...allInternalRoles, ...clientRole] },
+            { name: 'My Profile', icon: Icons.User, view: 'MyProfile', roles: [...allInternalRoles, ...clientRole] },
+        ]
+    },
+    {
+        title: 'Guard Portal',
+        roles: fieldRoles,
+        items: [
+            { name: 'Mission Board', icon: Icons.ClipboardList, view: 'MissionBoard', roles: fieldRoles },
+            { name: 'My Missions', icon: Icons.Calendar, view: 'MyMissions', roles: fieldRoles },
+            { name: 'Training', icon: Icons.AcademicCap, view: 'Training', roles: fieldRoles },
+            { name: 'Earnings', icon: Icons.CreditCard, view: 'Earnings', roles: fieldRoles },
+            { name: 'Hall of Fame', icon: Icons.Trophy, view: 'HallOfFame', roles: fieldRoles },
+            { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: fieldRoles },
+        ]
+    },
+    {
+        title: 'Client Portal',
+        roles: clientRole,
+        items: [
+            { name: 'Post Mission', icon: Icons.PlusCircle, view: 'PostMission', roles: clientRole },
+            { name: 'Active Missions', icon: Icons.Calendar, view: 'MyMissions', roles: clientRole },
+            { name: 'My Sites', icon: Icons.LocationMarker, view: 'MySites', roles: clientRole },
+            { name: 'My Contracts', icon: Icons.DocumentDuplicate, view: 'MyContracts', roles: clientRole },
+            { name: 'Billing', icon: Icons.CreditCard, view: 'Billing', roles: clientRole },
+            { name: 'Guard Roster', icon: Icons.Users, view: 'ClientGuardRoster', roles: clientRole },
+        ]
+    },
+    {
+        title: 'Field Leadership',
+        roles: [UserRole.Supervisor, UserRole.TrainingOfficer],
+        items: [
+            { name: 'Field Oversight', icon: Icons.Eye, view: 'FieldOversight', roles: [UserRole.Supervisor] },
+            { name: 'Training Management', icon: Icons.AcademicCap, view: 'TrainingManagement', roles: [UserRole.Supervisor, UserRole.TrainingOfficer] },
+        ]
+    },
+    {
+        title: 'Operations',
+        roles: [...operationsRoles, ...executiveRoles, ...managementRoles],
+        items: [
+            { name: 'Mission Control', icon: Icons.Map, view: 'MissionControl', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
+            { name: 'Active Missions', icon: Icons.Flag, view: 'ActiveMissions', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
+            { name: 'Guard Management', icon: Icons.Users, view: 'GuardManagement', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Client Management', icon: Icons.Briefcase, view: 'ClientManagement', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
+            { name: 'Site Roster', icon: Icons.LocationMarker, view: 'SiteRoster', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Communications', icon: Icons.Mail, view: 'Communications', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
+            { name: 'Alerts', icon: Icons.Bell, view: 'Alerts', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
+            { name: 'Vehicle Management', icon: Icons.Truck, view: 'VehicleManagement', roles: [...operationsRoles, UserRole.Dispatch, ...executiveRoles] },
+        ]
+    },
+    {
+        title: 'Administration',
+        roles: [...operationsRoles, ...executiveRoles, ...managementRoles],
+        items: [
+            { name: 'Applications', icon: Icons.DocumentText, view: 'Applications', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
+            { name: 'Contract Approvals', icon: Icons.DocumentDuplicate, view: 'ContractApprovals', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Site Approvals', icon: Icons.CheckCircle, view: 'SiteApprovals', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Appeals', icon: Icons.Flag, view: 'Appeals', roles: [UserRole.OperationsDirector, ...executiveRoles] },
+            { name: 'Uniform Distribution', icon: Icons.Truck, view: 'UniformDistribution', roles: [UserRole.Secretary, ...operationsRoles, ...executiveRoles]},
+        ]
+    },
+    {
+        title: 'Executive',
+        roles: executiveRoles,
+        items: [
+            { name: 'Team Management', icon: Icons.Users, view: 'TeamManagement', roles: executiveRoles },
+            { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Live Control', icon: Icons.Shield, view: 'LiveControl', roles: executiveRoles },
+            { name: 'System Settings', icon: Icons.Cog, view: 'SystemSettings', roles: executiveRoles },
+        ]
+    },
+];
+const Sidebar = ({ currentUser, activeView, isCollapsed = false }) => {
+    const sidebarStructure = getSidebarStructure(currentUser);
+    const containerClasses = isCollapsed 
+        ? "w-20 bg-[var(--accent-secondary)] text-[var(--text-light)] h-full overflow-y-auto flex flex-col items-center py-4 space-y-4 collapsed-sidebar" 
+        : "w-64 bg-[var(--accent-secondary)] text-[var(--text-light)] h-full overflow-y-auto flex flex-col";
+    
     return `
-        <div class="flex flex-col w-64 bg-[var(--bg-secondary)] border-r border-[var(--border-primary)] h-full overflow-y-auto">
-            <div class="flex items-center justify-center h-16 border-b border-[var(--border-primary)] flex-shrink-0 px-4">
-                <div class="text-center">
-                    <p class="font-bold text-md text-[var(--text-primary)]">${currentUser.firstName} ${currentUser.lastName}</p>
-                    <p class="text-xs text-[var(--text-secondary)]">${currentUser.role} - ${currentUser.rank}</p>
+        <div class="${containerClasses}">
+            <div class="flex items-center justify-center h-16 border-b border-white/10 flex-shrink-0 px-4 w-full">
+                <div class="text-center ${isCollapsed ? 'hidden' : ''}">
+                    <p class="font-bold text-md">${currentUser.firstName} ${currentUser.lastName}</p>
+                    <p class="text-xs opacity-70">${currentUser.role}</p>
+                </div>
+                <div class="${isCollapsed ? '' : 'hidden'} text-center">
+                    ${Icons.Shield({ className: "w-8 h-8 text-[var(--accent-primary)]"})}
                 </div>
             </div>
-            <nav class="flex-1 py-4">
+            <nav class="flex-1 ${isCollapsed ? '' : 'py-4'}">
                 ${sidebarStructure.map((group) => {
                     const accessibleItems = group.items.filter(item => item.roles.includes(currentUser.role));
                     if (accessibleItems.length === 0) return '';
                     return `
                         <div>
-                            <h3 class="px-4 pt-4 pb-2 text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">${group.title}</h3>
+                            <h3 class="${isCollapsed ? 'hidden' : ''} px-4 pt-4 pb-2 text-xs font-semibold uppercase opacity-50 tracking-wider">${group.title}</h3>
                             <ul class="space-y-1">
                                 ${accessibleItems.map((item) => {
                                     const isActive = activeView === item.view;
                                     const Icon = item.icon;
-                                    const activeClasses = 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-r-4 border-[var(--accent-primary)] font-bold';
-                                    const inactiveClasses = 'text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]';
+                                    const activeClasses = 'bg-black/20 text-white font-bold';
+                                    const inactiveClasses = 'text-white/70 hover:bg-black/20 hover:text-white';
+                                    const linkClasses = `flex items-center text-sm font-medium transition-colors ${isCollapsed ? 'justify-center p-4 rounded-lg' : 'px-4 py-3'}`;
                                     return `
                                         <li>
-                                            <a href="#" data-action="navigate" data-type="${item.view}" class="flex items-center px-4 py-3 text-sm font-medium transition-colors ${isActive ? activeClasses : inactiveClasses}">
-                                                ${Icon({ className: 'w-6 h-6 mr-3 flex-shrink-0' })}
-                                                <span>${item.name}</span>
+                                            <a href="#" title="${item.name}" data-action="navigate" data-type="${item.view}" class="${linkClasses} ${isActive ? activeClasses : inactiveClasses}">
+                                                ${Icon({ className: 'w-6 h-6 flex-shrink-0' })}
+                                                <span class="ml-3 ${isCollapsed ? 'sidebar-text absolute left-20 bg-[var(--accent-secondary)] px-3 py-1 rounded-md' : ''}">${item.name}</span>
                                             </a>
                                         </li>
                                     `;
@@ -1127,6 +1143,40 @@ const Sidebar = ({ currentUser, activeView }) => {
                     `;
                 }).join('')}
             </nav>
+             <div class="flex-shrink-0 p-4 border-t border-white/10 ${isCollapsed ? 'hidden' : ''}">
+                <button data-action="logout" class="w-full flex items-center text-sm font-medium text-white/70 hover:text-white transition-colors">
+                    ${Icons.Logout({ className: "w-5 h-5 mr-2" })}
+                    Logout
+                </button>
+            </div>
+        </div>
+    `;
+};
+const BottomNavBar = ({ currentUser, activeView }) => {
+    const sidebarStructure = getSidebarStructure(currentUser);
+    const primaryMobileNav = [
+        { name: 'Dashboard', icon: Icons.Home, view: 'Dashboard' },
+        fieldRoles.includes(currentUser.role) ? { name: 'Missions', icon: Icons.ClipboardList, view: 'MissionBoard' } : null,
+        clientRole.includes(currentUser.role) ? { name: 'Post', icon: Icons.PlusCircle, view: 'PostMission' } : null,
+        [UserRole.Supervisor, UserRole.TrainingOfficer].includes(currentUser.role) ? { name: 'Oversight', icon: Icons.Eye, view: 'FieldOversight' } : null,
+        adminRoles.includes(currentUser.role) ? { name: 'Control', icon: Icons.Map, view: 'MissionControl' } : null,
+        { name: 'Profile', icon: Icons.User, view: 'MyProfile' },
+    ].filter(Boolean);
+
+    return `
+        <div class="bottom-nav fixed bottom-0 left-0 right-0 h-20 bg-[var(--bg-secondary)] border-t border-[var(--border-primary)] md:hidden z-40">
+            <div class="grid h-full max-w-lg grid-cols-${primaryMobileNav.length} mx-auto font-medium">
+                ${primaryMobileNav.map(item => {
+                    const isActive = activeView === item.view;
+                    const Icon = item.icon;
+                    return `
+                        <button type="button" data-action="navigate" data-type="${item.view}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-[var(--bg-tertiary)] group">
+                            ${Icon({ className: `w-6 h-6 mb-1 ${isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}` })}
+                            <span class="text-xs ${isActive ? 'text-[var(--accent-primary)] font-bold' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}">${item.name}</span>
+                        </button>
+                    `;
+                }).join('')}
+            </div>
         </div>
     `;
 };
@@ -1151,7 +1201,7 @@ const MissionBoard = ({ user }) => {
         let canClaim = false;
 
         if (isClaimedByUser) {
-            status = 'Claimed';
+            status = 'Claimed By You';
             buttonText = 'Claimed';
         } else if (isFull) {
             status = 'Full';
@@ -1182,26 +1232,26 @@ const MissionBoard = ({ user }) => {
         
         const actionButton = () => {
              if (status === 'Training Required' || status === 'Training Failed') {
-                return `<button data-action="navigate" data-type="Training" class="px-4 py-2 text-sm font-bold rounded-md transition-colors bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-primary)]/80">${buttonText}</button>`;
+                return `<button data-action="navigate" data-type="Training" class="w-full md:w-auto px-4 py-2 text-sm font-bold rounded-md transition-colors bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-primary-hover)]">${buttonText}</button>`;
             }
-            return `<button data-action="claim-mission" data-id="${mission.id}" ${!canClaim ? 'disabled' : ''} class="px-4 py-2 text-sm font-bold rounded-md transition-colors ${canClaim ? 'bg-[var(--accent-secondary)] text-white hover:bg-[var(--accent-secondary-hover)]' : 'bg-[var(--border-tertiary)] text-[var(--text-secondary)] cursor-not-allowed'}">${buttonText}</button>`;
+            return `<button data-action="claim-mission" data-id="${mission.id}" ${!canClaim ? 'disabled' : ''} class="w-full md:w-auto px-4 py-2 text-sm font-bold rounded-md transition-colors ${canClaim ? 'bg-[var(--accent-secondary)] text-white hover:bg-[var(--accent-secondary-hover)]' : 'bg-[var(--border-tertiary)] text-[var(--text-secondary)] cursor-not-allowed'}">${buttonText}</button>`;
         }
 
         return `
-            <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-4 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[var(--accent-primary)]/50 transition-all duration-200">
                 <div>
                     <div class="flex justify-between items-start">
                         <h3 class="font-bold text-lg text-[var(--text-primary)]">${mission.title}</h3>
                         <span class="px-2 py-1 text-xs font-semibold rounded-full ${status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${status}</span>
                     </div>
                     <p class="text-sm text-[var(--text-secondary)]">${client?.companyName || 'N/A'}</p>
-                    <div class="text-sm text-[var(--text-secondary)] mt-2 space-y-1">
-                        <p><strong>Pay:</strong> <span class="text-[var(--text-primary)]">$${mission.payRate}/hr</span></p>
-                        <p><strong>Time:</strong> <span class="text-[var(--text-primary)]">${new Date(mission.startTime).toLocaleString()} - ${new Date(mission.endTime).toLocaleString()}</span></p>
-                        <p><strong>Training:</strong> <span class="text-[var(--text-primary)]">${requiredTraining?.title || 'N/A'}</span></p>
+                    <div class="text-sm text-[var(--text-secondary)] mt-2 space-y-1 bg-[var(--bg-tertiary)] p-3 rounded-md border border-[var(--border-tertiary)]">
+                        <p><strong>Pay:</strong> <span class="text-[var(--text-primary)] font-semibold">$${mission.payRate}/hr</span></p>
+                        <p><strong>Time:</strong> <span class="text-[var(--text-primary)] font-semibold">${new Date(mission.startTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span></p>
+                        <p><strong>Training:</strong> <span class="text-[var(--text-primary)] font-semibold">${requiredTraining?.title || 'N/A'}</span></p>
                     </div>
                 </div>
-                <div class="mt-4 flex justify-between items-center">
+                <div class="mt-4 flex flex-col md:flex-row justify-between items-center gap-3">
                     <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm font-semibold text-[var(--accent-primary)] hover:underline">View Details</button>
                     ${actionButton()}
                 </div>
@@ -1209,17 +1259,17 @@ const MissionBoard = ({ user }) => {
         `;
     };
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
-            <div class="flex items-center justify-between mb-6">
+        <div class="animate-in" style="opacity: 0;">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
                 <h1 class="text-3xl font-bold text-[var(--text-primary)]">Mission Board</h1>
-                <p class="text-[var(--text-secondary)]">Available Missions: ${availableMissions.length}</p>
+                <p class="text-[var(--text-secondary)] text-sm md:text-base">Available Missions: ${availableMissions.length}</p>
             </div>
             ${availableMissions.length > 0 ? `
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     ${availableMissions.map(mission => MissionCard({ mission, user, client: clients.find(c => c.id === mission.clientId) })).join('')}
                 </div>
             ` : `
-                <div class="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-sm">
+                <div class="text-center py-16 bg-[var(--bg-secondary)] border border-dashed border-[var(--border-secondary)] rounded-lg shadow-sm">
                     ${Icons.ClipboardList({ className: "w-16 h-16 mx-auto text-[var(--text-secondary)] opacity-50" })}
                     <h2 class="mt-4 text-xl font-semibold text-[var(--text-primary)]">No Missions Available</h2>
                     <p class="mt-1 text-[var(--text-secondary)]">Check back later for new opportunities on your team's board.</p>
@@ -1257,11 +1307,11 @@ const MyMissions = ({ user }) => {
         }
         return `
             <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
-                <div class="flex justify-between items-start gap-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div class="flex-grow">
                         <p class="font-bold text-[var(--text-primary)]">${mission.title}</p>
-                        <p class="text-sm text-[var(--text-secondary)]">${new Date(mission.startTime).toLocaleString()}</p>
-                        <span class="text-xs px-2 py-0.5 rounded-full ${mission.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${mission.status}</span>
+                        <p class="text-sm text-[var(--text-secondary)]">${new Date(mission.startTime).toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'})}</p>
+                        <span class="text-xs mt-1 inline-block px-2 py-0.5 rounded-full ${mission.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${mission.status}</span>
                     </div>
                     <div class="flex-shrink-0 flex items-center gap-2">
                         <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm font-semibold text-[var(--accent-primary)] hover:underline">Details</button>
@@ -1278,11 +1328,11 @@ const MyMissions = ({ user }) => {
                 <div class="space-y-3">
                     ${missions.map(mission => MissionCard({ mission, user })).join('')}
                 </div>
-            ` : `<p class="text-[var(--text-secondary)] italic">No missions in this category.</p>`}
+            ` : `<p class="text-[var(--text-secondary)] italic p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-tertiary)]">No missions in this category.</p>`}
         </div>
     `;
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">My Missions</h1>
             <div class="space-y-8">
                 ${MissionList({ title: "Active Missions", missions: categorizedMissions.active, user })}
@@ -1304,20 +1354,20 @@ const Training = ({ user }) => {
     });
 
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Training Center</h1>
             <div class="space-y-4">
                 ${availableModules.map(module => {
                     const prog = getModuleProgress(module.id);
                     let statusColor = 'bg-[var(--border-tertiary)] text-[var(--text-secondary)]';
                     let statusText = 'Not Started';
-                    let actionButton = `<button data-action="start-training" data-id="${module.id}" class="px-4 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-bold rounded-md hover:bg-[var(--accent-secondary-hover)]">Start Training</button>`;
+                    let actionButton = `<button data-action="start-training" data-id="${module.id}" class="px-4 py-2 bg-[var(--accent-secondary)] text-[var(--accent-secondary-text)] font-bold rounded-md hover:bg-[var(--accent-secondary-hover)] transition-transform hover:scale-105">Start Training</button>`;
 
                     if (prog) {
                         statusText = prog.status;
                         if (prog.status === 'Approved') {
                             statusColor = 'bg-green-100 text-green-800';
-                            actionButton = `<span class="font-semibold text-green-600">Completed</span>`;
+                            actionButton = `<span class="font-semibold text-green-600 flex items-center">${Icons.CheckCircle({className: "w-5 h-5 mr-2"})} Completed</span>`;
                         } else if (prog.status === 'Pending Approval') {
                             statusColor = 'bg-yellow-100 text-yellow-800';
                             actionButton = `<span class="font-semibold text-yellow-600">Pending</span>`;
@@ -1328,14 +1378,14 @@ const Training = ({ user }) => {
                     }
                     
                     return `
-                        <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm flex justify-between items-center flex-wrap gap-4">
+                        <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div class="flex-grow">
                                 <h3 class="font-bold text-lg text-[var(--text-primary)]">${module.title}</h3>
                                 <p class="text-sm text-[var(--text-secondary)]">${module.content.substring(0, 100)}...</p>
                             </div>
-                            <div class="text-right flex-shrink-0 flex items-center gap-4">
-                                <span class="px-3 py-1 text-sm font-semibold rounded-full ${statusColor}">${statusText}</span>
-                                ${actionButton}
+                            <div class="flex-shrink-0 flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
+                                <span class="px-3 py-1 text-sm font-semibold rounded-full ${statusColor} text-center">${statusText}</span>
+                                <div class="w-full md:w-auto">${actionButton}</div>
                             </div>
                         </div>
                     `;
@@ -1345,28 +1395,28 @@ const Training = ({ user }) => {
     `;
 };
 const MyProfile = ({ user }) => `
-    <div class="animate-in max-w-2xl mx-auto" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in max-w-3xl mx-auto" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">My Profile</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
-            <div class="flex items-center space-x-4 mb-6">
-                <div class="w-16 h-16 rounded-full bg-[var(--bg-primary)] border border-[var(--border-tertiary)] flex items-center justify-center">
-                    ${Icons.User({ className: "w-10 h-10 text-[var(--text-secondary)]" })}
+            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
+                <div class="w-24 h-24 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-primary)] flex items-center justify-center flex-shrink-0">
+                    ${Icons.User({ className: "w-12 h-12 text-[var(--text-secondary)]" })}
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-[var(--text-primary)]">${user.firstName} ${user.lastName}</h2>
-                    <p class="text-[var(--text-secondary)]">${user.email}</p>
+                    <h2 class="text-2xl font-bold text-[var(--text-primary)] text-center sm:text-left">${user.firstName} ${user.lastName}</h2>
+                    <p class="text-[var(--text-secondary)] text-center sm:text-left">${user.email}</p>
                 </div>
             </div>
             <div class="space-y-4">
-                <div class="flex justify-between items-center"><span class="font-medium text-[var(--text-secondary)]">Role:</span><span class="font-semibold text-[var(--text-primary)]">${user.role}</span></div>
-                <div class="flex justify-between items-center"><span class="font-medium text-[var(--text-secondary)]">Rank:</span><span class="font-semibold text-[var(--text-primary)]">${user.rank}</span></div>
+                <div class="flex justify-between items-center bg-[var(--bg-tertiary)] p-3 rounded-md"><span class="font-medium text-[var(--text-secondary)]">Role:</span><span class="font-semibold text-[var(--text-primary)]">${user.role}</span></div>
+                <div class="flex justify-between items-center bg-[var(--bg-tertiary)] p-3 rounded-md"><span class="font-medium text-[var(--text-secondary)]">Rank:</span><span class="font-semibold text-[var(--text-primary)]">${user.rank}</span></div>
                 ${user.role !== UserRole.Client ? `
-                <div class="flex justify-between items-center"><span class="font-medium text-[var(--text-secondary)]">Level:</span><span class="px-3 py-1 text-sm font-semibold rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">${user.level}</span></div>
-                <div class="flex justify-between items-center"><span class="font-medium text-[var(--text-secondary)]">Performance Rating:</span><span class="font-semibold text-green-600">${user.performanceRating.toFixed(2)} / 5.00</span></div>
-                <div class="flex justify-between items-center"><span class="font-medium text-[var(--text-secondary)]">Weekly Hours:</span><span class="font-semibold text-[var(--text-primary)]">${user.weeklyHours.toFixed(1)} / 40</span></div>
-                <div>
+                <div class="flex justify-between items-center bg-[var(--bg-tertiary)] p-3 rounded-md"><span class="font-medium text-[var(--text-secondary)]">Level:</span><span class="px-3 py-1 text-sm font-semibold rounded-full bg-[var(--accent-secondary)] text-[var(--accent-secondary-text)]">${user.level}</span></div>
+                <div class="flex justify-between items-center bg-[var(--bg-tertiary)] p-3 rounded-md"><span class="font-medium text-[var(--text-secondary)]">Performance Rating:</span><span class="font-semibold text-green-600">${user.performanceRating.toFixed(2)} / 5.00</span></div>
+                <div class="flex justify-between items-center bg-[var(--bg-tertiary)] p-3 rounded-md"><span class="font-medium text-[var(--text-secondary)]">Weekly Hours:</span><span class="font-semibold text-[var(--text-primary)]">${user.weeklyHours.toFixed(1)} / 40</span></div>
+                <div class="bg-[var(--bg-tertiary)] p-3 rounded-md">
                     <span class="font-medium text-[var(--text-secondary)]">Certifications:</span>
-                    <div class="flex flex-wrap gap-2 mt-2">${user.certifications.length > 0 ? user.certifications.map(cert => `<span class="px-2 py-1 text-xs bg-[var(--border-tertiary)] text-[var(--text-secondary)] rounded-md">${cert}</span>`).join('') : 'None'}</div>
+                    <div class="flex flex-wrap gap-2 mt-2">${user.certifications.length > 0 ? user.certifications.map(cert => `<span class="px-2 py-1 text-xs bg-white text-[var(--text-secondary)] rounded-md border border-[var(--border-primary)]">${cert}</span>`).join('') : 'None'}</div>
                 </div>
                 `: ''}
             </div>
@@ -1379,9 +1429,9 @@ const PostMission = ({ user }) => {
     const sites = getSites().filter(s => s.clientId === client.id);
     const contracts = getContracts().filter(c => c.clientId === client.id && c.status === 'Active');
     const trainingModules = getTrainingModules().filter(m => !m.title.includes("Officer") && !m.title.includes("Supervisor") && !m.title.includes("Lead"));
-    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
+    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-tertiary)]";
     return `
-        <div class="animate-in max-w-4xl mx-auto" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in max-w-4xl mx-auto" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Post a New Mission</h1>
             <form id="post-mission-form" class="bg-[var(--bg-secondary)] p-8 border border-[var(--border-primary)] rounded-lg shadow-md space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1406,17 +1456,17 @@ const MySites = ({ user }) => {
     const client = getClients().find(c => c.userId === user.id);
     const sites = client ? getSites().filter(s => s.clientId === client.id) : [];
     return `
-         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+         <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">My Sites</h1>
              <div class="space-y-4">
                 ${sites.map(site => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><p class="font-bold text-[var(--text-primary)]">${site.name}</p><p class="text-sm text-[var(--text-secondary)]">${site.address}</p></div>`).join('')}
-                 <button data-action="open-site-modal" class="w-full text-center p-4 border-2 border-dashed border-[var(--border-secondary)] rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-colors flex items-center justify-center">${Icons.PlusCircle({className: "w-5 h-5 mr-2"})} Add New Site for Approval</button>
+                 <button data-action="open-site-modal" class="w-full text-center p-4 border-2 border-dashed border-[var(--border-secondary)] rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-colors flex items-center justify-center">${Icons.PlusCircle({className: "w-5 h-5 mr-2"})} Add New Site for Approval</button>
             </div>
         </div>
     `;
 };
 const Billing = ({ user }) => `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Billing & Invoices</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
             <p class="text-[var(--text-primary)]">Clients can view their invoices, payment history, and manage payment methods here.</p>
@@ -1427,21 +1477,42 @@ const GuardManagement = ({ user }) => {
     const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
     const guards = getUsers(fieldRoles).filter(g => teamId ? g.teamId === teamId : true);
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Guard Management</h1>
-            <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
+            
+            {/* Desktop & Tablet Table */}
+            <div class="hidden md:block bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
                 <table class="min-w-full leading-normal">
-                    <thead><tr class="bg-[var(--bg-primary)] text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Name</th><th class="px-5 py-3 font-semibold">Rank</th><th class="px-5 py-3 font-semibold">Level</th><th class="px-5 py-3 font-semibold">Rating</th><th class="px-5 py-3 font-semibold">Weekly Hours</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
-                    <tbody>
+                    <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Name</th><th class="px-5 py-3 font-semibold">Rank</th><th class="px-5 py-3 font-semibold">Level</th><th class="px-5 py-3 font-semibold">Rating</th><th class="px-5 py-3 font-semibold">Weekly Hours</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
+                    <tbody class="divide-y divide-[var(--border-primary)]">
                         ${guards.map(guard => `
-                            <tr class="border-b border-[var(--border-primary)] hover:bg-[var(--bg-primary)]">
+                            <tr class="hover:bg-[var(--bg-tertiary)]">
                                 <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${guard.firstName} ${guard.lastName}</p><p class="text-[var(--text-secondary)] whitespace-no-wrap text-xs">${guard.email}</p></td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${guard.rank}</td><td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${guard.level}</td>
                                 <td class="px-5 py-4 text-sm text-green-600 font-semibold">${guard.performanceRating.toFixed(2)}</td><td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${guard.weeklyHours.toFixed(1)}</td>
-                                <td class="px-5 py-4 text-sm"><button data-action="open-user-details" data-id="${guard.id}" class="text-[var(--accent-primary)] hover:underline font-semibold">View</button></td>
+                                <td class="px-5 py-4 text-sm"><button data-action="open-user-details" data-id="${guard.id}" class="text-[var(--accent-primary)] hover:underline font-semibold">View / Edit</button></td>
                             </tr>`).join('')}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div class="md:hidden space-y-4">
+                ${guards.map(guard => `
+                    <div class="bg-[var(--bg-secondary)] p-4 rounded-lg shadow border border-[var(--border-primary)]">
+                        <div>
+                            <p class="font-bold text-[var(--text-primary)]">${guard.firstName} ${guard.lastName}</p>
+                            <p class="text-xs text-[var(--text-secondary)]">${guard.rank}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-[var(--border-primary)]">
+                            <div class="text-sm">
+                                <span class="font-semibold text-green-600">${guard.performanceRating.toFixed(2)}</span>
+                                <span class="text-[var(--text-secondary)]"> | Lvl ${guard.level}</span>
+                            </div>
+                            <button data-action="open-user-details" data-id="${guard.id}" class="px-3 py-1 bg-[var(--accent-secondary)] text-white text-xs font-bold rounded-md">Details</button>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         </div>
     `;
@@ -1450,20 +1521,29 @@ const ClientManagement = ({ user }) => {
     const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
     const clients = getClients().filter(c => teamId ? c.teamId === teamId : true);
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Client Management</h1>
              <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
-                <table class="min-w-full leading-normal">
-                    <thead><tr class="bg-[var(--bg-primary)] text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Company Name</th><th class="px-5 py-3 font-semibold">Contact Email</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
-                    <tbody>
+                <table class="min-w-full leading-normal hidden md:table">
+                    <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Company Name</th><th class="px-5 py-3 font-semibold">Contact Email</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
+                    <tbody class="divide-y divide-[var(--border-primary)]">
                         ${clients.map(client => `
-                            <tr class="border-b border-[var(--border-primary)] hover:bg-[var(--bg-primary)]">
+                            <tr class="hover:bg-[var(--bg-tertiary)]">
                                 <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${client.companyName}</p></td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${client.contactEmail}</td>
                                 <td class="px-5 py-4 text-sm"><button class="text-[var(--accent-primary)] hover:underline font-semibold">View Contracts</button></td>
                             </tr>`).join('')}
                     </tbody>
                 </table>
+                 <div class="md:hidden space-y-3 p-3">
+                    ${clients.map(client => `
+                        <div class="bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">
+                            <p class="font-bold text-[var(--text-primary)]">${client.companyName}</p>
+                            <p class="text-sm text-[var(--text-secondary)]">${client.contactEmail}</p>
+                            <button class="mt-2 text-sm text-[var(--accent-primary)] font-semibold">View Contracts &rarr;</button>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         </div>
     `;
@@ -1487,14 +1567,14 @@ const MissionControl = ({ user }) => {
         }
     };
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Mission Control</h1>
             <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-x-auto border border-[var(--border-primary)]">
-                <table class="min-w-full leading-normal">
-                    <thead><tr class="bg-[var(--bg-primary)] text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Title</th><th class="px-5 py-3 font-semibold">Status</th><th class="px-5 py-3 font-semibold">Time</th><th class="px-5 py-3 font-semibold">Guards</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
-                    <tbody>
+                <table class="min-w-full leading-normal hidden md:table">
+                    <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Title</th><th class="px-5 py-3 font-semibold">Status</th><th class="px-5 py-3 font-semibold">Time</th><th class="px-5 py-3 font-semibold">Guards</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
+                    <tbody class="divide-y divide-[var(--border-primary)]">
                         ${missions.map(mission => `
-                             <tr class="border-b border-[var(--border-primary)] hover:bg-[var(--bg-primary)]">
+                             <tr class="hover:bg-[var(--bg-tertiary)]">
                                 <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap">${mission.title}</p></td>
                                 <td class="px-5 py-4 text-sm"><span class="px-2 py-1 font-semibold rounded-full text-xs ${statusColor(mission.status)}">${mission.status}</span></td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${new Date(mission.startTime).toLocaleDateString()}</td>
@@ -1503,6 +1583,21 @@ const MissionControl = ({ user }) => {
                             </tr>`).join('')}
                     </tbody>
                 </table>
+                 <div class="md:hidden space-y-3 p-3">
+                    ${missions.map(mission => `
+                        <div class="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
+                             <div class="flex justify-between items-start">
+                                <p class="font-bold text-[var(--text-primary)]">${mission.title}</p>
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${statusColor(mission.status)}">${mission.status}</span>
+                            </div>
+                            <p class="text-sm text-[var(--text-secondary)] mt-1">${new Date(mission.startTime).toLocaleString([], {dateStyle:'short', timeStyle:'short'})}</p>
+                             <div class="flex justify-between items-center mt-2 pt-2 border-t border-[var(--border-primary)]">
+                                <p class="text-sm text-[var(--text-secondary)]">Guards: ${mission.claimedBy.length}/${mission.requiredGuards}</p>
+                                <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm text-[var(--accent-primary)] font-semibold">Details &rarr;</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         </div>
     `;
@@ -1516,7 +1611,7 @@ const ActiveMissions = ({ user }) => {
         return client && client.teamId === teamId;
     });
     return `
-         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+         <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Live Active Missions</h1>
              ${activeMissions.length > 0 ? `
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1526,10 +1621,10 @@ const ActiveMissions = ({ user }) => {
                             const checkedIn = mission.checkIns && mission.checkIns[guardId];
                             return `<div class="flex items-center text-sm text-[var(--text-secondary)]"><span class="w-3 h-3 rounded-full mr-2 ${checkedIn ? 'bg-green-500' : 'bg-[var(--text-secondary)]'}"></span> ${guard?.firstName} ${guard?.lastName}</div>`;
                         }).join('');
-                        return `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><h3 class="font-bold text-[var(--text-primary)]">${mission.title}</h3><p class="text-sm text-[var(--text-secondary)]">${new Date(mission.endTime).toLocaleTimeString()} (End)</p><div class="mt-2">${missionContent}</div></div>`;
+                        return `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><h3 class="font-bold text-[var(--text-primary)]">${mission.title}</h3><p class="text-sm text-[var(--text-secondary)]">${new Date(mission.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (End)</p><div class="mt-2">${missionContent}</div></div>`;
                     }).join('')}
                 </div>
-            ` : `<p class="text-[var(--text-secondary)]">No missions are currently active.</p>`}
+            ` : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No missions are currently active.</p>`}
         </div>
     `;
 };
@@ -1547,7 +1642,7 @@ const Analytics = ({ user }) => {
     ];
 
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Analytics Dashboard</h1>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 ${stats.map(stat => {
@@ -1568,14 +1663,14 @@ const Analytics = ({ user }) => {
 };
 const SystemSettings = ({ user }) => {
     const settings = getSystemSettings();
-    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)] text-[var(--text-primary)]";
+    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-tertiary)] text-[var(--text-primary)]";
     return `
-         <div class="animate-in max-w-2xl mx-auto" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+         <div class="animate-in max-w-2xl mx-auto" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">System Settings</h1>
             <form id="system-settings-form" class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm space-y-4">
                 <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Company Name</label><input type="text" name="companyName" value="${settings.companyName}" class="${inputStyles}"/></div>
                 <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Payroll Cycle</label><select name="payrollCycle" class="${inputStyles} bg-white"><option ${settings.payrollCycle === 'Weekly' ? 'selected' : ''}>Weekly</option><option ${settings.payrollCycle === 'Bi-Weekly' ? 'selected' : ''}>Bi-Weekly</option><option ${settings.payrollCycle === 'Monthly' ? 'selected' : ''}>Monthly</option></select></div>
-                <div class="text-right"><button type="submit" class="px-6 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-semibold rounded-md shadow-sm hover:bg-[var(--accent-secondary-hover)]">Save Settings</button></div>
+                <div class="text-right"><button type="submit" class="px-6 py-2 bg-[var(--accent-secondary)] text-[var(--accent-secondary-text)] font-semibold rounded-md shadow-sm hover:bg-[var(--accent-secondary-hover)]">Save Settings</button></div>
             </form>
         </div>
     `;
@@ -1583,7 +1678,7 @@ const SystemSettings = ({ user }) => {
 const FieldOversight = ({ user }) => {
     const missions = getMissionsForSpotCheck(user.id);
     return `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Field Oversight</h1>
         <p class="text-[var(--text-secondary)] mb-4">Select an active mission to begin a spot check.</p>
          ${missions.length > 0 ? `
@@ -1603,7 +1698,7 @@ const FieldOversight = ({ user }) => {
                     </div>`
                 }).join('')}
             </div>
-        ` : `<div class="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-sm">
+        ` : `<div class="text-center py-16 bg-[var(--bg-secondary)] border border-dashed border-[var(--border-secondary)] rounded-lg shadow-sm">
                 ${Icons.Eye({ className: "w-16 h-16 mx-auto text-[var(--text-secondary)] opacity-50" })}
                 <h2 class="mt-4 text-xl font-semibold text-[var(--text-primary)]">No Missions to Supervise</h2>
                 <p class="mt-1 text-[var(--text-secondary)]">There are currently no active missions on your team that require supervision.</p>
@@ -1618,10 +1713,10 @@ const TrainingManagement = ({ user }) => {
     const getUser = (id) => users.find(u => u.id === id) || { firstName: 'Unknown', lastName: 'User' };
     const getModule = (id) => modules.find(m => m.id === id) || { title: 'Unknown Module' };
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Training Management</h1>
             <div class="space-y-4">
-                ${approvals.length > 0 ? approvals.map(appr => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-[var(--text-primary)]">${getUser(appr.userId).firstName} ${getUser(appr.userId).lastName}</p><p class="text-sm text-[var(--text-secondary)]">Completed: <span class="font-semibold">${getModule(appr.moduleId).title}</span> (Score: ${appr.score}%)</p><p class="text-xs text-[var(--text-secondary)]">Submitted: ${new Date(appr.submittedAt).toLocaleString()}</p></div><div class="space-x-2"><button data-action="approve-training" data-id="${appr.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button><button data-action="request-retake" data-id="${appr.id}" class="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm font-semibold hover:bg-yellow-600">Request Retake</button><button data-action="deny-training" data-id="${appr.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)]">No training submissions require approval on your team.</p>`}
+                ${approvals.length > 0 ? approvals.map(appr => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex flex-col md:flex-row justify-between md:items-center gap-4"><div><p class="font-bold text-[var(--text-primary)]">${getUser(appr.userId).firstName} ${getUser(appr.userId).lastName}</p><p class="text-sm text-[var(--text-secondary)]">Completed: <span class="font-semibold">${getModule(appr.moduleId).title}</span> (Score: ${appr.score}%)</p><p class="text-xs text-[var(--text-secondary)]">Submitted: ${new Date(appr.submittedAt).toLocaleString()}</p></div><div class="space-x-2 flex-shrink-0"><button data-action="approve-training" data-id="${appr.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button><button data-action="request-retake" data-id="${appr.id}" class="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm font-semibold hover:bg-yellow-600">Request Retake</button><button data-action="deny-training" data-id="${appr.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No training submissions require approval on your team.</p>`}
             </div>
         </div>
     `;
@@ -1629,7 +1724,7 @@ const TrainingManagement = ({ user }) => {
 const SiteRoster = ({ user }) => {
      const sites = getSites();
      return `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">All Client Sites</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
              <ul class="divide-y divide-[var(--border-primary)]">
@@ -1640,7 +1735,7 @@ const SiteRoster = ({ user }) => {
     `;
 };
 const LiveControl = ({ user }) => `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Live Control</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
             <p class="text-[var(--text-primary)]">This executive dashboard provides a real-time geographic and statistical overview of all active operations.</p>
@@ -1650,7 +1745,7 @@ const LiveControl = ({ user }) => `
 const Alerts = ({ user }) => {
     const alerts = getAlerts();
     return `
-         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+         <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">System Alerts</h1>
             <div class="space-y-4">
                 ${alerts.length > 0 ? alerts.map(alert => `<div class="p-4 border-l-4 rounded-r-lg flex justify-between items-center ${alert.severity === 'High' ? 'bg-red-50 border-red-500' : 'bg-yellow-50 border-yellow-500'}"><div><p class="font-bold ${alert.severity === 'High' ? 'text-red-800' : 'text-yellow-800'}">${alert.severity} Priority</p><p class="text-sm text-gray-700">${alert.message}</p></div><button class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-300">Acknowledge</button></div>`).join('') : `<p>No active alerts.</p>`}
@@ -1661,16 +1756,16 @@ const Alerts = ({ user }) => {
 const Applications = ({ user }) => {
     const applications = getApplications();
     return `
-         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+         <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">New Applications</h1>
             <div class="space-y-4">
-                ${applications.length > 0 ? applications.map(app => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${app.data.firstName ? `${app.data.firstName} ${app.data.lastName}` : app.data.companyName}</p><p class="text-sm text-[var(--text-secondary)]">${app.type}</p></div><div class="space-x-2"><button data-action="approve-application" data-id="${app.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600">Approve</button><button data-action="deny-application" data-id="${app.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)]">No pending applications.</p>`}
+                ${applications.length > 0 ? applications.map(app => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex flex-col md:flex-row justify-between md:items-center gap-4"><div><p class="font-bold text-lg text-[var(--text-primary)]">${app.data.firstName ? `${app.data.firstName} ${app.data.lastName}` : app.data.companyName}</p><p class="text-sm text-[var(--text-secondary)]">${app.type}</p></div><div class="space-x-2 flex-shrink-0 self-end md:self-center"><button data-action="approve-application" data-id="${app.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600">Approve</button><button data-action="deny-application" data-id="${app.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No pending applications.</p>`}
             </div>
         </div>
     `;
 };
 const Communications = ({ user }) => `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Communications Hub</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
             <p class="text-[var(--text-primary)]">This is the central hub for messaging, announcements, and mission chats.</p>
@@ -1681,26 +1776,28 @@ const Earnings = ({ user }) => {
     const payrollEntries = _DB.payrollEntries.filter(e => e.userId === user.id);
     const payrollRuns = _DB.payrollRuns;
     return `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Earnings & Payroll</h1>
-        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
+        <div class="bg-[var(--bg-secondary)] p-4 md:p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
             <h2 class="text-xl font-bold text-[var(--text-primary)] mb-4">Payment History</h2>
             ${payrollEntries.length > 0 ? `
-            <table class="min-w-full">
-                <thead><tr class="border-b-2 border-[var(--border-primary)]"><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Pay Period</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Hours</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Amount</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Status</th></tr></thead>
-                <tbody class="divide-y divide-[var(--border-primary)]">
-                ${payrollEntries.map(entry => {
-                    const run = payrollRuns.find(r => r.id === entry.runId);
-                    return `<tr>
-                        <td class="py-3 text-sm font-medium text-[var(--text-primary)]">${new Date(run.startDate).toLocaleDateString()} - ${new Date(run.endDate).toLocaleDateString()}</td>
-                        <td class="py-3 text-sm text-[var(--text-secondary)]">${entry.hours.toFixed(2)}</td>
-                        <td class="py-3 text-sm text-[var(--text-secondary)]">$${entry.totalPay.toFixed(2)}</td>
-                        <td class="py-3 text-sm">${entry.paymentConfirmed ? `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid</span>` : `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Processing</span>`}</td>
-                    </tr>`
-                }).join('')}
-                </tbody>
-            </table>
-            ` : `<p class="text-[var(--text-secondary)]">No payment history found.</p>`}
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-[var(--bg-tertiary)]"><tr class="border-b-2 border-[var(--border-primary)]"><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Pay Period</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Hours</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Amount</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Status</th></tr></thead>
+                    <tbody class="divide-y divide-[var(--border-primary)]">
+                    ${payrollEntries.map(entry => {
+                        const run = payrollRuns.find(r => r.id === entry.runId);
+                        return `<tr>
+                            <td class="p-3 text-sm font-medium text-[var(--text-primary)]">${new Date(run.startDate).toLocaleDateString()} - ${new Date(run.endDate).toLocaleDateString()}</td>
+                            <td class="p-3 text-sm text-[var(--text-secondary)]">${entry.hours.toFixed(2)}</td>
+                            <td class="p-3 text-sm text-[var(--text-secondary)]">$${entry.totalPay.toFixed(2)}</td>
+                            <td class="p-3 text-sm">${entry.paymentConfirmed ? `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid</span>` : `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Processing</span>`}</td>
+                        </tr>`
+                    }).join('')}
+                    </tbody>
+                </table>
+            </div>
+            ` : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No payment history found.</p>`}
         </div>
     </div>
     `;
@@ -1714,18 +1811,18 @@ const ClientGuardRoster = ({ user }) => {
     clientMissions.forEach(mission => mission.claimedBy.forEach(guardId => guardIds.add(guardId)));
     const guardsWhoWorked = allGuards.filter(guard => guardIds.has(guard.id));
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">My Guard Roster</h1>
             <p class="text-[var(--text-secondary)] mb-6">Manage your preferred guards. Whitelisted guards get priority on your missions, while blacklisted guards cannot claim them.</p>
             <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
-                <table class="min-w-full leading-normal">
-                    <thead><tr class="bg-[var(--bg-primary)] text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Guard</th><th class="px-5 py-3 font-semibold">Rating</th><th class="px-5 py-3 font-semibold text-center">Actions</th></tr></thead>
-                    <tbody>
+                <table class="min-w-full leading-normal hidden md:table">
+                    <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Guard</th><th class="px-5 py-3 font-semibold">Rating</th><th class="px-5 py-3 font-semibold text-center">Actions</th></tr></thead>
+                    <tbody class="divide-y divide-[var(--border-primary)]">
                         ${guardsWhoWorked.map(guard => {
                             const isWhitelisted = client.whitelist.includes(guard.id);
                             const isBlacklisted = client.blacklist.includes(guard.id);
                             return `
-                                <tr class="border-b border-[var(--border-primary)] hover:bg-[var(--bg-primary)]">
+                                <tr class="hover:bg-[var(--bg-tertiary)]">
                                     <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${guard.firstName} ${guard.lastName}</p><p class="text-[var(--text-secondary)] whitespace-no-wrap text-xs">${guard.rank}</p></td>
                                     <td class="px-5 py-4 text-sm"><span class="font-semibold text-green-600">${guard.performanceRating.toFixed(2)} / 5.00</span></td>
                                     <td class="px-5 py-4 text-sm text-center space-x-2">
@@ -1736,13 +1833,29 @@ const ClientGuardRoster = ({ user }) => {
                         }).join('')}
                     </tbody>
                 </table>
+                 <div class="md:hidden p-3 space-y-3">
+                     ${guardsWhoWorked.map(guard => {
+                         const isWhitelisted = client.whitelist.includes(guard.id);
+                         const isBlacklisted = client.blacklist.includes(guard.id);
+                         return `
+                         <div class="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
+                            <p class="font-bold text-[var(--text-primary)]">${guard.firstName} ${guard.lastName}</p>
+                            <p class="text-xs text-green-600 font-semibold">${guard.performanceRating.toFixed(2)} Rating</p>
+                             <div class="mt-2 pt-2 border-t border-[var(--border-primary)] flex justify-end space-x-2">
+                                 <button data-action="update-roster" data-guard-id="${guard.id}" data-list-type="whitelist" class="px-3 py-1 rounded-full text-xs font-semibold transition-colors ${isWhitelisted ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700 hover:bg-green-100'}">${isWhitelisted ? 'Whitelisted' : 'Whitelist'}</button>
+                                <button data-action="update-roster" data-guard-id="${guard.id}" data-list-type="blacklist" class="px-3 py-1 rounded-full text-xs font-semibold transition-colors ${isBlacklisted ? 'bg-red-200 text-red-800' : 'bg-gray-200 text-gray-700 hover:bg-red-100'}">${isBlacklisted ? 'Blacklisted' : 'Blacklist'}</button>
+                            </div>
+                        </div>
+                         `
+                     }).join('')}
+                </div>
                  ${guardsWhoWorked.length === 0 ? `<div class="text-center p-8"><p class="text-[var(--text-secondary)]">No guards have worked on your missions yet. Once they do, you can manage your roster here.</p></div>` : ''}
             </div>
         </div>
     `;
 };
 const HallOfFame = ({ user }) => `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Hall of Fame</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
             <p class="text-[var(--text-primary)]">This view displays leaderboards and recognizes the 'Guard of the Month' based on performance metrics.</p>
@@ -1764,7 +1877,7 @@ const Payroll = ({ user, selectedRunId }) => {
         }
     }
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Payroll Management</h1>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1 space-y-6">
@@ -1779,22 +1892,22 @@ const Payroll = ({ user, selectedRunId }) => {
                     <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
                         <h2 class="text-lg font-bold text-[var(--text-primary)] mb-4">Payroll Runs</h2>
                          <ul class="space-y-2 max-h-96 overflow-y-auto">
-                            ${runs.map(run => `<li data-action="select-payroll-run" data-id="${run.id}" class="p-3 rounded-md cursor-pointer transition-colors border ${selectedRun?.id === run.id ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]' : 'hover:bg-[var(--bg-primary)] border-transparent'}"><div class="flex justify-between items-center"><p class="font-semibold text-sm text-[var(--text-primary)]">${new Date(run.startDate).toLocaleDateString()} - ${new Date(run.endDate).toLocaleDateString()}</p><span class="px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusPill(run.status)}">${run.status}</span></div><p class="text-xs text-[var(--text-secondary)]">Total: $${run.totalAmount.toFixed(2)}</p></li>`).join('')}
+                            ${runs.map(run => `<li data-action="select-payroll-run" data-id="${run.id}" class="p-3 rounded-md cursor-pointer transition-colors border ${selectedRun?.id === run.id ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]' : 'hover:bg-[var(--bg-tertiary)] border-transparent'}"><div class="flex justify-between items-center"><p class="font-semibold text-sm text-[var(--text-primary)]">${new Date(run.startDate).toLocaleDateString()} - ${new Date(run.endDate).toLocaleDateString()}</p><span class="px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusPill(run.status)}">${run.status}</span></div><p class="text-xs text-[var(--text-secondary)]">Total: $${run.totalAmount.toFixed(2)}</p></li>`).join('')}
                         </ul>
                     </div>
                 </div>
                 <div class="lg:col-span-2 bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
                     ${selectedRun ? `
                         <div>
-                            <div class="flex justify-between items-center mb-4">
+                            <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-3">
                                 <div><h2 class="text-xl font-bold text-[var(--text-primary)]">Run Details</h2><p class="text-sm text-[var(--text-secondary)]">${new Date(selectedRun.startDate).toLocaleDateString()} - ${new Date(selectedRun.endDate).toLocaleDateString()}</p></div>
-                                ${selectedRun.status === 'Pending' ? `<button data-action="approve-payroll-run" data-id="${selectedRun.id}" class="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors">Approve Run</button>`: ''}
+                                ${selectedRun.status === 'Pending' ? `<button data-action="approve-payroll-run" data-id="${selectedRun.id}" class="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors self-start md:self-center">Approve Run</button>`: ''}
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full">
-                                    <thead><tr class="border-b-2 border-[var(--border-primary)]"><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Guard</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Hours</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Total Pay</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] py-2">Status</th></tr></thead>
+                                    <thead class="bg-[var(--bg-tertiary)]"><tr class="border-b-2 border-[var(--border-primary)]"><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Guard</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Hours</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Total Pay</th><th class="text-left text-sm font-semibold text-[var(--text-secondary)] p-3">Status</th></tr></thead>
                                     <tbody class="divide-y divide-[var(--border-primary)]">
-                                        ${entries.map(entry => `<tr><td class="py-3 text-sm font-medium text-[var(--text-primary)]">${getUserName(entry.userId)}</td><td class="py-3 text-sm text-[var(--text-secondary)]">${entry.hours.toFixed(2)}</td><td class="py-3 text-sm text-[var(--text-secondary)]">$${entry.totalPay.toFixed(2)}</td><td class="py-3 text-sm">${selectedRun.status === 'Approved' && !entry.paymentConfirmed ? `<button data-action="confirm-payment" data-id="${entry.id}" class="bg-blue-500 text-white text-xs font-bold py-1 px-2 rounded hover:bg-blue-600">Mark as Paid</button>` : `<span class="px-2 py-0.5 text-xs font-semibold rounded-full ${entry.paymentConfirmed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${entry.paymentConfirmed ? 'Paid' : 'Unpaid'}</span>`}</td></tr>`).join('')}
+                                        ${entries.map(entry => `<tr><td class="p-3 text-sm font-medium text-[var(--text-primary)]">${getUserName(entry.userId)}</td><td class="p-3 text-sm text-[var(--text-secondary)]">${entry.hours.toFixed(2)}</td><td class="p-3 text-sm text-[var(--text-secondary)]">$${entry.totalPay.toFixed(2)}</td><td class="p-3 text-sm">${selectedRun.status === 'Approved' && !entry.paymentConfirmed ? `<button data-action="confirm-payment" data-id="${entry.id}" class="bg-blue-500 text-white text-xs font-bold py-1 px-2 rounded hover:bg-blue-600">Mark as Paid</button>` : `<span class="px-2 py-0.5 text-xs font-semibold rounded-full ${entry.paymentConfirmed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${entry.paymentConfirmed ? 'Paid' : 'Unpaid'}</span>`}</td></tr>`).join('')}
                                     </tbody>
                                 </table>
                             </div>
@@ -1810,7 +1923,7 @@ const Payroll = ({ user, selectedRunId }) => {
     `;
 };
 const VehicleManagement = ({ user }) => `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Vehicle Management</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
             <p class="text-[var(--text-primary)]">This view is for tracking the fleet of security vehicles, their maintenance schedules, and assignments.</p>
@@ -1850,7 +1963,7 @@ const Promotions = ({ user }) => {
              <div>
                 <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Promotion Applications</h1>
                  <div class="space-y-4">
-                    ${pendingPromotions.length > 0 ? pendingPromotions.map(promo => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${getUserName(promo.userId)}</p><p class="text-sm text-[var(--text-secondary)]">Applying for: <span class="font-semibold text-[var(--text-primary)]">${promo.toRole}</span></p></div><div class="space-x-2"><button data-action="approve-promotion" data-id="${promo.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600">Approve</button><button data-action="deny-promotion" data-id="${promo.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">Deny</button></div></div><p class="text-sm text-[var(--text-secondary)] mt-2 pt-2 border-t border-[var(--border-tertiary)]">${promo.reason}</p></div>`).join('') : `<p class="text-[var(--text-secondary)]">No pending promotion applications.</p>`}
+                    ${pendingPromotions.length > 0 ? pendingPromotions.map(promo => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${getUserName(promo.userId)}</p><p class="text-sm text-[var(--text-secondary)]">Applying for: <span class="font-semibold text-[var(--text-primary)]">${promo.toRole}</span></p></div><div class="space-x-2"><button data-action="approve-promotion" data-id="${promo.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600">Approve</button><button data-action="deny-promotion" data-id="${promo.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">Deny</button></div></div><p class="text-sm text-[var(--text-secondary)] mt-2 pt-2 border-t border-[var(--border-tertiary)]">${promo.reason}</p></div>`).join('') : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No pending promotion applications.</p>`}
                 </div>
             </div>
         `;
@@ -1859,11 +1972,11 @@ const Promotions = ({ user }) => {
     if (isAdminRole) content = AdminPromotionView(users, promotions);
     else if (isFieldRole) content = GuardPromotionView(user, promotions);
     return `
-         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">${content}</div>
+         <div class="animate-in" style="opacity: 0;">${content}</div>
     `;
 };
 const Appeals = ({ user }) => `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Appeals</h1>
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
             <p class="text-[var(--text-primary)]">This view is for managing and reviewing appeals from guards and clients regarding applications, training, or other decisions.</p>
@@ -1882,10 +1995,10 @@ const MyContracts = ({ user }) => {
         }
     };
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
-            <div class="flex justify-between items-center mb-6">
+        <div class="animate-in" style="opacity: 0;">
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
                 <h1 class="text-3xl font-bold text-[var(--text-primary)]">My Contracts</h1>
-                <button data-action="open-contract-modal" class="px-4 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-bold rounded-md hover:bg-[var(--accent-secondary-hover)]">New Contract</button>
+                <button data-action="open-contract-modal" class="px-4 py-2 w-full md:w-auto bg-[var(--accent-secondary)] text-[var(--accent-secondary-text)] font-bold rounded-md hover:bg-[var(--accent-secondary-hover)] flex items-center justify-center">${Icons.PlusCircle({className: "w-5 h-5 mr-2"})} New Contract</button>
             </div>
              <div class="space-y-4">
                 ${contracts.map(contract => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-start"><h3 class="font-bold text-lg text-[var(--text-primary)]">${contract.title}</h3><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(contract.status)}">${contract.status}</span></div><p class="text-sm text-[var(--text-secondary)]">Budget: $${contract.totalBudget.toLocaleString()}</p><p class="text-xs text-[var(--text-secondary)] opacity-70">Expires: ${new Date(contract.endDate).toLocaleDateString()}</p></div>`).join('')}
@@ -1896,10 +2009,10 @@ const MyContracts = ({ user }) => {
 const ContractApprovals = ({ user }) => {
     const pendingContracts = getContracts().filter(c => c.status === 'Pending');
     return `
-         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+         <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Pending Contract Approvals</h1>
             <div class="space-y-4">
-                ${pendingContracts.length > 0 ? pendingContracts.map(contract => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${contract.title}</p><p class="text-sm text-[var(--text-secondary)]">Budget: $${contract.totalBudget.toLocaleString()}</p></div><div class="space-x-2"><button data-action="approve-contract" data-id="${contract.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button><button data-action="deny-contract" data-id="${contract.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)]">No contracts are pending approval.</p>`}
+                ${pendingContracts.length > 0 ? pendingContracts.map(contract => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${contract.title}</p><p class="text-sm text-[var(--text-secondary)]">Budget: $${contract.totalBudget.toLocaleString()}</p></div><div class="space-x-2"><button data-action="approve-contract" data-id="${contract.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button><button data-action="deny-contract" data-id="${contract.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No contracts are pending approval.</p>`}
             </div>
         </div>
     `;
@@ -1908,9 +2021,9 @@ const TeamManagement = ({ user }) => {
     const teams = _DB.teams;
     const users = _DB.users;
     return `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Team Management</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         ${teams.map(team => {
             const director = getUserById(team.directorId);
             const members = users.filter(u => u.teamId === team.id && u.id !== team.directorId);
@@ -1935,14 +2048,14 @@ const UniformDistribution = ({ user }) => {
     const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary].includes(user.role) ? null : user.teamId;
     const usersNeedingUniforms = getNeedsUniformUsers(teamId);
     return `
-     <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+     <div class="animate-in" style="opacity: 0;">
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Uniform Distribution</h1>
          <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
             <table class="min-w-full leading-normal">
-                <thead><tr class="bg-[var(--bg-primary)] text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Employee</th><th class="px-5 py-3 font-semibold">Rank</th><th class="px-5 py-3 font-semibold">Action</th></tr></thead>
-                <tbody>
+                <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Employee</th><th class="px-5 py-3 font-semibold">Rank</th><th class="px-5 py-3 font-semibold">Action</th></tr></thead>
+                <tbody class="divide-y divide-[var(--border-primary)]">
                     ${usersNeedingUniforms.map(u => `
-                    <tr class="border-b border-[var(--border-primary)] hover:bg-[var(--bg-primary)]">
+                    <tr class="hover:bg-[var(--bg-tertiary)]">
                         <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${u.firstName} ${u.lastName}</p></td>
                         <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${u.rank}</td>
                         <td class="px-5 py-4 text-sm"><button data-action="mark-uniform-sent" data-id="${u.id}" class="px-3 py-1 bg-blue-500 text-white rounded-md text-sm font-semibold hover:bg-blue-600">Mark as Sent</button></td>
@@ -1957,7 +2070,7 @@ const UniformDistribution = ({ user }) => {
 };
 const ApplicationView = ({ type }) => {
     const isOpsOrMgmt = type === 'Operations' || type === 'Management';
-    const inputStyles = "block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
+    const inputStyles = "block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-tertiary)]";
     const commonFields = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div><label class="block text-sm font-medium text-[var(--text-secondary)]">First Name</label><input name="firstName" required class="${inputStyles}" /></div>
@@ -1988,7 +2101,7 @@ const ApplicationView = ({ type }) => {
          <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Resume/CV Upload</label><input type="file" class="${inputStyles}" /></div>
     `;
     return `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <div class="max-w-4xl mx-auto py-8 px-4">
             <div class="text-center mb-8">
                 <button data-action="back-to-home" class="text-[var(--accent-primary)] hover:underline mb-4">&larr; Back to Home</button>
@@ -2021,32 +2134,32 @@ const SiteApprovals = ({ user }) => {
     }
 
     return `
-        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+        <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Pending Site Approvals</h1>
             <div class="space-y-4">
                 ${approvals.length > 0 ? approvals.map(req => `
                     <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
-                        <div class="flex justify-between items-center">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <p class="font-bold text-lg text-[var(--text-primary)]">${req.siteName}</p>
                                 <p class="text-sm text-[var(--text-secondary)]">${req.siteAddress}</p>
                                 <p class="text-sm text-[var(--text-secondary)]">Client: <span class="font-semibold">${getClientName(req.clientId)}</span></p>
                                 ${req.contractId ? `<p class="text-xs text-[var(--text-secondary)]">Linked to Contract: <span class="font-semibold">${getContractTitle(req.contractId)}</span></p>` : ''}
                             </div>
-                            <div class="space-x-2">
+                            <div class="space-x-2 flex-shrink-0 self-end md:self-center">
                                 <button data-action="approve-site" data-id="${req.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button>
                                 <button data-action="deny-site" data-id="${req.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button>
                             </div>
                         </div>
                     </div>
-                `).join('') : `<p class="text-[var(--text-secondary)]">No site requests are pending approval.</p>`}
+                `).join('') : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No site requests are pending approval.</p>`}
             </div>
         </div>
     `;
 };
 const GuardMissionDashboard = ({ user, mission }) => {
     return `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-md">
             <div class="flex justify-between items-center mb-4 pb-4 border-b border-[var(--border-primary)]">
                 <div>
@@ -2058,23 +2171,23 @@ const GuardMissionDashboard = ({ user, mission }) => {
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="md:col-span-2 space-y-4">
-                    <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                    <div class="bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
                         <h3 class="font-bold text-lg">Mission Actions</h3>
                         <div class="flex space-x-4 mt-2">
                            <button class="flex-1 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Take 10 Min Break</button>
                            <button class="flex-1 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Take 30 Min Break</button>
                         </div>
                     </div>
-                    <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                    <div class="bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
                          <h3 class="font-bold text-lg">Reporting</h3>
                          <div class="flex space-x-4 mt-2">
-                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Incident Report</button>
-                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Note</button>
-                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Upload Picture</button>
+                            <button class="flex-1 p-2 bg-white border border-[var(--border-secondary)] text-gray-800 rounded-md hover:bg-gray-50">Add Incident Report</button>
+                            <button class="flex-1 p-2 bg-white border border-[var(--border-secondary)] text-gray-800 rounded-md hover:bg-gray-50">Add Note</button>
+                            <button class="flex-1 p-2 bg-white border border-[var(--border-secondary)] text-gray-800 rounded-md hover:bg-gray-50">Upload Picture</button>
                          </div>
                     </div>
                 </div>
-                <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                <div class="bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
                     <h3 class="font-bold text-lg mb-2">Mission Chat</h3>
                     <div class="h-48 bg-white border rounded p-2 mb-2 overflow-y-auto">
                         <p class="text-xs text-gray-500">Chat messages will appear here...</p>
@@ -2096,7 +2209,7 @@ const LeadGuardMissionDashboard = ({ user, mission }) => {
     const hasCheckedOut = (guardId) => !!mission.checkOuts[guardId];
 
     return `
-    <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+    <div class="animate-in" style="opacity: 0;">
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-md">
             <div class="flex justify-between items-center mb-4 pb-4 border-b border-[var(--border-primary)]">
                 <div>
@@ -2111,7 +2224,7 @@ const LeadGuardMissionDashboard = ({ user, mission }) => {
                     <h3 class="font-bold text-lg mb-2">Guard Roster Management</h3>
                     <div class="space-y-2">
                     ${guardsOnMission.map(guard => `
-                        <div class="bg-[var(--bg-primary)] p-3 rounded-md border border-[var(--border-tertiary)] flex items-center justify-between">
+                        <div class="bg-[var(--bg-tertiary)] p-3 rounded-md border border-[var(--border-primary)] flex items-center justify-between">
                            <div>
                              <p class="font-semibold">${guard.firstName} ${guard.lastName} ${guard.id === user.id ? '(You)' : ''}</p>
                              <p class="text-xs text-gray-500">${hasCheckedOut(guard.id) ? 'Checked Out' : hasCheckedIn(guard.id) ? 'Checked In' : 'Pending'}</p>
@@ -2128,12 +2241,11 @@ const LeadGuardMissionDashboard = ({ user, mission }) => {
                 </div>
                  <div>
                     <h3 class="font-bold text-lg mb-2">Your Actions</h3>
-                     <div class="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--border-tertiary)]">
+                     <div class="bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">
                          <h3 class="font-bold text-lg">Reporting</h3>
                          <div class="flex space-x-4 mt-2">
-                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Incident Report</button>
-                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Add Note</button>
-                            <button class="flex-1 p-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Upload Picture</button>
+                            <button class="flex-1 p-2 bg-white border border-[var(--border-secondary)] text-gray-800 rounded-md hover:bg-gray-50">Incident Report</button>
+                            <button class="flex-1 p-2 bg-white border border-[var(--border-secondary)] text-gray-800 rounded-md hover:bg-gray-50">Add Note</button>
                          </div>
                     </div>
                  </div>
@@ -2150,17 +2262,17 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
     const guardsOnMission = mission.claimedBy.map(id => getUserById(id)).filter(Boolean);
     const renderCheckForm = (checkType) => {
         const isDone = !!spotCheck.checks[checkType];
-        if (isDone) return `<div class="p-4 bg-green-100 text-green-800 rounded-md font-semibold">${checkType.charAt(0).toUpperCase() + checkType.slice(1)} check complete.</div>`;
+        if (isDone) return `<div class="p-4 bg-green-100 text-green-800 rounded-md font-semibold flex items-center">${Icons.CheckCircle({ className: "w-5 h-5 mr-2"})} ${checkType.charAt(0).toUpperCase() + checkType.slice(1)} check complete.</div>`;
         return `
             <form class="spot-check-form" data-check-type="${checkType}" data-spot-check-id="${spotCheck.id}">
                 <h4 class="font-bold mb-2">Guards on Site:</h4>
                 ${guardsOnMission.map(g => `
-                    <div class="mb-2 p-2 border rounded-md">
+                    <div class="mb-2 p-2 border rounded-md bg-white">
                         <p class="font-semibold">${g.firstName} ${g.lastName}</p>
                         <div class="flex items-center space-x-4 mt-1">
-                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-present" class="mr-2"/> Present</label>
-                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-uniform" class="mr-2"/> Uniform OK</label>
-                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-gear" class="mr-2"/> Gear OK</label>
+                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-present" class="mr-2 h-4 w-4 text-[var(--accent-primary)] rounded"/> Present</label>
+                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-uniform" class="mr-2 h-4 w-4 text-[var(--accent-primary)] rounded"/> Uniform OK</label>
+                            <label class="flex items-center text-sm"><input type="checkbox" name="${g.id}-gear" class="mr-2 h-4 w-4 text-[var(--accent-primary)] rounded"/> Gear OK</label>
                         </div>
                         <label class="block text-sm mt-2">Photo of Guard:</label>
                         <input type="file" name="${g.id}-photo" class="text-xs" />
@@ -2172,7 +2284,7 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
     };
     
     return `
-     <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+     <div class="animate-in" style="opacity: 0;">
         <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-md">
             <div class="flex justify-between items-center mb-4 pb-4 border-b border-[var(--border-primary)]">
                 <div>
@@ -2182,22 +2294,22 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
                 <button data-action="exit-mission-dashboard" class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">Exit Spot Check</button>
             </div>
             
-            <div class="mb-4">
+            <div class="mb-4 bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
                 <label class="block text-sm font-medium text-[var(--text-secondary)]">Initial Attendance Verification (Selfie)</label>
-                ${spotCheck.selfies.start ? `<p class="text-sm text-green-600">Selfie uploaded.</p>` : `<input type="file" id="start-selfie" class="mt-1 block w-full text-sm" />`}
+                ${spotCheck.selfies.start ? `<p class="text-sm text-green-600 font-semibold">Selfie uploaded.</p>` : `<input type="file" id="start-selfie" class="mt-1 block w-full text-sm" />`}
             </div>
             
             <div class="space-y-4">
-                <div>
-                    <h3 class="font-semibold text-lg border-b pb-1 mb-2">First Spot Check</h3>
+                <div class="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
+                    <h3 class="font-semibold text-lg pb-1 mb-2">First Spot Check</h3>
                     ${renderCheckForm('start')}
                 </div>
-                 <div>
-                    <h3 class="font-semibold text-lg border-b pb-1 mb-2">Mid-Shift Spot Check</h3>
+                 <div class="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
+                    <h3 class="font-semibold text-lg pb-1 mb-2">Mid-Shift Spot Check</h3>
                      ${spotCheck.checks.start ? renderCheckForm('mid') : `<p class="text-sm text-gray-500">Complete first check to enable.</p>`}
                 </div>
-                <div>
-                    <h3 class="font-semibold text-lg border-b pb-1 mb-2">Final Spot Check</h3>
+                <div class="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
+                    <h3 class="font-semibold text-lg pb-1 mb-2">Final Spot Check</h3>
                      ${spotCheck.checks.mid ? renderCheckForm('end') : `<p class="text-sm text-gray-500">Complete mid-shift check to enable.</p>`}
                 </div>
             </div>
@@ -2205,8 +2317,10 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
              <div class="mt-6 pt-6 border-t border-[var(--border-primary)]">
                 <h3 class="font-semibold text-lg mb-2">Final Report</h3>
                 <textarea id="final-spot-report" placeholder="Enter your final mission report here..." rows="5" class="w-full p-2 border rounded-md" ${!spotCheck.checks.end ? 'disabled' : ''}></textarea>
-                <label class="block text-sm font-medium text-[var(--text-secondary)] mt-2">Final Attendance Verification (Selfie)</label>
-                <input type="file" id="end-selfie" class="mt-1 block w-full text-sm" ${!spotCheck.checks.end ? 'disabled' : ''}/>
+                <div class="mt-2 bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
+                    <label class="block text-sm font-medium text-[var(--text-secondary)]">Final Attendance Verification (Selfie)</label>
+                    <input type="file" id="end-selfie" class="mt-1 block w-full text-sm" ${!spotCheck.checks.end ? 'disabled' : ''}/>
+                </div>
                 <button data-action="complete-spot-check" data-id="${spotCheck.id}" class="mt-4 w-full p-3 bg-green-500 text-white font-bold rounded-md hover:bg-green-600 disabled:bg-gray-300" ${!spotCheck.checks.end ? 'disabled' : ''}>Submit Final Report</button>
             </div>
         </div>
@@ -2270,9 +2384,9 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
             'LiveControl': () => LiveControl({ user: currentUser }),
             'SystemSettings': () => SystemSettings({ user: currentUser }),
             'Dashboard': () => `
-                <div class="p-6">
+                <div class="p-6 animate-in">
                     <h1 class="text-3xl font-bold text-[var(--text-primary)]">Welcome back, ${currentUser.firstName}!</h1>
-                    <p class="text-[var(--text-secondary)] mt-2">This is your central command. Select an option from the sidebar to get started.</p>
+                    <p class="text-[var(--text-secondary)] mt-2">This is your central command. Select an option from the navigation to get started.</p>
                 </div>`,
         };
         viewContent = viewMap[activeView] ? viewMap[activeView]() : `<div>View "${activeView}" not found.</div>`;
@@ -2287,19 +2401,31 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
     if (selectedModal.type === 'UserDetails') modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
 
     return `
-        <div class="flex h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
-            ${Sidebar({ currentUser, activeView })}
+        <div class="h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col md:flex-row overflow-hidden">
+            <!-- Desktop Sidebar -->
+            <div class="hidden lg:flex flex-shrink-0">
+                ${Sidebar({ currentUser, activeView })}
+            </div>
+            <!-- Tablet Collapsed Sidebar -->
+            <div class="hidden md:flex lg:hidden flex-shrink-0">
+                ${Sidebar({ currentUser, activeView, isCollapsed: true })}
+            </div>
+
             <div class="flex-1 flex flex-col overflow-hidden">
-                <header class="h-16 bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] flex items-center justify-end px-6 flex-shrink-0">
+                <header class="h-16 bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] flex items-center justify-between px-6 flex-shrink-0 md:hidden">
+                    <h1 class="font-bold text-lg">${activeView}</h1>
                     <button data-action="logout" class="flex items-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors">
-                        ${Icons.Logout({ className: "w-5 h-5 mr-2" })}
-                        Logout
+                        ${Icons.Logout({ className: "w-5 h-5" })}
                     </button>
                 </header>
-                <main id="dashboard-content" class="flex-1 overflow-y-auto p-6">
+                <main id="dashboard-content" class="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 md:pb-6">
                     ${viewContent}
                 </main>
             </div>
+
+            <!-- Mobile Bottom Nav -->
+            ${BottomNavBar({ currentUser, activeView })}
+
             ${modalHtml}
         </div>
     `;
@@ -2560,7 +2686,9 @@ function handleSystemSettingsSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const updates = Object.fromEntries(formData.entries());
-    updateById('systemSettings', 'systemSettings', updates); // Assuming a single settings object
+    // In a real DB, you'd find the single settings document. Here we know its key.
+    _DB.systemSettings = { ..._DB.systemSettings, ...updates };
+    save();
     alert('System settings saved.');
     refreshAndRender();
 }

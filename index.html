@@ -9,34 +9,81 @@
       :root {
         --bg-primary: #f8f9fa;
         --bg-secondary: #ffffff;
+        --bg-tertiary: #f1f3f5;
+        --bg-dark: #212529;
+        
         --border-primary: #dee2e6;
-        --border-primary-hover: #aeae5a;
         --border-secondary: #ced4da;
         --border-tertiary: #e9ecef;
+
         --text-primary: #0f0f0f;
         --text-secondary: #787876;
+        --text-light: #f8f9fa;
+        --text-inverted: #ffffff;
+
         --accent-primary: #aeae5a;
+        --accent-primary-hover: #9a9a4c;
         --accent-primary-text: #ffffff;
+
         --accent-secondary: #535347;
         --accent-secondary-hover: #40403a;
-        --shadow-color: rgba(0, 0, 0, 0.05);
+        --accent-secondary-text: #ffffff;
+
+        --shadow-color-light: rgba(0, 0, 0, 0.05);
+        --shadow-color-medium: rgba(0, 0, 0, 0.1);
       }
       body {
         background-color: var(--bg-primary);
         color: var(--text-primary);
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
       }
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      
       ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: var(--bg-primary); }
-      ::-webkit-scrollbar-thumb { background-color: var(--border-secondary); border-radius: 4px; border: 2px solid var(--bg-primary); }
+      ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+      ::-webkit-scrollbar-thumb { background-color: var(--border-secondary); border-radius: 4px; border: 2px solid var(--bg-tertiary); }
       ::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
       html { scroll-behavior: smooth; }
-      .animate-in { animation: fadeInUp 0.6s ease forwards; }
-      @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+      .animate-in { 
+        animation: fadeIn 0.5s ease-out forwards; 
+        opacity: 0;
+      }
+      .animate-in-delay {
+        animation: fadeIn 0.5s ease-out 0.2s forwards;
+        opacity: 0;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
       .hidden { display: none; }
+
+      /* Tablet Collapsed Sidebar */
+      .collapsed-sidebar {
+        transition: width 0.3s ease;
+      }
+      .collapsed-sidebar:hover {
+        width: 16rem; /* 256px */
+      }
+      .collapsed-sidebar .sidebar-text {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .collapsed-sidebar:hover .sidebar-text {
+        opacity: 1;
+        transition-delay: 0.1s;
+      }
+
+      /* Mobile Bottom Navigation */
+      .bottom-nav {
+        box-shadow: 0 -4px 12px var(--shadow-color-medium);
+      }
     </style>
 </head>
-<body class="bg-[var(--bg-primary)]">
+<body class="antialiased">
     <div id="root"></div>
     <script src="./index.js"></script>
 </body>
