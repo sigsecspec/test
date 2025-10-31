@@ -116,6 +116,7 @@ const initialData = {
   contracts: [],
   applications: [],
   promotions: [],
+  siteApprovalRequests: [],
   trainingModules: [
       { id: 'tm-1', title: 'Bar Security', content: 'This module covers duties specific to bar and nightclub environments...', quiz: [{q: 'What is a key responsibility in a bar setting?', a: 'Monitoring patron intoxication levels'}]},
       { id: 'tm-2', title: 'Retail Security', content: 'This module covers loss prevention and customer service in a retail setting...', quiz: [{q: 'What does "LP" stand for?', a: 'Loss Prevention'}]},
@@ -158,7 +159,7 @@ function load() {
   if (dbString) {
     try {
       const parsedDB = JSON.parse(dbString);
-      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries'];
+      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
               parsedDB[collection].forEach(item => {
@@ -239,6 +240,44 @@ function addApplication({ type, data }) {
     _DB.applications.push(newApp);
     save();
 }
+
+function addSite(siteData) {
+    const newSite = { ...siteData, id: `site-${Date.now()}` };
+    _DB.sites.push(newSite);
+    save();
+}
+
+function addSiteApprovalRequest(requestData) {
+    const newRequest = { ...requestData, id: `sar-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
+    _DB.siteApprovalRequests.push(newRequest);
+    save();
+}
+
+const getPendingSiteApprovals = (teamId = null) => {
+    const pending = (_DB.siteApprovalRequests || []).filter(r => r.status === 'Pending');
+    if (!teamId) return pending;
+    // Filter by team of the client who made the request
+    return pending.filter(r => {
+        const client = _DB.clients.find(c => c.id === r.clientId);
+        return client && client.teamId === teamId;
+    });
+};
+
+function updateSiteApprovalStatus(requestId, status) {
+    const request = _DB.siteApprovalRequests.find(r => r.id === requestId);
+    if (request) {
+        request.status = status;
+        if (status === 'Approved') {
+            addSite({
+                clientId: request.clientId,
+                name: request.siteName,
+                address: request.siteAddress
+            });
+        }
+    }
+    save();
+}
+
 function updateApplicationStatus(appId, status, teamId = null) {
     const app = _DB.applications.find(a => a.id === appId);
     if (app) {
@@ -284,6 +323,13 @@ function updateApplicationStatus(appId, status, teamId = null) {
                     blacklist: []
                 };
                 _DB.clients.push(newClient);
+                 if (app.data.siteName && app.data.siteAddress) {
+                    addSite({
+                        clientId: newClient.id,
+                        name: app.data.siteName,
+                        address: app.data.siteAddress,
+                    });
+                }
             }
         }
         // Remove from pending list
@@ -788,7 +834,7 @@ const ContractModal = ({ user }) => {
     const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
     return `
     <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal">
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg p-6 border border-[var(--border-primary)]">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg p-6 border border-[var(--border-primary)] max-h-[90vh] overflow-y-auto">
             <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Create New Contract</h2>
             <form id="contract-form" class="space-y-4">
                 <input type="hidden" name="clientId" value="${client.id}" />
@@ -809,6 +855,52 @@ const ContractModal = ({ user }) => {
                 <div>
                     <label class="block text-sm font-medium text-[var(--text-secondary)]">Total Budget ($)</label>
                     <input name="totalBudget" type="number" min="0" step="100" placeholder="50000" required class="${inputStyles}" />
+                </div>
+
+                <div class="pt-4 border-t border-[var(--border-tertiary)]">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="addSite" id="add-site-checkbox" class="h-4 w-4 text-[var(--accent-primary)] border-[var(--border-secondary)] rounded focus:ring-[var(--accent-primary)]" />
+                        <span class="ml-2 text-sm font-medium text-[var(--text-secondary)]">Add a new site with this contract</span>
+                    </label>
+                    <div id="new-site-fields" class="hidden mt-4 space-y-4">
+                         <div>
+                            <label class="block text-sm font-medium text-[var(--text-secondary)]">New Site Name</label>
+                            <input name="siteName" placeholder="e.g., West Campus Building" class="${inputStyles}" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-[var(--text-secondary)]">New Site Address</label>
+                            <input name="siteAddress" placeholder="456 University Ave, Anytown, USA" class="${inputStyles}" />
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="flex justify-end space-x-3 pt-4">
+                     <button type="button" data-action="close-modal" class="px-4 py-2 bg-[var(--border-tertiary)] text-[var(--text-primary)] font-semibold rounded-md hover:bg-[var(--border-secondary)] transition">Cancel</button>
+                     <button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)] transition">Submit for Approval</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    `;
+};
+
+const SiteModal = ({ user }) => {
+    const client = getClients().find(c => c.userId === user.id);
+    if (!client) return '';
+    const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
+    return `
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg p-6 border border-[var(--border-primary)]">
+            <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Request New Site</h2>
+            <form id="site-request-form" class="space-y-4">
+                <input type="hidden" name="clientId" value="${client.id}" />
+                <div>
+                    <label class="block text-sm font-medium text-[var(--text-secondary)]">Site Name</label>
+                    <input name="siteName" placeholder="e.g., Warehouse B" required class="${inputStyles}" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[var(--text-secondary)]">Site Address</label>
+                    <input name="siteAddress" placeholder="123 Industrial Way, Anytown, USA" required class="${inputStyles}" />
                 </div>
                  <div class="flex justify-end space-x-3 pt-4">
                      <button type="button" data-action="close-modal" class="px-4 py-2 bg-[var(--border-tertiary)] text-[var(--text-primary)] font-semibold rounded-md hover:bg-[var(--border-secondary)] transition">Cancel</button>
@@ -882,6 +974,7 @@ const Sidebar = ({ currentUser, activeView }) => {
             items: [
                 { name: 'Applications', icon: Icons.DocumentText, view: 'Applications', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
                 { name: 'Contract Approvals', icon: Icons.DocumentDuplicate, view: 'ContractApprovals', roles: [...operationsRoles, ...executiveRoles] },
+                { name: 'Site Approvals', icon: Icons.CheckCircle, view: 'SiteApprovals', roles: [...operationsRoles, ...executiveRoles] },
                 { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: [...operationsRoles, ...executiveRoles] },
                 { name: 'Appeals', icon: Icons.Flag, view: 'Appeals', roles: [UserRole.OperationsDirector, ...executiveRoles] },
                 { name: 'Uniform Distribution', icon: Icons.Truck, view: 'UniformDistribution', roles: [UserRole.Secretary, ...operationsRoles, ...executiveRoles]},
@@ -1215,7 +1308,7 @@ const MySites = ({ user }) => {
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">My Sites</h1>
              <div class="space-y-4">
                 ${sites.map(site => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><p class="font-bold text-[var(--text-primary)]">${site.name}</p><p class="text-sm text-[var(--text-secondary)]">${site.address}</p></div>`).join('')}
-                 <button class="w-full text-center p-4 border-2 border-dashed border-[var(--border-secondary)] rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-colors">Add New Site</button>
+                 <button data-action="open-site-modal" class="w-full text-center p-4 border-2 border-dashed border-[var(--border-secondary)] rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-colors flex items-center justify-center">${Icons.PlusCircle({className: "w-5 h-5 mr-2"})} Add New Site for Approval</button>
             </div>
         </div>
     `;
@@ -1765,8 +1858,16 @@ const ApplicationView = ({ type }) => {
         <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Company Name</label><input name="companyName" required class="${inputStyles}" /></div>
         <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Contact Email</label><input name="contactEmail" type="email" required class="${inputStyles}" /></div>
         <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Contact Phone</label><input name="contactPhone" type="tel" required class="${inputStyles}" /></div>
-        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Team Code (Optional)</label><input name="teamCode" placeholder="Enter if you have one" class="${inputStyles}" /></div>
         <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Security Needs</label><textarea name="needs" rows="4" class="${inputStyles}" required></textarea></div>
+        <div class="pt-4 border-t border-[var(--border-tertiary)]">
+            <p class="text-sm font-medium text-[var(--text-secondary)]">Add Your First Site (Optional)</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                <div><label class="block text-xs font-medium text-[var(--text-secondary)]">Site Name</label><input name="siteName" class="${inputStyles}" /></div>
+                <div><label class="block text-xs font-medium text-[var(--text-secondary)]">Site Address</label><input name="siteAddress" class="${inputStyles}" /></div>
+            </div>
+        </div>
+        <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Team Code (Optional)</label><input name="teamCode" placeholder="Enter if you have one" class="${inputStyles}" /></div>
+
     `;
     const opsMgmtFields = `
          <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Previous Experience</label><textarea name="experience" rows="6" class="${inputStyles}" required placeholder="Detail your relevant experience in security management, operations, or administration."></textarea></div>
@@ -1792,6 +1893,45 @@ const ApplicationView = ({ type }) => {
     </div>
     `;
 }
+
+const SiteApprovals = ({ user }) => {
+    const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
+    const approvals = getPendingSiteApprovals(teamId);
+    const clients = getClients();
+    const contracts = getContracts();
+    const getClientName = (id) => {
+        const client = clients.find(c => c.id === id);
+        return client ? client.companyName : 'Unknown Client';
+    };
+    const getContractTitle = (id) => {
+        const contract = contracts.find(c => c.id === id);
+        return contract ? contract.title : 'N/A';
+    }
+
+    return `
+        <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
+            <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Pending Site Approvals</h1>
+            <div class="space-y-4">
+                ${approvals.length > 0 ? approvals.map(req => `
+                    <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-lg text-[var(--text-primary)]">${req.siteName}</p>
+                                <p class="text-sm text-[var(--text-secondary)]">${req.siteAddress}</p>
+                                <p class="text-sm text-[var(--text-secondary)]">Client: <span class="font-semibold">${getClientName(req.clientId)}</span></p>
+                                ${req.contractId ? `<p class="text-xs text-[var(--text-secondary)]">Linked to Contract: <span class="font-semibold">${getContractTitle(req.contractId)}</span></p>` : ''}
+                            </div>
+                            <div class="space-x-2">
+                                <button data-action="approve-site" data-id="${req.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button>
+                                <button data-action="deny-site" data-id="${req.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : `<p class="text-[var(--text-secondary)]">No site requests are pending approval.</p>`}
+            </div>
+        </div>
+    `;
+};
 
 const GuardMissionDashboard = ({ user, mission }) => {
     return `
@@ -2014,6 +2154,7 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
             'VehicleManagement': () => VehicleManagement({ user: currentUser }),
             'Applications': () => Applications({ user: currentUser }),
             'ContractApprovals': () => ContractApprovals({ user: currentUser }),
+            'SiteApprovals': () => SiteApprovals({ user: currentUser }),
             'Appeals': () => Appeals({ user: currentUser }),
             'UniformDistribution': () => UniformDistribution({ user: currentUser }),
             'TeamManagement': () => TeamManagement({ user: currentUser }),
@@ -2063,6 +2204,7 @@ const state = {
     isTrainingModalOpen: false,
     selectedTrainingModuleId: null,
     isContractModalOpen: false,
+    isSiteModalOpen: false,
     isLoading: true,
     activeView: 'Home',
     activeMissionId: null,
@@ -2080,6 +2222,7 @@ function render() {
     if (state.isLoginModalOpen) modalHtml = LoginModal({ users: state.users });
     if (state.isTrainingModalOpen && state.selectedTrainingModuleId) modalHtml = TrainingModal({ moduleId: state.selectedTrainingModuleId });
     if (state.isContractModalOpen && state.currentUser) modalHtml = ContractModal({ user: state.currentUser });
+    if (state.isSiteModalOpen && state.currentUser) modalHtml = SiteModal({ user: state.currentUser });
     
     if (state.currentUser) {
         root.innerHTML = DashboardScreen({
@@ -2106,6 +2249,7 @@ function attachFormEventListeners() {
         { id: '#promotion-form', handler: handlePromotionSubmit },
         { id: '#training-form', handler: handleTrainingSubmit },
         { id: '#contract-form', handler: handleContractSubmit },
+        { id: '#site-request-form', handler: handleSiteSubmit },
         { selector: '.spot-check-form', handler: handleSpotCheckSubmit },
     ];
     forms.forEach(formInfo => {
@@ -2223,11 +2367,16 @@ function openContractModal() {
     state.isContractModalOpen = true;
     render();
 }
+function openSiteModal() {
+    state.isSiteModalOpen = true;
+    render();
+}
 function closeAllModals() {
     state.isLoginModalOpen = false;
     state.isTrainingModalOpen = false;
     state.selectedTrainingModuleId = null;
     state.isContractModalOpen = false;
+    state.isSiteModalOpen = false;
     render();
 }
 function handleApplicationSubmit(e) {
@@ -2304,11 +2453,59 @@ function handleContractSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-     addContract({ clientId: data.clientId, title: data.title, startDate: new Date(data.startDate), endDate: new Date(data.endDate), totalBudget: parseFloat(data.totalBudget) });
+
+    if (data.addSite) {
+        if (!data.siteName || !data.siteAddress) {
+            alert("Please provide a name and address for the new site.");
+            return;
+        }
+        const contractId = `contract-${Date.now()}`;
+        const newContract = { 
+            id: contractId,
+            clientId: data.clientId, 
+            title: data.title, 
+            startDate: new Date(data.startDate), 
+            endDate: new Date(data.endDate), 
+            totalBudget: parseFloat(data.totalBudget),
+            status: 'Pending' 
+        };
+        _DB.contracts.push(newContract);
+
+        addSiteApprovalRequest({
+            clientId: data.clientId,
+            siteName: data.siteName,
+            siteAddress: data.siteAddress,
+            contractId: contractId
+        });
+        
+    } else {
+        addContract({ 
+            clientId: data.clientId, 
+            title: data.title, 
+            startDate: new Date(data.startDate), 
+            endDate: new Date(data.endDate), 
+            totalBudget: parseFloat(data.totalBudget) 
+        });
+    }
+
     alert('New contract submitted for approval!');
     closeAllModals();
     handleNavigation('MyContracts');
 }
+
+function handleSiteSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    addSiteApprovalRequest({
+        clientId: data.clientId,
+        siteName: data.siteName,
+        siteAddress: data.siteAddress
+    });
+    alert('New site request submitted for approval!');
+    closeAllModals();
+}
+
 function handleSpotCheckSubmit(e) {
     e.preventDefault();
     const form = e.target;
@@ -2336,6 +2533,11 @@ function handleCompleteSpotCheck(spotCheckId) {
     addSpotCheckSelfie(spotCheckId, 'end', 'simulated_image_data_end');
     alert('Spot check completed and final report submitted.');
     state.activeMissionId = null;
+    refreshAndRender();
+}
+function handleUpdateSiteApproval(requestId, status) {
+    updateSiteApprovalStatus(requestId, status);
+    alert(`Site request has been ${status.toLowerCase()}.`);
     refreshAndRender();
 }
 function refreshData() {
@@ -2394,6 +2596,9 @@ function initializeApp() {
             'approve-payroll-run': () => { if(id) approvePayrollRun(id); refreshAndRender(); },
             'confirm-payment': () => { if(id) confirmPayment(id); refreshAndRender(); },
             'open-contract-modal': () => openContractModal(),
+            'open-site-modal': () => openSiteModal(),
+            'approve-site': () => handleUpdateSiteApproval(id, 'Approved'),
+            'deny-site': () => handleUpdateSiteApproval(id, 'Denied'),
             'start-spot-check': () => handleStartSpotCheck(id),
             'complete-spot-check': () => handleCompleteSpotCheck(id),
             'mark-uniform-sent': () => { markUniformSent(id); refreshAndRender(); },
@@ -2409,6 +2614,13 @@ function initializeApp() {
                 addSpotCheckSelfie(spotCheck.id, 'start', 'simulated_image_data_start');
                 alert('Start selfie uploaded.');
                 refreshAndRender();
+            }
+        }
+        if (e.target.matches('#add-site-checkbox')) {
+            const fields = document.getElementById('new-site-fields');
+            if (fields) {
+                fields.classList.toggle('hidden', !e.target.checked);
+                fields.querySelectorAll('input').forEach(input => input.required = e.target.checked);
             }
         }
     });
