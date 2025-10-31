@@ -46,6 +46,7 @@ const guardRole = [UserRole.Guard];
 const fieldRoles = [...fieldLeadershipRoles, ...guardRole];
 const allInternalRoles = [...executiveRoles, ...managementRoles, ...operationsRoles, ...fieldRoles];
 const clientRole = [UserRole.Client];
+const adminRoles = [...executiveRoles, ...operationsRoles];
 
 // --- START: Icons.js ---
 const Icons = {
@@ -79,6 +80,7 @@ const Icons = {
     Camera: ({ className = '' }) => `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="${className}"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.776 48.776 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" /></svg>`,
     ChevronDown: ({ className = '' }) => `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="${className}"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>`,
     ChatBubbleLeftRight: ({ className = '' }) => `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="${className}"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193l-3.722.537a5.25 5.25 0 01-4.756-4.756l.537-3.722c.094-1.133.957-1.98 2.097-1.98h4.286c.969 0 1.813.616 2.097 1.5zM4.5 18.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193l-3.722.537a5.25 5.25 0 01-4.756-4.756l.537-3.722c.094-1.133.957-1.98 2.097-1.98h4.286c.969 0 1.813.616 2.097 1.5z" /></svg>`,
+    Pencil: ({ className = '' }) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="${className}"><path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" /></svg>`,
 };
 
 // --- START: homepageContent.js ---
@@ -140,6 +142,18 @@ const initialData = {
   systemSettings: {
       companyName: 'Signature Security Specialist',
       payrollCycle: 'Bi-Weekly',
+      commissionRates: {
+        'Retail (Standing)': 7,
+        'Retail (Loss Prevention)': 8,
+        'Bar/Nightclub': 12,
+        'Event Security': 12,
+        'Corporate Security': 8,
+        'Residential Security': 7,
+        'Construction Security': 9,
+        'Medical/Healthcare': 10,
+        'Armed Security': 15,
+        'Emergency/Last-minute': 20,
+      }
   },
   teams: [
       { id: 'team-1', name: 'Team Lyons', directorId: 'user-2' },
@@ -194,46 +208,70 @@ function initializeDB() {
     console.log("Loaded DB from localStorage.");
   }
 }
+const getCollection = (name) => _DB[name] || [];
 const getUsers = (roles = null) => {
-    if (!roles) return _DB.users || [];
-    return (_DB.users || []).filter(u => roles.includes(u.role));
+    if (!roles) return getCollection('users');
+    return getCollection('users').filter(u => roles.includes(u.role));
 };
-const getUserById = (id) => (_DB.users || []).find(u => u.id === id);
-const getUserByEmail = (email) => (_DB.users || []).find(u => u.email === email);
-const getClients = () => _DB.clients || [];
+const getUserById = (id) => getCollection('users').find(u => u.id === id);
+const getUserByEmail = (email) => getCollection('users').find(u => u.email === email);
+const getClients = () => getCollection('clients');
+const getClientById = (id) => getCollection('clients').find(c => c.id === id);
 const getMissions = (teamId = null) => {
-    if (!teamId) return _DB.missions || [];
-    return (_DB.missions || []).filter(m => {
-        const client = _DB.clients.find(c => c.id === m.clientId);
+    const missions = getCollection('missions');
+    if (!teamId) return missions;
+    return missions.filter(m => {
+        const client = getClientById(m.clientId);
         return client && client.teamId === teamId;
     });
 };
-const getSites = () => _DB.sites || [];
-const getContracts = () => _DB.contracts || [];
-const getApplications = (status = 'Pending') => (_DB.applications || []).filter(a => a.status === status);
-const getTrainingModules = () => _DB.trainingModules || [];
-const getUserTrainingProgress = (userId) => (_DB.trainingProgress || []).filter(p => p.userId === userId);
+const getMissionById = (id) => getCollection('missions').find(m => m.id === id);
+const getSites = () => getCollection('sites');
+const getSiteById = (id) => getCollection('sites').find(s => s.id === id);
+const getContracts = () => getCollection('contracts');
+const getApplications = (status = 'Pending') => getCollection('applications').filter(a => a.status === status);
+const getTrainingModules = () => getCollection('trainingModules');
+const getUserTrainingProgress = (userId) => getCollection('trainingProgress').filter(p => p.userId === userId);
 const getPendingTrainingApprovals = (teamId = null) => {
-    const pending = (_DB.trainingProgress || []).filter(p => p.status === 'Pending Approval');
+    const pending = getCollection('trainingProgress').filter(p => p.status === 'Pending Approval');
     if (!teamId) return pending;
     return pending.filter(p => {
         const user = getUserById(p.userId);
         return user && user.teamId === teamId;
     });
 };
-const getSystemSettings = () => _DB.systemSettings || {};
-const getAlerts = () => _DB.alerts || [];
-const getPromotions = () => _DB.promotions || [];
-const getPayrollRuns = () => (_DB.payrollRuns || []).sort((a,b) => new Date(b.endDate) - new Date(a.endDate));
-const getPayrollEntriesForRun = (runId) => (_DB.payrollEntries || []).filter(e => e.runId === runId);
+const getSystemSettings = () => getCollection('systemSettings');
+const getAlerts = () => getCollection('alerts');
+const getPromotions = () => getCollection('promotions');
+const getPayrollRuns = () => getCollection('payrollRuns').sort((a,b) => new Date(b.endDate) - new Date(a.endDate));
+const getPayrollEntriesForRun = (runId) => getCollection('payrollEntries').filter(e => e.runId === runId);
 const getMissionsForSpotCheck = (supervisorId) => {
     const supervisor = getUserById(supervisorId);
     if (!supervisor) return [];
-    // A supervisor can spot check any active mission on their team that they are not a part of.
     return getMissions(supervisor.teamId).filter(m => m.status === 'Active' && !m.claimedBy.includes(supervisorId));
 };
-const getSpotCheckByMissionId = (missionId) => _DB.spotChecks.find(sc => sc.missionId === missionId);
-const getLeadGuardAssignment = (missionId) => _DB.leadGuardAssignments.find(lg => lg.missionId === missionId);
+const getSpotCheckByMissionId = (missionId) => getCollection('spotChecks').find(sc => sc.missionId === missionId);
+const getLeadGuardAssignment = (missionId) => getCollection('leadGuardAssignments').find(lg => lg.missionId === missionId);
+const getPendingSiteApprovals = (teamId = null) => {
+    const pending = getCollection('siteApprovalRequests').filter(r => r.status === 'Pending');
+    if (!teamId) return pending;
+    return pending.filter(r => {
+        const client = getClientById(r.clientId);
+        return client && client.teamId === teamId;
+    });
+};
+
+function updateById(collectionName, id, updates) {
+    const collection = _DB[collectionName];
+    if (!collection) return false;
+    const item = collection.find(i => i.id === id);
+    if (item) {
+        Object.assign(item, updates);
+        save();
+        return true;
+    }
+    return false;
+}
 
 function addApplication({ type, data }) {
     const newApp = { id: `app-${Date.now()}`, type, data, status: 'Pending', submittedAt: new Date() };
@@ -252,16 +290,6 @@ function addSiteApprovalRequest(requestData) {
     _DB.siteApprovalRequests.push(newRequest);
     save();
 }
-
-const getPendingSiteApprovals = (teamId = null) => {
-    const pending = (_DB.siteApprovalRequests || []).filter(r => r.status === 'Pending');
-    if (!teamId) return pending;
-    // Filter by team of the client who made the request
-    return pending.filter(r => {
-        const client = _DB.clients.find(c => c.id === r.clientId);
-        return client && client.teamId === teamId;
-    });
-};
 
 function updateSiteApprovalStatus(requestId, status) {
     const request = _DB.siteApprovalRequests.find(r => r.id === requestId);
@@ -287,10 +315,8 @@ function updateApplicationStatus(appId, status, teamId = null) {
             const role = roleMap[app.type];
             if (!role) return;
 
-            // Assign to a team
             let assignedTeamId = app.data.teamCode || teamId;
             if (!assignedTeamId && role !== UserRole.Client && !executiveRoles.includes(role)) {
-                // Default assignment logic: assign to team with fewest members
                 const teamCounts = _DB.teams.map(t => ({ id: t.id, count: _DB.users.filter(u => u.teamId === t.id).length }));
                 if (teamCounts.length > 0) {
                     assignedTeamId = teamCounts.sort((a, b) => a.count - b.count)[0].id;
@@ -332,7 +358,6 @@ function updateApplicationStatus(appId, status, teamId = null) {
                 }
             }
         }
-        // Remove from pending list
         _DB.applications = _DB.applications.filter(a => a.id !== appId);
     }
     save();
@@ -348,24 +373,22 @@ function addMission(missionData) {
         checkOuts: {},
     };
     _DB.missions.push(newMission);
-    // Auto-assign supervisor spot check
     _DB.alerts.push({
         id: `alert-${Date.now()}`,
         severity: 'Info',
         message: `New mission "${newMission.title}" created. Requires supervisor assignment.`,
     });
-    // Assign lead guard if selected
     if(missionData.leadGuardId) {
         assignLeadGuard(missionId, missionData.leadGuardId);
     }
     save();
 }
 function claimMission(missionId, userId) {
-    const mission = _DB.missions.find(m => m.id === missionId);
+    const mission = getMissionById(missionId);
     const user = getUserById(userId);
-    const client = _DB.clients.find(c => c.id === mission.clientId);
+    const client = getClientById(mission.clientId);
     const userProgress = getUserTrainingProgress(userId);
-    const requiredTraining = _DB.trainingModules.find(tm => tm.id === mission.requiredTrainingId);
+    const requiredTraining = getTrainingModules().find(tm => tm.id === mission.requiredTrainingId);
     const hasTraining = userProgress.some(p => p.moduleId === mission.requiredTrainingId && p.status === 'Approved');
 
     if (!mission || !user || !client) return { success: false, message: "Mission, user, or client not found." };
@@ -383,17 +406,17 @@ function claimMission(missionId, userId) {
     return { success: true, message: "Mission claimed successfully!" };
 }
 function missionCheckIn(missionId, userId, isLead = false, guardToCheckIn = null) {
-    const mission = _DB.missions.find(m => m.id === missionId);
+    const mission = getMissionById(missionId);
     if (!mission || !mission.claimedBy.includes(userId)) return;
 
     const leadAssignment = getLeadGuardAssignment(missionId);
     const isUserTheLead = leadAssignment && leadAssignment.userId === userId;
 
-    if (isLead && isUserTheLead) { // Lead checking in another guard
+    if (isLead && isUserTheLead) {
         if (mission.checkIns[userId] && guardToCheckIn && !mission.checkIns[guardToCheckIn]) {
             mission.checkIns[guardToCheckIn] = { time: new Date(), verifiedBy: userId };
         }
-    } else { // Regular or initial lead check-in
+    } else {
         if (leadAssignment && !isUserTheLead && !mission.checkIns[leadAssignment.userId]) {
             alert('The Site Lead must check in first.');
             return;
@@ -408,17 +431,17 @@ function missionCheckIn(missionId, userId, isLead = false, guardToCheckIn = null
     save();
 }
 function missionCheckOut(missionId, userId, isLead = false, guardToCheckOut = null) {
-    const mission = _DB.missions.find(m => m.id === missionId);
+    const mission = getMissionById(missionId);
     if (!mission || !mission.checkIns[userId]) return;
 
     const leadAssignment = getLeadGuardAssignment(missionId);
     const isUserTheLead = leadAssignment && leadAssignment.userId === userId;
 
-    if (isLead && isUserTheLead) { // Lead checking out another guard
+    if (isLead && isUserTheLead) {
         if (guardToCheckOut && !mission.checkOuts[guardToCheckOut]) {
             mission.checkOuts[guardToCheckOut] = { time: new Date(), verifiedBy: userId };
         }
-    } else { // Regular or final lead check-out
+    } else {
          if (isUserTheLead) {
              const allOthersOut = mission.claimedBy.every(id => id === userId || mission.checkOuts[id]);
              if (!allOthersOut) {
@@ -437,7 +460,7 @@ function missionCheckOut(missionId, userId, isLead = false, guardToCheckOut = nu
     save();
 }
 function updateClientGuardList(clientId, guardId, listType, action) {
-    const client = _DB.clients.find(c => c.id === clientId);
+    const client = getClientById(clientId);
     if (!client) return;
     const otherList = listType === 'whitelist' ? 'blacklist' : 'whitelist';
     if (action === 'add' && client[otherList].includes(guardId)) {
@@ -453,10 +476,9 @@ function updateClientGuardList(clientId, guardId, listType, action) {
     save();
 }
 function submitTraining(userId, moduleId, answers) {
-    const module = _DB.trainingModules.find(m => m.id === moduleId);
+    const module = getTrainingModules().find(m => m.id === moduleId);
     if (!module) return false;
 
-    // Check for previous attempt with one-attempt rule
     const existingAttempt = _DB.trainingProgress.find(p => p.userId === userId && p.moduleId === moduleId);
     if (existingAttempt) {
         alert("You have already attempted this quiz. Request a retake from a Training Officer or Supervisor.");
@@ -495,7 +517,6 @@ function updateTrainingProgressStatus(progressId, status) {
             }
         }
         if (status === 'Retake Requested') {
-            // Remove the 'Failed' or 'Pending' attempt to allow a new submission
             _DB.trainingProgress = _DB.trainingProgress.filter(p => p.id !== progressId);
         }
     }
@@ -507,11 +528,7 @@ function addContract(contractData) {
     save();
 }
 function updateContractStatus(contractId, status) {
-    const contract = _DB.contracts.find(c => c.id === contractId);
-    if (contract) {
-        contract.status = status;
-        save();
-    }
+    updateById('contracts', contractId, { status });
 }
 function addPromotion(promoData) {
     const newPromo = { ...promoData, id: `promo-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
@@ -523,12 +540,7 @@ function updatePromotionStatus(promoId, status) {
     if (promo) {
         promo.status = status;
         if (status === 'Approved') {
-            const user = getUserById(promo.userId);
-            if (user) {
-                user.role = promo.toRole;
-                user.rank = Ranks[promo.toRole];
-                user.needsUniform = true; // Flag for uniform distribution
-            }
+            updateById('users', promo.userId, { role: promo.toRole, rank: Ranks[promo.toRole], needsUniform: true });
         }
     }
     save();
@@ -571,28 +583,20 @@ function createPayrollRun(startDate, endDate) {
     save();
 }
 function approvePayrollRun(runId) {
-    const run = _DB.payrollRuns.find(r => r.id === runId);
-    if (run && run.status === 'Pending') {
-        run.status = 'Approved';
-        save();
-    }
+    updateById('payrollRuns', runId, { status: 'Approved' });
 }
 function confirmPayment(entryId) {
+    updateById('payrollEntries', entryId, { paymentConfirmed: true });
     const entry = _DB.payrollEntries.find(e => e.id === entryId);
-    if (entry) {
-        entry.paymentConfirmed = true;
-        const run = _DB.payrollRuns.find(r => r.id === entry.runId);
-        const allPaid = _DB.payrollEntries
-            .filter(e => e.runId === entry.runId)
-            .every(e => e.paymentConfirmed);
-        if (run && allPaid) {
-            run.status = 'Paid';
-        }
-        save();
+    const allPaid = _DB.payrollEntries
+        .filter(e => e.runId === entry.runId)
+        .every(e => e.paymentConfirmed);
+    if (allPaid) {
+        updateById('payrollRuns', entry.runId, { status: 'Paid' });
     }
 }
 function addSpotCheck(supervisorId, missionId) {
-    const existing = _DB.spotChecks.find(sc => sc.missionId === missionId);
+    const existing = getSpotCheckByMissionId(missionId);
     if(existing) {
         alert("A spot check for this mission is already in progress.");
         return;
@@ -618,31 +622,19 @@ function updateSpotCheck(spotCheckId, checkType, checkData) {
     }
 }
 function addSpotCheckSelfie(spotCheckId, type, imageData) {
-    const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
-    if(spotCheck) {
-        spotCheck.selfies[type] = imageData; // In a real app, this would be a URL
-        save();
-    }
+    updateById('spotChecks', spotCheckId, { selfies: { ..._DB.spotChecks.find(sc=>sc.id===spotCheckId).selfies, [type]: imageData } });
 }
 function completeSpotCheck(spotCheckId, report) {
     const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
     if(spotCheck && spotCheck.checks.start && spotCheck.checks.mid && spotCheck.checks.end) {
-        spotCheck.finalReport = report;
-        spotCheck.status = 'Completed';
-        spotCheck.endTime = new Date();
-        save();
+        updateById('spotChecks', spotCheckId, { finalReport: report, status: 'Completed', endTime: new Date() });
     } else {
         alert("All three checks must be completed before submitting the final report.");
     }
 }
 function assignLeadGuard(missionId, userId) {
-    // remove existing if any
     _DB.leadGuardAssignments = _DB.leadGuardAssignments.filter(lg => lg.missionId !== missionId);
-    const assignment = {
-        id: `lg-${Date.now()}`,
-        missionId,
-        userId,
-    };
+    const assignment = { id: `lg-${Date.now()}`, missionId, userId };
     _DB.leadGuardAssignments.push(assignment);
     save();
 }
@@ -752,15 +744,16 @@ const HomePage = () => `
     </div>
 `;
 
+// --- START: MODALS ---
 const LoginModal = ({ users }) => {
     const sortedUsers = [...users].sort((a, b) => {
         const order = Object.values(UserRole);
         return order.indexOf(a.role) - order.indexOf(b.role);
     });
     return `
-        <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal">
-            <div class="relative">
-                <div class="w-full max-w-sm bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-2xl p-6">
+        <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+            <div class="relative bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-2xl w-full max-w-sm" data-modal-content>
+                <div class="p-6">
                     <div class="text-center mb-6">
                         ${Icons.Shield({ className: 'w-12 h-12 mx-auto text-[var(--accent-primary)] mb-2' })}
                         <h1 class="text-2xl font-bold text-[var(--text-primary)]">SSS Portal</h1>
@@ -790,20 +783,19 @@ const LoginModal = ({ users }) => {
         </div>
     `;
 };
-
 const TrainingModal = ({ moduleId }) => {
     const module = getTrainingModules().find(m => m.id === moduleId);
     if (!module) return '';
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal">
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl p-6 border border-[var(--border-primary)]">
-            <div class="flex justify-between items-center mb-4">
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)]" data-modal-content>
+            <div class="flex justify-between items-center p-6 border-b border-[var(--border-primary)]">
                 <h2 class="text-2xl font-bold text-[var(--text-primary)]">${module.title}</h2>
                 <button data-action="close-modal" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                     ${Icons.X({ className: 'w-6 h-6' })}
                 </button>
             </div>
-            <div class="max-h-[70vh] overflow-y-auto pr-4">
+            <div class="max-h-[70vh] overflow-y-auto p-6">
                 <p class="text-[var(--text-secondary)] mb-6">${module.content}</p>
                 <div class="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
                     <p class="font-bold">Audio Version</p>
@@ -827,70 +819,68 @@ const TrainingModal = ({ moduleId }) => {
     </div>
     `;
 };
-
 const ContractModal = ({ user }) => {
     const client = getClients().find(c => c.userId === user.id);
     if (!client) return '';
     const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal">
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg p-6 border border-[var(--border-primary)] max-h-[90vh] overflow-y-auto">
-            <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Create New Contract</h2>
-            <form id="contract-form" class="space-y-4">
-                <input type="hidden" name="clientId" value="${client.id}" />
-                <div>
-                    <label class="block text-sm font-medium text-[var(--text-secondary)]">Contract Title</label>
-                    <input name="title" placeholder="e.g., Downtown Office Security" required class="${inputStyles}" />
-                </div>
-                <div class="grid grid-cols-2 gap-4">
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg border border-[var(--border-primary)] max-h-[90vh] overflow-y-auto" data-modal-content>
+            <div class="p-6">
+                <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Create New Contract</h2>
+                <form id="contract-form" class="space-y-4">
+                    <input type="hidden" name="clientId" value="${client.id}" />
                     <div>
-                        <label class="block text-sm font-medium text-[var(--text-secondary)]">Start Date</label>
-                        <input name="startDate" type="date" required class="${inputStyles}" />
+                        <label class="block text-sm font-medium text-[var(--text-secondary)]">Contract Title</label>
+                        <input name="title" placeholder="e.g., Downtown Office Security" required class="${inputStyles}" />
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-[var(--text-secondary)]">End Date</label>
-                        <input name="endDate" type="date" required class="${inputStyles}" />
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-[var(--text-secondary)]">Total Budget ($)</label>
-                    <input name="totalBudget" type="number" min="0" step="100" placeholder="50000" required class="${inputStyles}" />
-                </div>
-
-                <div class="pt-4 border-t border-[var(--border-tertiary)]">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="addSite" id="add-site-checkbox" class="h-4 w-4 text-[var(--accent-primary)] border-[var(--border-secondary)] rounded focus:ring-[var(--accent-primary)]" />
-                        <span class="ml-2 text-sm font-medium text-[var(--text-secondary)]">Add a new site with this contract</span>
-                    </label>
-                    <div id="new-site-fields" class="hidden mt-4 space-y-4">
-                         <div>
-                            <label class="block text-sm font-medium text-[var(--text-secondary)]">New Site Name</label>
-                            <input name="siteName" placeholder="e.g., West Campus Building" class="${inputStyles}" />
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-[var(--text-secondary)]">Start Date</label>
+                            <input name="startDate" type="date" required class="${inputStyles}" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-[var(--text-secondary)]">New Site Address</label>
-                            <input name="siteAddress" placeholder="456 University Ave, Anytown, USA" class="${inputStyles}" />
+                            <label class="block text-sm font-medium text-[var(--text-secondary)]">End Date</label>
+                            <input name="endDate" type="date" required class="${inputStyles}" />
                         </div>
                     </div>
-                </div>
-
-                 <div class="flex justify-end space-x-3 pt-4">
-                     <button type="button" data-action="close-modal" class="px-4 py-2 bg-[var(--border-tertiary)] text-[var(--text-primary)] font-semibold rounded-md hover:bg-[var(--border-secondary)] transition">Cancel</button>
-                     <button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)] transition">Submit for Approval</button>
-                </div>
-            </form>
+                    <div>
+                        <label class="block text-sm font-medium text-[var(--text-secondary)]">Total Budget ($)</label>
+                        <input name="totalBudget" type="number" min="0" step="100" placeholder="50000" required class="${inputStyles}" />
+                    </div>
+                    <div class="pt-4 border-t border-[var(--border-tertiary)]">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="addSite" id="add-site-checkbox" class="h-4 w-4 text-[var(--accent-primary)] border-[var(--border-secondary)] rounded focus:ring-[var(--accent-primary)]" />
+                            <span class="ml-2 text-sm font-medium text-[var(--text-secondary)]">Add a new site with this contract</span>
+                        </label>
+                        <div id="new-site-fields" class="hidden mt-4 space-y-4">
+                             <div>
+                                <label class="block text-sm font-medium text-[var(--text-secondary)]">New Site Name</label>
+                                <input name="siteName" placeholder="e.g., West Campus Building" class="${inputStyles}" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-[var(--text-secondary)]">New Site Address</label>
+                                <input name="siteAddress" placeholder="456 University Ave, Anytown, USA" class="${inputStyles}" />
+                            </div>
+                        </div>
+                    </div>
+                     <div class="flex justify-end space-x-3 pt-4">
+                         <button type="button" data-action="close-modal" class="px-4 py-2 bg-[var(--border-tertiary)] text-[var(--text-primary)] font-semibold rounded-md hover:bg-[var(--border-secondary)] transition">Cancel</button>
+                         <button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)] transition">Submit for Approval</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     `;
 };
-
 const SiteModal = ({ user }) => {
     const client = getClients().find(c => c.userId === user.id);
     if (!client) return '';
     const inputStyles = "mt-1 block w-full border border-[var(--border-secondary)] rounded-md shadow-sm p-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] bg-[var(--bg-primary)]";
     return `
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal">
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg p-6 border border-[var(--border-primary)]">
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-lg p-6 border border-[var(--border-primary)]" data-modal-content>
             <h2 class="text-2xl font-bold mb-4 text-[var(--text-primary)]">Request New Site</h2>
             <form id="site-request-form" class="space-y-4">
                 <input type="hidden" name="clientId" value="${client.id}" />
@@ -911,7 +901,117 @@ const SiteModal = ({ user }) => {
     </div>
     `;
 };
+const MissionDetailsModal = ({ missionId, user }) => {
+    const mission = getMissionById(missionId);
+    if (!mission) return '';
+    const client = getClientById(mission.clientId);
+    const site = getSiteById(mission.siteId);
+    const requiredTraining = getTrainingModules().find(tm => tm.id === mission.requiredTrainingId);
+    const guards = mission.claimedBy.map(id => getUserById(id)).filter(Boolean);
+    const leadGuard = getLeadGuardAssignment(mission.id);
+    const isGuard = fieldRoles.includes(user.role);
 
+    return `
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)]" data-modal-content>
+            <div class="p-6 border-b border-[var(--border-primary)]">
+                <h2 class="text-2xl font-bold text-[var(--text-primary)]">${mission.title}</h2>
+                <p class="text-[var(--text-secondary)]">${client.companyName} at ${site.name}</p>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+                <div>
+                    <h3 class="font-bold text-lg mb-2">Details</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <p><strong>Pay Rate:</strong> $${mission.payRate}/hr</p>
+                        <p><strong>Level Req:</strong> ${mission.requiredLevel}</p>
+                        <p><strong>Start:</strong> ${new Date(mission.startTime).toLocaleString()}</p>
+                        <p><strong>End:</strong> ${new Date(mission.endTime).toLocaleString()}</p>
+                        <p class="col-span-2"><strong>Location:</strong> ${site.address}</p>
+                        <p class="col-span-2"><strong>Training:</strong> ${requiredTraining.title}</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">Instructions</h3>
+                    <p class="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">${mission.description || 'No specific instructions provided.'}</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">Assigned Guards (${guards.length}/${mission.requiredGuards})</h3>
+                    <ul class="space-y-2">
+                        ${guards.map(g => `
+                            <li class="flex items-center text-sm p-2 bg-[var(--bg-primary)] rounded-md">
+                                ${Icons.User({className: 'w-4 h-4 mr-2 text-[var(--text-secondary)]'})}
+                                <span>${g.firstName} ${g.lastName} ${leadGuard?.userId === g.id ? '<span class="text-xs font-bold text-[var(--accent-primary)]">(Lead)</span>' : ''}</span>
+                            </li>
+                        `).join('')}
+                        ${guards.length === 0 ? '<li class="text-sm text-[var(--text-secondary)] italic">No guards have claimed this mission yet.</li>' : ''}
+                    </ul>
+                </div>
+            </div>
+            <div class="p-4 bg-[var(--bg-primary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3">
+                <button data-action="close-modal" class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Close</button>
+                ${isGuard && !mission.claimedBy.includes(user.id) && mission.claimedBy.length < mission.requiredGuards ? `<button data-action="claim-mission" data-id="${mission.id}" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Claim Mission</button>` : ''}
+            </div>
+        </div>
+    </div>
+    `;
+};
+const UserDetailsModal = ({ userId, currentUser }) => {
+    const user = getUserById(userId);
+    if (!user) return '';
+    const isAdmin = adminRoles.includes(currentUser.role);
+    const teams = getCollection('teams');
+    const userTrainings = getUserTrainingProgress(userId);
+    const allModules = getTrainingModules();
+
+    return `
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" data-action="close-modal-backdrop">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--border-primary)]" data-modal-content>
+            <div class="p-6 border-b border-[var(--border-primary)]">
+                <h2 class="text-2xl font-bold text-[var(--text-primary)]">${user.firstName} ${user.lastName}</h2>
+                <p class="text-[var(--text-secondary)]">${user.role} - ${user.rank}</p>
+            </div>
+            <form id="user-details-form" data-user-id="${user.id}">
+                <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+                    <div>
+                        <h3 class="font-bold text-lg mb-2">Profile Details</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <p><strong>Email:</strong> ${user.email}</p>
+                            <p><strong>Rating:</strong> ${user.performanceRating.toFixed(2)}</p>
+                            <div>
+                                <label for="user-level" class="font-bold">Level:</label>
+                                <input id="user-level" name="level" type="number" min="1" max="5" value="${user.level}" ${!isAdmin ? 'disabled' : ''} class="ml-2 w-16 p-1 border rounded-md" />
+                            </div>
+                             <div>
+                                <label for="user-team" class="font-bold">Team:</label>
+                                <select id="user-team" name="teamId" ${!isAdmin ? 'disabled' : ''} class="ml-2 p-1 border rounded-md bg-white">
+                                    ${teams.map(t => `<option value="${t.id}" ${user.teamId === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                     <div>
+                        <h3 class="font-bold text-lg mb-2">Training & Certifications</h3>
+                        <ul class="space-y-1 text-sm">
+                        ${allModules.map(mod => {
+                            const prog = userTrainings.find(p => p.moduleId === mod.id);
+                            const status = prog ? prog.status : 'Not Started';
+                            const color = { 'Approved': 'text-green-600', 'Pending Approval': 'text-yellow-600', 'Failed': 'text-red-600', 'Denied': 'text-red-800'}[status] || 'text-gray-500';
+                            return `<li class="flex justify-between"><span>${mod.title}</span><span class="font-semibold ${color}">${status}</span></li>`
+                        }).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="p-4 bg-[var(--bg-primary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3">
+                    <button type="button" data-action="close-modal" class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Close</button>
+                    ${isAdmin ? `<button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Save Changes</button>` : ''}
+                </div>
+            </form>
+        </div>
+    </div>
+    `;
+};
+
+// --- START: SIDEBAR ---
 const Sidebar = ({ currentUser, activeView }) => {
     const sidebarStructure = [
         {
@@ -1102,7 +1202,7 @@ const MissionBoard = ({ user }) => {
                     </div>
                 </div>
                 <div class="mt-4 flex justify-between items-center">
-                    <p class="text-sm font-medium text-[var(--text-primary)]">${mission.claimedBy.length} / ${mission.requiredGuards} Guards</p>
+                    <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm font-semibold text-[var(--accent-primary)] hover:underline">View Details</button>
                     ${actionButton()}
                 </div>
             </div>
@@ -1157,13 +1257,16 @@ const MyMissions = ({ user }) => {
         }
         return `
             <div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div>
+                <div class="flex justify-between items-start gap-4">
+                    <div class="flex-grow">
                         <p class="font-bold text-[var(--text-primary)]">${mission.title}</p>
                         <p class="text-sm text-[var(--text-secondary)]">${new Date(mission.startTime).toLocaleString()}</p>
                         <span class="text-xs px-2 py-0.5 rounded-full ${mission.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${mission.status}</span>
                     </div>
-                    <div class="flex-shrink-0">${actions}</div>
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm font-semibold text-[var(--accent-primary)] hover:underline">Details</button>
+                        ${actions}
+                    </div>
                 </div>
             </div>
         `;
@@ -1194,10 +1297,9 @@ const Training = ({ user }) => {
     const progress = getUserTrainingProgress(user.id);
     const getModuleProgress = (moduleId) => progress.find(p => p.moduleId === moduleId);
     
-    // Filter out special trainings unless the user is eligible
     let availableModules = modules.filter(module => {
-        if (module.id === 'tm-lead') return false; // Lead guard is assignment-based
-        if (module.id === 'tm-to' || module.id === 'tm-sup' || module.id === 'tm-ops' || module.id === 'tm-mgmt') return false; // Promotion-based
+        if (module.id === 'tm-lead') return false; 
+        if (module.id === 'tm-to' || module.id === 'tm-sup' || module.id === 'tm-ops' || module.id === 'tm-mgmt') return false;
         return true;
     });
 
@@ -1336,7 +1438,7 @@ const GuardManagement = ({ user }) => {
                                 <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${guard.firstName} ${guard.lastName}</p><p class="text-[var(--text-secondary)] whitespace-no-wrap text-xs">${guard.email}</p></td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${guard.rank}</td><td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${guard.level}</td>
                                 <td class="px-5 py-4 text-sm text-green-600 font-semibold">${guard.performanceRating.toFixed(2)}</td><td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${guard.weeklyHours.toFixed(1)}</td>
-                                <td class="px-5 py-4 text-sm"><button class="text-[var(--accent-primary)] hover:underline font-semibold">View</button></td>
+                                <td class="px-5 py-4 text-sm"><button data-action="open-user-details" data-id="${guard.id}" class="text-[var(--accent-primary)] hover:underline font-semibold">View</button></td>
                             </tr>`).join('')}
                     </tbody>
                 </table>
@@ -1397,7 +1499,7 @@ const MissionControl = ({ user }) => {
                                 <td class="px-5 py-4 text-sm"><span class="px-2 py-1 font-semibold rounded-full text-xs ${statusColor(mission.status)}">${mission.status}</span></td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${new Date(mission.startTime).toLocaleDateString()}</td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${mission.claimedBy.length}/${mission.requiredGuards}</td>
-                                <td class="px-5 py-4 text-sm"><button class="text-[var(--accent-primary)] hover:underline font-semibold">Details</button></td>
+                                <td class="px-5 py-4 text-sm"><button data-action="open-mission-details" data-id="${mission.id}" class="text-[var(--accent-primary)] hover:underline font-semibold">Details</button></td>
                             </tr>`).join('')}
                     </tbody>
                 </table>
@@ -1432,7 +1534,18 @@ const ActiveMissions = ({ user }) => {
     `;
 };
 const Analytics = ({ user }) => {
-    const stats = [{ title: "Total Missions Completed", value: "1,254", icon: Icons.ClipboardList }, { title: "Active Guards", value: "487", icon: Icons.Users }, { title: "Client Satisfaction", value: "4.8 / 5.0", icon: Icons.Trophy }, { title: "Monthly Revenue", value: "$125,480", icon: Icons.CreditCard }];
+    const totalMissions = getCollection('missions').length;
+    const activeGuards = getUsers(fieldRoles).length;
+    const totalClients = getClients().length;
+    const totalRevenue = getCollection('payrollRuns').reduce((sum, run) => sum + run.totalAmount, 0) / (1 - (getSystemSettings().commissionRates['Corporate Security']/100)); // Approximate total revenue
+    
+    const stats = [
+        { title: "Total Missions", value: totalMissions, icon: Icons.ClipboardList }, 
+        { title: "Active Guards", value: activeGuards, icon: Icons.Users }, 
+        { title: "Active Clients", value: totalClients, icon: Icons.Briefcase }, 
+        { title: "Approx. Revenue", value: `$${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`, icon: Icons.CreditCard }
+    ];
+
     return `
         <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Analytics Dashboard</h1>
@@ -1459,11 +1572,11 @@ const SystemSettings = ({ user }) => {
     return `
          <div class="animate-in max-w-2xl mx-auto" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">System Settings</h1>
-            <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm space-y-4">
-                <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Company Name</label><input type="text" value="${settings.companyName}" class="${inputStyles}"/></div>
-                <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Payroll Cycle</label><select class="${inputStyles} bg-white"><option ${settings.payrollCycle === 'Weekly' ? 'selected' : ''}>Weekly</option><option ${settings.payrollCycle === 'Bi-Weekly' ? 'selected' : ''}>Bi-Weekly</option><option ${settings.payrollCycle === 'Monthly' ? 'selected' : ''}>Monthly</option></select></div>
-                <div class="text-right"><button class="px-6 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-semibold rounded-md shadow-sm hover:bg-[var(--accent-secondary-hover)]">Save Settings</button></div>
-            </div>
+            <form id="system-settings-form" class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm space-y-4">
+                <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Company Name</label><input type="text" name="companyName" value="${settings.companyName}" class="${inputStyles}"/></div>
+                <div><label class="block text-sm font-medium text-[var(--text-secondary)]">Payroll Cycle</label><select name="payrollCycle" class="${inputStyles} bg-white"><option ${settings.payrollCycle === 'Weekly' ? 'selected' : ''}>Weekly</option><option ${settings.payrollCycle === 'Bi-Weekly' ? 'selected' : ''}>Bi-Weekly</option><option ${settings.payrollCycle === 'Monthly' ? 'selected' : ''}>Monthly</option></select></div>
+                <div class="text-right"><button type="submit" class="px-6 py-2 bg-[var(--accent-secondary)] text-[var(--accent-primary-text)] font-semibold rounded-md shadow-sm hover:bg-[var(--accent-secondary-hover)]">Save Settings</button></div>
+            </form>
         </div>
     `;
 };
@@ -1893,7 +2006,6 @@ const ApplicationView = ({ type }) => {
     </div>
     `;
 }
-
 const SiteApprovals = ({ user }) => {
     const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
     const approvals = getPendingSiteApprovals(teamId);
@@ -1932,7 +2044,6 @@ const SiteApprovals = ({ user }) => {
         </div>
     `;
 };
-
 const GuardMissionDashboard = ({ user, mission }) => {
     return `
     <div class="animate-in" style="animation-delay: 100ms; opacity: 0; transform: translateY(10px);">
@@ -2041,7 +2152,7 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
         const isDone = !!spotCheck.checks[checkType];
         if (isDone) return `<div class="p-4 bg-green-100 text-green-800 rounded-md font-semibold">${checkType.charAt(0).toUpperCase() + checkType.slice(1)} check complete.</div>`;
         return `
-            <form class="spot-check-form" data-check-type="${checkType}">
+            <form class="spot-check-form" data-check-type="${checkType}" data-spot-check-id="${spotCheck.id}">
                 <h4 class="font-bold mb-2">Guards on Site:</h4>
                 ${guardsOnMission.map(g => `
                     <div class="mb-2 p-2 border rounded-md">
@@ -2102,13 +2213,11 @@ const SupervisorSpotCheckDashboard = ({ user, mission, spotCheck }) => {
     </div>
     `;
 };
-
-const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId }) => {
+const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId, selectedModal }) => {
     let viewContent = '';
 
-    // Mission Dashboard override if a mission is active
     if (activeMissionId) {
-        const mission = getMissions().find(m => m.id === activeMissionId);
+        const mission = getMissionById(activeMissionId);
         if (mission) {
             const leadAssignment = getLeadGuardAssignment(mission.id);
             const isLead = leadAssignment && leadAssignment.userId === currentUser.id;
@@ -2124,11 +2233,9 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
             }
         } else {
              viewContent = `<p>Error: Mission not found.</p>`;
-             // Reset state if mission is invalid
              state.activeMissionId = null; 
         }
     } else {
-        // Regular view routing
         const viewMap = {
             'MyProfile': () => MyProfile({ user: currentUser }),
             'MissionBoard': () => MissionBoard({ user: currentUser }),
@@ -2162,21 +2269,22 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
             'Analytics': () => Analytics({ user: currentUser }),
             'LiveControl': () => LiveControl({ user: currentUser }),
             'SystemSettings': () => SystemSettings({ user: currentUser }),
+            'Dashboard': () => `
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-[var(--text-primary)]">Welcome back, ${currentUser.firstName}!</h1>
+                    <p class="text-[var(--text-secondary)] mt-2">This is your central command. Select an option from the sidebar to get started.</p>
+                </div>`,
         };
-        
-        // Default to Dashboard view
-        if (activeView === 'Dashboard') {
-            viewContent = `
-            <div class="p-6">
-                <h1 class="text-3xl font-bold text-[var(--text-primary)]">Welcome back, ${currentUser.firstName}!</h1>
-                <p class="text-[var(--text-secondary)] mt-2">This is your central command. Select an option from the sidebar to get started.</p>
-            </div>`;
-        } else if (viewMap[activeView]) {
-            viewContent = viewMap[activeView]();
-        } else {
-            viewContent = `<div>View "${activeView}" not found.</div>`;
-        }
+        viewContent = viewMap[activeView] ? viewMap[activeView]() : `<div>View "${activeView}" not found.</div>`;
     }
+
+    let modalHtml = '';
+    if (selectedModal.type === 'Login') modalHtml = LoginModal({ users: state.users });
+    if (selectedModal.type === 'Training') modalHtml = TrainingModal({ moduleId: selectedModal.id });
+    if (selectedModal.type === 'Contract') modalHtml = ContractModal({ user: currentUser });
+    if (selectedModal.type === 'Site') modalHtml = SiteModal({ user: currentUser });
+    if (selectedModal.type === 'MissionDetails') modalHtml = MissionDetailsModal({ missionId: selectedModal.id, user: currentUser });
+    if (selectedModal.type === 'UserDetails') modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
 
     return `
         <div class="flex h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
@@ -2192,6 +2300,7 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
                     ${viewContent}
                 </main>
             </div>
+            ${modalHtml}
         </div>
     `;
 };
@@ -2200,15 +2309,11 @@ const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPay
 const state = {
     currentUser: null,
     users: [],
-    isLoginModalOpen: false,
-    isTrainingModalOpen: false,
-    selectedTrainingModuleId: null,
-    isContractModalOpen: false,
-    isSiteModalOpen: false,
     isLoading: true,
     activeView: 'Home',
     activeMissionId: null,
     selectedPayrollRunId: null,
+    selectedModal: { type: null, id: null },
 };
 const root = document.getElementById('root');
 
@@ -2218,11 +2323,6 @@ function render() {
         root.innerHTML = `<div class="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-secondary)]">Loading System...</div>`;
         return;
     }
-    let modalHtml = '';
-    if (state.isLoginModalOpen) modalHtml = LoginModal({ users: state.users });
-    if (state.isTrainingModalOpen && state.selectedTrainingModuleId) modalHtml = TrainingModal({ moduleId: state.selectedTrainingModuleId });
-    if (state.isContractModalOpen && state.currentUser) modalHtml = ContractModal({ user: state.currentUser });
-    if (state.isSiteModalOpen && state.currentUser) modalHtml = SiteModal({ user: state.currentUser });
     
     if (state.currentUser) {
         root.innerHTML = DashboardScreen({
@@ -2230,12 +2330,13 @@ function render() {
             activeView: state.activeView,
             activeMissionId: state.activeMissionId,
             selectedPayrollRunId: state.selectedPayrollRunId,
-        }) + modalHtml;
+            selectedModal: state.selectedModal,
+        });
     } else if (['GuardApplication', 'ClientApplication', 'OperationsApplication'].includes(state.activeView)) {
         const viewType = state.activeView.replace('Application','');
         root.innerHTML = ApplicationView({type: viewType});
     } else {
-        root.innerHTML = HomePage() + modalHtml;
+        root.innerHTML = HomePage() + (state.selectedModal.type === 'Login' ? LoginModal({ users: state.users }) : '');
     }
     attachFormEventListeners();
 }
@@ -2250,6 +2351,8 @@ function attachFormEventListeners() {
         { id: '#training-form', handler: handleTrainingSubmit },
         { id: '#contract-form', handler: handleContractSubmit },
         { id: '#site-request-form', handler: handleSiteSubmit },
+        { id: '#system-settings-form', handler: handleSystemSettingsSubmit },
+        { id: '#user-details-form', handler: handleUserDetailsSubmit },
         { selector: '.spot-check-form', handler: handleSpotCheckSubmit },
     ];
     forms.forEach(formInfo => {
@@ -2263,15 +2366,23 @@ function attachFormEventListeners() {
     });
 }
 
+function openModal(type, id = null) {
+    state.selectedModal = { type, id };
+    render();
+}
+function closeModal() {
+    state.selectedModal = { type: null, id: null };
+    render();
+}
+
+// --- Event Handlers ---
 function handleLogin(email) {
     const user = getUserByEmail(email);
     if (user) {
         state.currentUser = user;
         state.activeView = 'Dashboard';
-        closeAllModals();
-    } else {
-        alert('User not found.');
-    }
+        closeModal();
+    } else { alert('User not found.'); }
 }
 function handleLogout() {
     state.currentUser = null;
@@ -2280,7 +2391,7 @@ function handleLogout() {
 }
 function handleNavigation(view) {
     state.activeView = view;
-    state.activeMissionId = null; // Exit mission dashboard on navigation
+    state.activeMissionId = null;
     render();
     const contentArea = document.getElementById('dashboard-content');
     if(contentArea) contentArea.scrollTop = 0;
@@ -2289,12 +2400,12 @@ function handleClaimMission(missionId) {
     if (!state.currentUser) return;
     const result = claimMission(missionId, state.currentUser.id);
     alert(result.message);
+    if(result.success) closeModal();
     refreshAndRender();
 }
 function handleStartMission(missionId) {
     if (!state.currentUser) return;
-    // Simulate selfie
-    if(confirm("Verify attendance with a selfie?")) {
+    if(confirm("Verify attendance with a selfie? (Simulation)")) {
         state.activeMissionId = missionId;
         missionCheckIn(missionId, state.currentUser.id);
         refreshAndRender();
@@ -2302,7 +2413,7 @@ function handleStartMission(missionId) {
 }
 function handleMissionCheckout(missionId) {
      if (!state.currentUser) return;
-     if(confirm("Verify checkout with a selfie?")) {
+     if(confirm("Verify checkout with a selfie? (Simulation)")) {
         missionCheckOut(missionId, state.currentUser.id);
         state.activeMissionId = null;
         alert("You have successfully checked out.");
@@ -2311,11 +2422,8 @@ function handleMissionCheckout(missionId) {
 }
 function handleLeadGuardAction(missionId, guardId, action) {
     if (!state.currentUser) return;
-    if(action === 'checkin') {
-        missionCheckIn(missionId, state.currentUser.id, true, guardId);
-    } else {
-        missionCheckOut(missionId, state.currentUser.id, true, guardId);
-    }
+    if(action === 'checkin') missionCheckIn(missionId, state.currentUser.id, true, guardId);
+    else missionCheckOut(missionId, state.currentUser.id, true, guardId);
     refreshAndRender();
 }
 function handleUpdateRoster(guardId, listType) {
@@ -2354,40 +2462,15 @@ function handleStartSpotCheck(missionId) {
     state.activeMissionId = missionId;
     refreshAndRender();
 }
-function openLoginModal() {
-    state.isLoginModalOpen = true;
-    render();
-}
-function openTrainingModal(moduleId) {
-    state.selectedTrainingModuleId = moduleId;
-    state.isTrainingModalOpen = true;
-    render();
-}
-function openContractModal() {
-    state.isContractModalOpen = true;
-    render();
-}
-function openSiteModal() {
-    state.isSiteModalOpen = true;
-    render();
-}
-function closeAllModals() {
-    state.isLoginModalOpen = false;
-    state.isTrainingModalOpen = false;
-    state.selectedTrainingModuleId = null;
-    state.isContractModalOpen = false;
-    state.isSiteModalOpen = false;
-    render();
-}
+
+// --- Form Submissions ---
 function handleApplicationSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
-    const appType = form.dataset.type;
-    if (!appType) return;
-    addApplication({ type: appType, data });
-    alert('Application submitted successfully! It will be reviewed by our team.');
+    addApplication({ type: form.dataset.type, data });
+    alert('Application submitted successfully!');
     handleNavigation('Home');
 }
 function handlePostMission(e) {
@@ -2396,11 +2479,8 @@ function handlePostMission(e) {
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     const client = getClients().find(c => c.userId === state.currentUser.id);
-    if(!client) {
-        alert("Could not find client profile.");
-        return;
-    }
-    const newMission = {
+    if(!client) return alert("Could not find client profile.");
+    addMission({
         title: data.title, contractId: data.contractId, siteId: data.siteId, 
         description: data.description, clientId: client.id, 
         startTime: new Date(data.startTime), endTime: new Date(data.endTime),
@@ -2408,8 +2488,7 @@ function handlePostMission(e) {
         requiredLevel: parseInt(data.requiredLevel, 10),
         requiredTrainingId: data.requiredTrainingId,
         leadGuardId: data.leadGuardId || null,
-    };
-    addMission(newMission);
+    });
     alert('Mission posted successfully!');
     handleNavigation('MyMissions');
 }
@@ -2418,10 +2497,7 @@ function handleCreatePayroll(e) {
     const formData = new FormData(e.target);
     const startDate = new Date(formData.get('startDate'));
     const endDate = new Date(formData.get('endDate'));
-    if (startDate >= endDate) {
-        alert('Start date must be before end date.');
-        return;
-    }
+    if (startDate >= endDate) return alert('Start date must be before end date.');
     createPayrollRun(startDate, endDate);
     alert('Payroll run created.');
     refreshAndRender();
@@ -2430,107 +2506,80 @@ function handlePromotionSubmit(e) {
     e.preventDefault();
     if (!state.currentUser) return;
     const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    addPromotion({ userId: state.currentUser.id, toRole: data.role, reason: data.reason });
+    addPromotion({ userId: state.currentUser.id, toRole: formData.get('role'), reason: formData.get('reason') });
     alert('Promotion application submitted.');
     refreshAndRender();
 }
 function handleTrainingSubmit(e) {
     e.preventDefault();
-    if (!state.currentUser || !state.selectedTrainingModuleId) return;
+    if (!state.currentUser || state.selectedModal.type !== 'Training') return;
     const formData = new FormData(e.target);
     const answers = Object.fromEntries(formData.entries());
-    const passed = submitTraining(state.currentUser.id, state.selectedTrainingModuleId, answers);
-    if (passed === null) return; // Means they already attempted
-    if(passed) {
-        alert('Quiz submitted! Your results are pending approval.');
-    } else {
-        alert('You did not pass the quiz. Please review the material and request a retake.');
-    }
-    closeAllModals();
+    const passed = submitTraining(state.currentUser.id, state.selectedModal.id, answers);
+    if (passed === null) return;
+    alert(passed ? 'Quiz submitted! Your results are pending approval.' : 'You did not pass the quiz. Please review the material and request a retake.');
+    closeModal();
 }
 function handleContractSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-
     if (data.addSite) {
-        if (!data.siteName || !data.siteAddress) {
-            alert("Please provide a name and address for the new site.");
-            return;
-        }
+        if (!data.siteName || !data.siteAddress) return alert("Please provide a name and address for the new site.");
         const contractId = `contract-${Date.now()}`;
-        const newContract = { 
-            id: contractId,
-            clientId: data.clientId, 
-            title: data.title, 
-            startDate: new Date(data.startDate), 
-            endDate: new Date(data.endDate), 
-            totalBudget: parseFloat(data.totalBudget),
-            status: 'Pending' 
-        };
-        _DB.contracts.push(newContract);
-
-        addSiteApprovalRequest({
-            clientId: data.clientId,
-            siteName: data.siteName,
-            siteAddress: data.siteAddress,
-            contractId: contractId
-        });
-        
+        _DB.contracts.push({ id: contractId, clientId: data.clientId, title: data.title, startDate: new Date(data.startDate), endDate: new Date(data.endDate), totalBudget: parseFloat(data.totalBudget), status: 'Pending' });
+        addSiteApprovalRequest({ clientId: data.clientId, siteName: data.siteName, siteAddress: data.siteAddress, contractId });
     } else {
-        addContract({ 
-            clientId: data.clientId, 
-            title: data.title, 
-            startDate: new Date(data.startDate), 
-            endDate: new Date(data.endDate), 
-            totalBudget: parseFloat(data.totalBudget) 
-        });
+        addContract({ clientId: data.clientId, title: data.title, startDate: new Date(data.startDate), endDate: new Date(data.endDate), totalBudget: parseFloat(data.totalBudget) });
     }
-
     alert('New contract submitted for approval!');
-    closeAllModals();
+    closeModal();
     handleNavigation('MyContracts');
 }
-
 function handleSiteSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    addSiteApprovalRequest({
-        clientId: data.clientId,
-        siteName: data.siteName,
-        siteAddress: data.siteAddress
-    });
+    addSiteApprovalRequest(Object.fromEntries(formData.entries()));
     alert('New site request submitted for approval!');
-    closeAllModals();
+    closeModal();
 }
-
+function handleUserDetailsSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const userId = form.dataset.userId;
+    const formData = new FormData(form);
+    const updates = {
+        level: parseInt(formData.get('level'), 10),
+        teamId: formData.get('teamId'),
+    };
+    updateById('users', userId, updates);
+    alert('User details updated.');
+    closeModal();
+}
+function handleSystemSettingsSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const updates = Object.fromEntries(formData.entries());
+    updateById('systemSettings', 'systemSettings', updates); // Assuming a single settings object
+    alert('System settings saved.');
+    refreshAndRender();
+}
 function handleSpotCheckSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
-    const checkType = form.dataset.checkType;
-    const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
-    if (!spotCheck) return;
-    updateSpotCheck(spotCheck.id, checkType, data);
+    const { checkType, spotCheckId } = form.dataset;
+    updateSpotCheck(spotCheckId, checkType, data);
     alert(`${checkType} check submitted.`);
     refreshAndRender();
 }
 function handleCompleteSpotCheck(spotCheckId) {
     const report = document.getElementById('final-spot-report')?.value;
-    const endSelfie = document.getElementById('end-selfie')?.files[0];
-    if (!report) {
-        alert('Please fill out the final report.');
-        return;
-    }
-     if (!endSelfie) {
-        alert('Please upload a final selfie for verification.');
-        return;
-    }
-    completeSpotCheck(spotCheckId, report);
+    if (!report) return alert('Please fill out the final report.');
+    // In a real app, you'd handle the file upload here. We simulate success.
     addSpotCheckSelfie(spotCheckId, 'end', 'simulated_image_data_end');
+    completeSpotCheck(spotCheckId, report);
     alert('Spot check completed and final report submitted.');
     state.activeMissionId = null;
     refreshAndRender();
@@ -2540,8 +2589,9 @@ function handleUpdateSiteApproval(requestId, status) {
     alert(`Site request has been ${status.toLowerCase()}.`);
     refreshAndRender();
 }
+
+// --- App Initialization ---
 function refreshData() {
-    console.log("Refreshing application data...");
     state.users = getUsers();
     if (state.currentUser) {
         state.currentUser = getUserById(state.currentUser.id) || null;
@@ -2551,28 +2601,27 @@ function refreshAndRender() {
     refreshData();
     render();
 }
+
 function initializeApp() {
     console.log("Initializing SSS App...");
     initializeDB();
     state.isLoading = true;
     render();
+
     document.body.addEventListener('click', (e) => {
         const target = e.target.closest('[data-action]');
         if (!target) return;
-
-        if (target.dataset.action === 'close-modal' && e.target !== target) return;
-
-        const { action, id } = target.dataset;
-        const { type, guardId, listType, missionId } = target.dataset;
+        const { action, id, type, guardId, listType, missionId } = target.dataset;
+        if(action === 'close-modal-backdrop' && e.target.closest('[data-modal-content]')) return;
         
         const actions = {
-            'open-login': () => openLoginModal(),
-            'close-modal': () => closeAllModals(),
+            'open-login': () => openModal('Login'),
+            'close-modal': closeModal,
+            'close-modal-backdrop': closeModal,
             'login': () => handleLogin(id),
-            'logout': () => handleLogout(),
+            'logout': handleLogout,
             'navigate': () => handleNavigation(type),
             'back-to-home': () => handleNavigation('Home'),
-            'toggle-mobile-menu': () => document.getElementById('sidebar')?.classList.toggle('-translate-x-full'),
             'claim-mission': () => handleClaimMission(id),
             'start-mission': () => handleStartMission(id),
             'mission-checkout': () => handleMissionCheckout(id),
@@ -2587,7 +2636,7 @@ function initializeApp() {
             'deny-contract': () => handleUpdateContract(id, 'Denied'),
             'approve-promotion': () => handleUpdatePromotion(id, 'Approved'),
             'deny-promotion': () => handleUpdatePromotion(id, 'Denied'),
-            'start-training': () => openTrainingModal(id),
+            'start-training': () => openModal('Training', id),
             'approve-training': () => handleUpdateTrainingStatus(id, 'Approved'),
             'request-retake': () => handleUpdateTrainingStatus(id, 'Retake Requested'),
             'deny-training': () => handleUpdateTrainingStatus(id, 'Denied'),
@@ -2595,18 +2644,20 @@ function initializeApp() {
             'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
             'approve-payroll-run': () => { if(id) approvePayrollRun(id); refreshAndRender(); },
             'confirm-payment': () => { if(id) confirmPayment(id); refreshAndRender(); },
-            'open-contract-modal': () => openContractModal(),
-            'open-site-modal': () => openSiteModal(),
+            'open-contract-modal': () => openModal('Contract'),
+            'open-site-modal': () => openModal('Site'),
             'approve-site': () => handleUpdateSiteApproval(id, 'Approved'),
             'deny-site': () => handleUpdateSiteApproval(id, 'Denied'),
             'start-spot-check': () => handleStartSpotCheck(id),
             'complete-spot-check': () => handleCompleteSpotCheck(id),
             'mark-uniform-sent': () => { markUniformSent(id); refreshAndRender(); },
             'confirm-uniform-received': () => { confirmUniformReceived(id); refreshAndRender(); },
+            'open-mission-details': () => openModal('MissionDetails', id),
+            'open-user-details': () => openModal('UserDetails', id),
         };
         if (actions[action]) actions[action]();
     });
-    // Add file input listener for spot check selfies
+
     document.body.addEventListener('change', (e) => {
         if (e.target.matches('#start-selfie')) {
             const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
@@ -2624,6 +2675,7 @@ function initializeApp() {
             }
         }
     });
+
     refreshData();
     state.isLoading = false;
     render();
