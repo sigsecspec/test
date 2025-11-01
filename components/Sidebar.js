@@ -75,10 +75,10 @@ const getSidebarStructure = (currentUser) => [
         roles: executiveRoles,
         items: [
             { name: 'Team Management', icon: Icons.Users, view: 'TeamManagement', roles: executiveRoles },
-            { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...operationsRoles, ...executiveRoles] },
-            { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...executiveRoles] },
+            { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...executiveRoles] },
             { name: 'Live Control', icon: Icons.Shield, view: 'LiveControl', roles: executiveRoles },
-            { name: 'System Settings', icon: Icons.Cog, view: 'SystemSettings', roles: executiveRoles },
+            { name: 'System Settings', icon: Icons.Cog, view: 'SystemSettings', roles: [UserRole.Owner] },
         ]
     },
 ];

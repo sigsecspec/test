@@ -2,7 +2,20 @@ import { Icons } from './Icons.js';
 import { UserRole } from '../types.js';
 import { allInternalRoles, clientRole, fieldRoles, operationsRoles, executiveRoles, managementRoles } from '../constants.js';
 
-const getSidebarStructure = (currentUser) => [
+interface NavItem {
+    name: string;
+    icon: ({ className }: { className?: string; }) => string;
+    view: string;
+    roles: string[];
+}
+
+interface NavGroup {
+    title: string;
+    roles: string[];
+    items: NavItem[];
+}
+
+const getSidebarStructure = (currentUser: any): NavGroup[] => [
     {
         title: 'Main',
         roles: [...allInternalRoles, ...clientRole],
@@ -74,10 +87,10 @@ const getSidebarStructure = (currentUser) => [
         roles: executiveRoles,
         items: [
             { name: 'Team Management', icon: Icons.Users, view: 'TeamManagement', roles: executiveRoles },
-            { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...operationsRoles, ...executiveRoles] },
-            { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...executiveRoles] },
+            { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...executiveRoles] },
             { name: 'Live Control', icon: Icons.Shield, view: 'LiveControl', roles: executiveRoles },
-            { name: 'System Settings', icon: Icons.Cog, view: 'SystemSettings', roles: executiveRoles },
+            { name: 'System Settings', icon: Icons.Cog, view: 'SystemSettings', roles: [UserRole.Owner] },
         ]
     },
 ];
@@ -137,16 +150,15 @@ export const Sidebar = ({ currentUser, activeView, isCollapsed = false }) => {
     `;
 };
 
-export const BottomNavBar = ({ currentUser, activeView }) => {
-    // FIX: Define a type for nav items to allow for both `view` and `action` properties.
-    type NavItem = {
-        name: string;
-        icon: ({ className }: { className?: string; }) => string;
-        view?: string;
-        action?: string;
-    };
+type BottomNavItem = {
+    name: string;
+    icon: ({ className }: { className?: string; }) => string;
+    view?: string;
+    action?: string;
+};
 
-    let primaryNav: NavItem[] = [
+export const BottomNavBar = ({ currentUser, activeView }) => {
+    let primaryNav: BottomNavItem[] = [
         { name: 'Dashboard', icon: Icons.Home, view: 'Dashboard' },
     ];
 

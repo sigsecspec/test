@@ -1,3 +1,4 @@
+
 import { 
     initializeDB, getUsers, getUserByEmail, getMissionById, claimMission, 
     missionCheckIn, missionCheckOut, addApplication, updateApplicationStatus,
@@ -5,7 +6,7 @@ import {
     updateTrainingProgressStatus, updateContractStatus, addPromotion, updatePromotionStatus,
     createPayrollRun, approvePayrollRun, confirmPayment, updateById, addSpotCheck,
     updateSpotCheck, addSpotCheckSelfie, completeSpotCheck, markUniformSent, getSpotCheckByMissionId,
-    getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients
+    getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients, getSystemSettings, updateSystemSettings, getUserById
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
@@ -104,8 +105,7 @@ function getFormData(form) {
         if (element && element.type === 'number') {
             data[key] = parseFloat(value) || 0;
         } else if (element && element.type === 'date') {
-            // Add a day to counteract timezone issues where it might select the day before
-            const [year, month, day] = value.split('-').map(Number);
+            const [year, month, day] = (value).split('-').map(Number);
             data[key] = new Date(Date.UTC(year, month - 1, day));
         } else if (element && element.type === 'datetime-local') {
              data[key] = new Date(value);
@@ -157,6 +157,7 @@ function handleCreatePayroll(e) {
 
 function handlePromotionSubmit(e) {
     e.preventDefault();
+    if(!state.currentUser) return;
     const data = getFormData(e.target);
     addPromotion({
         userId: state.currentUser.id,
@@ -170,6 +171,7 @@ function handlePromotionSubmit(e) {
 
 function handleTrainingSubmit(e) {
     e.preventDefault();
+    if(!state.currentUser || !state.selectedModal.id) return;
     const form = e.target;
     const answers = getFormData(form);
     const passed = submitTraining(state.currentUser.id, state.selectedModal.id, answers);
@@ -203,39 +205,64 @@ function handleSiteSubmit(e) {
 
 function handleSystemSettingsSubmit(e) {
     e.preventDefault();
+    if(!state.currentUser) return;
     const data = getFormData(e.target);
-    // This is a direct DB manipulation, which should be done via a function.
-    // Let's create an updateSystemSettings function in database.js
-    // For now, let's assume it exists and we'll add it in database.ts
-    const settings = {
+    const updates = {
         companyName: data.companyName,
         payrollCycle: data.payrollCycle,
     };
-    // This is a quick fix since direct _DB access is now encapsulated in database.js
-    // A proper solution would be an updateSystemSettings function.
-    // However, to keep the refactor focused, we'll live with this for now.
-    // updateSystemSettings(settings); 
-    alert('Settings updated. (This is a placeholder as direct DB access is refactored)');
-    // This part requires a new function in database.js to update settings, which I'll add.
-    updateById('systemSettings', null, data); // A bit of a hack for a singleton object.
+
+    if (state.currentUser.role === UserRole.Owner) {
+        const commissionRates = { ...getSystemSettings().commissionRates };
+        for (const key in data) {
+            if (key.startsWith('commission-')) {
+                const rateName = key.replace('commission-', '');
+                if (commissionRates.hasOwnProperty(rateName)) {
+                    commissionRates[rateName] = parseFloat(data[key]);
+                }
+            }
+        }
+        updates.commissionRates = commissionRates;
+    }
+    
+    updateSystemSettings(updates);
     alert('Settings updated.');
     render();
 }
+
 
 function handleUserDetailsSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const userId = form.dataset.userId;
+    if (!userId) return;
+    
     const data = getFormData(form);
-    const updates = {
-        level: parseInt(data.level, 10),
-        teamId: data.teamId,
-    };
-    if(updateById('users', userId, updates)) {
-        alert('User details updated.');
-        closeModal();
+    const userToUpdate = getUserById(userId);
+    if (!userToUpdate) return;
+
+    const updates = {};
+    
+    // For all roles, these fields might be editable now
+    if(data.firstName) updates.firstName = data.firstName;
+    if(data.lastName) updates.lastName = data.lastName;
+
+    // Internal roles have level and team
+    if (userToUpdate.role !== UserRole.Client) {
+        if(data.level) updates.level = parseInt(data.level, 10);
+        if(data.teamId) updates.teamId = data.teamId;
+    }
+
+    if (Object.keys(updates).length > 0) {
+        if(updateById('users', userId, updates)) {
+            alert('User details updated.');
+            state.users = getUsers();
+            closeModal();
+        } else {
+            alert('Failed to update user.');
+        }
     } else {
-        alert('Failed to update user.');
+        closeModal(); // No changes made
     }
 }
 
@@ -244,6 +271,7 @@ function handleSpotCheckSubmit(e) {
     const form = e.target;
     const checkType = form.dataset.checkType;
     const spotCheckId = form.dataset.spotCheckId;
+    if(!spotCheckId || !checkType) return;
     const data = getFormData(form);
     updateSpotCheck(spotCheckId, checkType, data);
     alert(`${checkType} check submitted.`);
@@ -256,14 +284,13 @@ function attachEventListeners() {
         const target = e.target.closest('[data-action]');
         if (!target) return;
 
-        // e.preventDefault(); Let's not prevent default on all clicks.
-        const action = target.dataset.action;
-        const id = target.dataset.id;
+        const action = target.getAttribute('data-action');
+        const id = target.getAttribute('data-id');
         
         const actionMap = {
-            'login': () => handleLogin(id),
+            'login': () => id && handleLogin(id),
             'logout': () => handleLogout(),
-            'navigate': () => handleNavigation(target.dataset.type),
+            'navigate': () => handleNavigation(target.getAttribute('data-type')),
             'open-login': () => openModal('Login'),
             'open-mobile-menu': () => { state.isMobileMenuOpen = true; render(); },
             'close-modal': closeModal,
@@ -271,8 +298,8 @@ function attachEventListeners() {
             'close-mobile-menu': (e) => { if (!e.target.closest('[data-menu-panel]')) { state.isMobileMenuOpen = false; render(); }},
             'back-to-home': () => { state.activeView = 'Home'; render(); },
             
-            // Guard Actions
             'claim-mission': () => {
+                if(!id || !state.currentUser) return;
                 const result = claimMission(id, state.currentUser.id);
                 alert(result.message);
                 if (result.success) render();
@@ -280,6 +307,7 @@ function attachEventListeners() {
             'start-training': () => openModal('Training', id),
             'request-retake-info': () => alert('Please contact a Supervisor or Training Officer to request a retake for this module.'),
             'start-mission': () => {
+                if(!id || !state.currentUser) return;
                 const mission = getMissionById(id);
                 if (!mission) return;
                 const leadAssignment = getLeadGuardAssignment(id);
@@ -303,6 +331,7 @@ function attachEventListeners() {
                 render();
             },
             'mission-checkout': () => {
+                 if(!id || !state.currentUser) return;
                  const mission = getMissionById(id);
                  if (mission) {
                     const leadAssignment = getLeadGuardAssignment(id);
@@ -326,37 +355,39 @@ function attachEventListeners() {
                  }
             },
             'lead-checkin': () => {
+                if(!state.currentUser) return;
                 const { missionId, guardId } = target.dataset;
                 missionCheckIn(missionId, state.currentUser.id, true, guardId);
                 render();
             },
             'lead-checkout': () => {
+                if(!state.currentUser) return;
                 const { missionId, guardId } = target.dataset;
                 missionCheckOut(missionId, state.currentUser.id, true, guardId);
                 render();
             },
-
-            // Client Actions
+            
             'open-contract-modal': () => openModal('Contract'),
             'open-site-modal': () => openModal('Site'),
             'update-roster': () => {
+                if(!state.currentUser) return;
                 const { guardId, listType } = target.dataset;
                 const client = getClients().find(c => c.userId === state.currentUser.id);
+                if(!client) return;
                 const list = client[listType];
                 const action = list.includes(guardId) ? 'remove' : 'add';
                 updateClientGuardList(client.id, guardId, listType, action);
                 render();
             },
             
-            // Admin/Ops Actions
             'approve-application': () => { updateApplicationStatus(id, 'Approved'); render(); },
             'deny-application': () => { updateApplicationStatus(id, 'Denied'); render(); },
             'approve-training': () => { updateTrainingProgressStatus(id, 'Approved'); render(); },
             'deny-training': () => { updateTrainingProgressStatus(id, 'Denied'); render(); },
             'request-retake': () => { updateTrainingProgressStatus(id, 'Retake Requested'); render(); },
-            'approve-contract': () => { updateContractStatus(id, 'Active', state.currentUser); render(); },
-            'deny-contract': () => { updateContractStatus(id, 'Denied', state.currentUser); render(); },
-            'review-contract': () => { updateContractStatus(id, 'Ready for Review', state.currentUser); render(); },
+            'approve-contract': () => { if(state.currentUser && updateContractStatus(id, 'Active', state.currentUser)) render(); },
+            'deny-contract': () => { if(state.currentUser && updateContractStatus(id, 'Denied', state.currentUser)) render(); },
+            'review-contract': () => { if(state.currentUser && updateContractStatus(id, 'Ready for Review', state.currentUser)) render(); },
             'approve-promotion': () => { updatePromotionStatus(id, 'Approved'); render(); },
             'deny-promotion': () => { updatePromotionStatus(id, 'Denied'); render(); },
             'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
@@ -365,11 +396,13 @@ function attachEventListeners() {
             'open-user-details': () => openModal('UserDetails', id),
             'open-mission-details': () => openModal('MissionDetails', id),
             'start-spot-check': () => {
+                if(!id || !state.currentUser) return;
                 addSpotCheck(state.currentUser.id, id);
                 state.activeMissionId = id;
                 render();
             },
             'complete-spot-check': () => {
+                if(!id) return;
                 const report = root.querySelector('#final-spot-report')?.value || 'No report submitted.';
                 completeSpotCheck(id, report);
                 state.activeMissionId = null;
@@ -387,17 +420,17 @@ function attachEventListeners() {
         }
     });
 
-    // Handle file inputs for spot checks separately as they are not clicks
     root.addEventListener('change', (e) => {
-        if (e.target.matches('#start-selfie')) {
-            const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
-            addSpotCheckSelfie(spotCheck.id, 'start', 'image_data_placeholder');
-            render();
-        }
-        if (e.target.matches('#end-selfie')) {
-            const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
-            addSpotCheckSelfie(spotCheck.id, 'end', 'image_data_placeholder');
-            render();
+        const target = e.target;
+        if (target.matches('#start-selfie') || target.matches('#end-selfie')) {
+            if (state.activeMissionId) {
+                const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
+                if (spotCheck) {
+                    const type = target.id.includes('start') ? 'start' : 'end';
+                    addSpotCheckSelfie(spotCheck.id, type, 'image_data_placeholder');
+                    render();
+                }
+            }
         }
     });
 }
@@ -411,9 +444,11 @@ function main() {
 }
 
 window.addEventListener('storage', () => {
-    // When localStorage changes in another tab, reload the state
-    initializeDB(); // This will call load()
-    // Re-render if the current view depends on the changed data
+    initializeDB(); 
+    state.users = getUsers();
+    if(state.currentUser) {
+        state.currentUser = getUserById(state.currentUser.id) || null;
+    }
     render();
 });
 

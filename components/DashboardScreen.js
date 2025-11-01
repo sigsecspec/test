@@ -44,7 +44,6 @@ import { LiveControl } from './views/LiveControl.js';
 import { SystemSettings } from './views/SystemSettings.js';
 import { GuardMissionDashboard, LeadGuardMissionDashboard, SupervisorSpotCheckDashboard } from './views/MissionDashboards.js';
 
-
 export const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId, selectedModal, isMobileMenuOpen }) => {
     let viewContent = '';
 
@@ -65,9 +64,6 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
             }
         } else {
              viewContent = `<p>Error: Mission not found.</p>`;
-             // This direct state mutation is not ideal in a real framework, but for this vanilla JS setup it works.
-             // In a real app, we'd dispatch an action to clear this.
-             // For now, let's assume the calling code in index.js handles state changes.
         }
     } else {
         const viewMap = {
@@ -109,17 +105,17 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     }
 
     let modalHtml = '';
-    if (selectedModal.type === 'Training') modalHtml = TrainingModal({ moduleId: selectedModal.id });
+    if (selectedModal.type === 'Training' && selectedModal.id) modalHtml = TrainingModal({ moduleId: selectedModal.id });
     if (selectedModal.type === 'Contract') modalHtml = ContractModal({ user: currentUser });
     if (selectedModal.type === 'Site') modalHtml = SiteModal({ user: currentUser });
-    if (selectedModal.type === 'MissionDetails') modalHtml = MissionDetailsModal({ missionId: selectedModal.id, user: currentUser });
-    if (selectedModal.type === 'UserDetails') modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
+    if (selectedModal.type === 'MissionDetails' && selectedModal.id) modalHtml = MissionDetailsModal({ missionId: selectedModal.id, user: currentUser });
+    if (selectedModal.type === 'UserDetails' && selectedModal.id) modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
 
     return `
         <div class="h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col md:flex-row overflow-hidden">
             <!-- Desktop Sidebar -->
             <div class="hidden lg:flex flex-shrink-0">
-                ${Sidebar({ currentUser, activeView })}
+                ${Sidebar({ currentUser, activeView, isCollapsed: false })}
             </div>
             <!-- Tablet Collapsed Sidebar -->
             <div class="hidden md:flex lg:hidden flex-shrink-0">
@@ -127,12 +123,6 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
             </div>
 
             <div class="flex-1 flex flex-col overflow-hidden">
-                <header class="h-16 bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] flex items-center justify-between px-6 flex-shrink-0 md:hidden">
-                    <h1 class="font-bold text-lg">${activeView}</h1>
-                    <button data-action="logout" class="flex items-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors">
-                        ${"" /* Re-importing Icons here is messy, so we'll omit it for now. A proper framework would handle this better. */}
-                    </button>
-                </header>
                 <main id="dashboard-content" class="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 md:pb-6">
                     ${viewContent}
                 </main>

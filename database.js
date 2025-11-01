@@ -1,11 +1,11 @@
 
-
 import { UserRole, Ranks } from './types.js';
-import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles, fieldRoles } from './constants.js';
+import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles } from './constants.js';
 
 const initialData = {
   users: [
     { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false },
+    { id: 'user-co', firstName: 'Ashley', lastName: 'Smith', email: 'A.Smith@SignatureSecuritySpecialist.com', role: UserRole.CoOwner, rank: Ranks[UserRole.CoOwner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
     // Team 1
     { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
     { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
@@ -81,7 +81,7 @@ function load() {
       const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
-              parsedDB[collection].forEach(item => {
+              parsedDB[collection].forEach((item) => {
                   if (item.startTime) item.startTime = new Date(item.startTime);
                   if (item.endTime) item.endTime = new Date(item.endTime);
                   if (item.startDate) item.startDate = new Date(item.startDate);
@@ -178,11 +178,6 @@ export const getPendingSiteApprovals = (teamId = null) => {
 };
 
 export function updateById(collectionName, id, updates) {
-    if (collectionName === 'systemSettings') {
-        _DB.systemSettings = { ..._DB.systemSettings, ...updates };
-        save();
-        return true;
-    }
     const collection = _DB[collectionName];
     if (!collection) return false;
     const item = collection.find(i => i.id === id);
@@ -192,6 +187,12 @@ export function updateById(collectionName, id, updates) {
         return true;
     }
     return false;
+}
+
+export function updateSystemSettings(updates) {
+    _DB.systemSettings = { ..._DB.systemSettings, ...updates };
+    save();
+    return true;
 }
 
 export function addApplication({ type, data }) {
@@ -223,6 +224,7 @@ export function updateSiteApprovalStatus(requestId, status) {
                 address: request.siteAddress
             });
         }
+        _DB.siteApprovalRequests = _DB.siteApprovalRequests.filter(r => r.id !== requestId);
     }
     save();
 }
@@ -309,14 +311,14 @@ export function addMission(missionData) {
 export function claimMission(missionId, userId) {
     const mission = getMissionById(missionId);
     const user = getUserById(userId);
-    const client = getClientById(mission.clientId);
+    const client = mission ? getClientById(mission.clientId) : undefined;
     const userProgress = getUserTrainingProgress(userId);
-    const requiredTraining = getTrainingModules().find(tm => tm.id === mission.requiredTrainingId);
-    const hasTraining = userProgress.some(p => p.moduleId === mission.requiredTrainingId && p.status === 'Approved');
+    const requiredTraining = mission ? getTrainingModules().find(tm => tm.id === mission.requiredTrainingId) : undefined;
+    const hasTraining = mission ? userProgress.some(p => p.moduleId === mission.requiredTrainingId && p.status === 'Approved') : false;
 
     if (!mission || !user || !client) return { success: false, message: "Mission, user, or client not found." };
     if (client.blacklist.includes(userId)) return { success: false, message: "You are blacklisted for this client." };
-    if (!hasTraining) return { success: false, message: `You need to complete "${requiredTraining.title}" training.` };
+    if (requiredTraining && !hasTraining) return { success: false, message: `You need to complete "${requiredTraining.title}" training.` };
     if (mission.claimedBy.includes(userId)) return { success: false, message: "You have already claimed this mission." };
     if (mission.claimedBy.length >= mission.requiredGuards) return { success: false, message: "This mission is already full." };
     if (user.level < mission.requiredLevel) return { success: false, message: "You do not meet the required level for this mission."};
@@ -464,15 +466,17 @@ export function updateContractStatus(contractId, status, user) {
     const contract = _DB.contracts.find(c => c.id === contractId);
     if (!contract) return false;
 
-    if (status === 'Active' || status === 'Denied') {
-        if (!canApprove) return false;
-    } else if (status === 'Ready for Review') {
-        if (!canReview || contract.status !== 'Pending') return false;
-    } else {
-        return false; // Unknown status change
+    if (status === 'Ready for Review') {
+        if ((canReview || canApprove) && contract.status === 'Pending') {
+            return updateById('contracts', contractId, { status: 'Ready for Review' });
+        }
+    } else if (status === 'Active' || status === 'Denied') {
+        if (canApprove && (contract.status === 'Pending' || contract.status === 'Ready for Review')) {
+            return updateById('contracts', contractId, { status });
+        }
     }
     
-    return updateById('contracts', contractId, { status });
+    return false;
 }
 
 export function addPromotion(promoData) {
@@ -495,7 +499,7 @@ export function updatePromotionStatus(promoId, status) {
 export function createPayrollRun(startDate, endDate) {
     const runId = `pr-${Date.now()}`;
     const run = { id: runId, startDate, endDate, status: 'Pending', totalAmount: 0, createdAt: new Date() };
-    const paidMissionIds = _DB.payrollEntries.map(e => e.missionId);
+    const paidMissionIds = _DB.payrollEntries.map(e => e.missionIds).flat();
     const missionsInPeriod = _DB.missions.filter(m => 
         m.status === 'Completed' &&
         new Date(m.endTime) >= startDate &&
@@ -513,7 +517,9 @@ export function createPayrollRun(startDate, endDate) {
                 if (!guardPay[guardId]) guardPay[guardId] = { totalHours: 0, totalPay: 0, missionIds: [] };
                 guardPay[guardId].totalHours += hours;
                 guardPay[guardId].totalPay += pay;
-                guardPay[guardId].missionIds.push(mission.id);
+                if (!guardPay[guardId].missionIds.includes(mission.id)) {
+                    guardPay[guardId].missionIds.push(mission.id);
+                }
             }
         });
     });
@@ -537,11 +543,13 @@ export function approvePayrollRun(runId) {
 export function confirmPayment(entryId) {
     updateById('payrollEntries', entryId, { paymentConfirmed: true });
     const entry = _DB.payrollEntries.find(e => e.id === entryId);
-    const allPaid = _DB.payrollEntries
-        .filter(e => e.runId === entry.runId)
-        .every(e => e.paymentConfirmed);
-    if (allPaid) {
-        updateById('payrollRuns', entry.runId, { status: 'Paid' });
+    if(entry) {
+        const allPaid = _DB.payrollEntries
+            .filter(e => e.runId === entry.runId)
+            .every(e => e.paymentConfirmed);
+        if (allPaid) {
+            updateById('payrollRuns', entry.runId, { status: 'Paid' });
+        }
     }
 }
 
@@ -574,7 +582,10 @@ export function updateSpotCheck(spotCheckId, checkType, checkData) {
 }
 
 export function addSpotCheckSelfie(spotCheckId, type, imageData) {
-    updateById('spotChecks', spotCheckId, { selfies: { ..._DB.spotChecks.find(sc=>sc.id===spotCheckId).selfies, [type]: imageData } });
+    const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
+    if (spotCheck) {
+        updateById('spotChecks', spotCheckId, { selfies: { ...spotCheck.selfies, [type]: imageData } });
+    }
 }
 
 export function completeSpotCheck(spotCheckId, report) {
@@ -593,7 +604,7 @@ export function assignLeadGuard(missionId, userId) {
     save();
 }
 
-export function getNeedsUniformUsers(teamId = null) {
+export const getNeedsUniformUsers = (teamId = null) => {
     const users = _DB.users.filter(u => u.needsUniform);
     if(!teamId) return users;
     return users.filter(u => u.teamId === teamId);

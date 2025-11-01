@@ -2,8 +2,20 @@ import { DashboardScreen } from './components/DashboardScreen.js';
 import { HomePage } from './components/HomePage.js';
 import { LoginModal } from './components/LoginModal.js';
 import { ApplicationView } from './components/ApplicationModal.js';
+import { User } from './database.js';
 
-export const App = (state) => {
+interface AppState {
+    currentUser: User | null;
+    users: User[];
+    isLoading: boolean;
+    activeView: string;
+    activeMissionId: string | null;
+    selectedPayrollRunId: string | null;
+    selectedModal: { type: string | null, id: string | null };
+    isMobileMenuOpen: boolean;
+}
+
+export const App = (state: AppState) => {
     if (state.isLoading) {
         return `<div class="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-secondary)]">Loading System...</div>`;
     }
