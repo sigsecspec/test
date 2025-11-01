@@ -1,3 +1,4 @@
+
 // --- CONSOLIDATED APPLICATION FILE ---
 // This file contains all JavaScript logic for the application,
 // refactored and expanded to be fully functional based on the owner's plan.
@@ -47,7 +48,10 @@ const guardRole = [UserRole.Guard];
 const fieldRoles = [...fieldLeadershipRoles, ...guardRole];
 const allInternalRoles = [...executiveRoles, ...managementRoles, ...operationsRoles, ...fieldRoles];
 const clientRole = [UserRole.Client];
-const adminRoles = [...executiveRoles, ...operationsRoles];
+const adminRoles = [...executiveRoles, ...operationsRoles]; // Kept for legacy compatibility where needed, prefer new constants
+const canAlwaysApproveRoles = [UserRole.Owner, UserRole.CoOwner];
+const managementAndOpsRoles = [...managementRoles, ...operationsRoles];
+
 
 // --- START: Icons.js ---
 const Icons = {
@@ -63,7 +67,7 @@ const Icons = {
     PlusCircle: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
     LocationMarker: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
     CreditCard: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>`,
-    Cog: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
+    Cog: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066 2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
     Users: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm6-11a4 4 0 10-5.292 0M21 21v-1a6 6 0 00-9-5.197" /></svg>`,
     ChartBar: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>`,
     Briefcase: ({ className = '' }) => `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.075c0 1.313-.964 2.4-2.175 2.4H5.925c-1.21 0-2.175-1.087-2.175-2.4V14.15M16.5 6.375h-9a2.25 2.25 0 00-2.25 2.25v.151c0 .56.224 1.07.622 1.448l4.473 3.914c.48.42.96.634 1.448.634s.968-.214 1.448-.634l4.473-3.914c.398-.378.622-.888.622-1.448v-.151a2.25 2.25 0 00-2.25-2.25z" /></svg>`,
@@ -528,8 +532,22 @@ function addContract(contractData) {
     _DB.contracts.push(newContract);
     save();
 }
-function updateContractStatus(contractId, status) {
-    updateById('contracts', contractId, { status });
+function updateContractStatus(contractId, status, user) {
+    if (!user) return false;
+    const canApprove = canAlwaysApproveRoles.includes(user.role);
+    const canReview = managementAndOpsRoles.includes(user.role);
+    const contract = _DB.contracts.find(c => c.id === contractId);
+    if (!contract) return false;
+
+    if (status === 'Active' || status === 'Denied') {
+        if (!canApprove) return false;
+    } else if (status === 'Ready for Review') {
+        if (!canReview || contract.status !== 'Pending') return false;
+    } else {
+        return false; // Unknown status change
+    }
+    
+    return updateById('contracts', contractId, { status });
 }
 function addPromotion(promoData) {
     const newPromo = { ...promoData, id: `promo-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
@@ -965,10 +983,13 @@ const MissionDetailsModal = ({ missionId, user }) => {
 const UserDetailsModal = ({ userId, currentUser }) => {
     const user = getUserById(userId);
     if (!user) return '';
-    const isAdmin = adminRoles.includes(currentUser.role);
     const teams = getCollection('teams');
     const userTrainings = getUserTrainingProgress(userId);
     const allModules = getTrainingModules();
+
+    const canAlwaysEdit = canAlwaysApproveRoles.includes(currentUser.role);
+    const isManagerOfUser = managementAndOpsRoles.includes(currentUser.role) && user.teamId === currentUser.teamId;
+    const canEdit = canAlwaysEdit || isManagerOfUser;
 
     return `
     <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
@@ -986,11 +1007,11 @@ const UserDetailsModal = ({ userId, currentUser }) => {
                             <p><strong>Rating:</strong> ${user.performanceRating.toFixed(2)}</p>
                             <div class="flex items-center">
                                 <label for="user-level" class="font-bold mr-2">Level:</label>
-                                <input id="user-level" name="level" type="number" min="1" max="5" value="${user.level}" ${!isAdmin ? 'disabled' : ''} class="w-20 p-1 border rounded-md bg-white disabled:bg-gray-100" />
+                                <input id="user-level" name="level" type="number" min="1" max="5" value="${user.level}" ${!canEdit ? 'disabled' : ''} class="w-20 p-1 border rounded-md bg-white disabled:bg-gray-100" />
                             </div>
                              <div class="flex items-center">
                                 <label for="user-team" class="font-bold mr-2">Team:</label>
-                                <select id="user-team" name="teamId" ${!isAdmin ? 'disabled' : ''} class="p-1 border rounded-md bg-white disabled:bg-gray-100">
+                                <select id="user-team" name="teamId" ${!canEdit ? 'disabled' : ''} class="p-1 border rounded-md bg-white disabled:bg-gray-100">
                                     ${teams.map(t => `<option value="${t.id}" ${user.teamId === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
                                 </select>
                             </div>
@@ -1010,7 +1031,7 @@ const UserDetailsModal = ({ userId, currentUser }) => {
                 </div>
                 <div class="p-4 bg-[var(--bg-tertiary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3 flex-shrink-0">
                     <button type="button" data-action="close-modal" class="px-4 py-2 bg-white text-gray-800 font-semibold rounded-md hover:bg-gray-100 border border-[var(--border-secondary)]">Close</button>
-                    ${isAdmin ? `<button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Save Changes</button>` : ''}
+                    ${canEdit ? `<button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Save Changes</button>` : ''}
                 </div>
             </form>
         </div>
@@ -1066,8 +1087,8 @@ const getSidebarStructure = (currentUser) => [
         items: [
             { name: 'Mission Control', icon: Icons.Map, view: 'MissionControl', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
             { name: 'Active Missions', icon: Icons.Flag, view: 'ActiveMissions', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
-            { name: 'Guard Management', icon: Icons.Users, view: 'GuardManagement', roles: [...operationsRoles, ...executiveRoles] },
-            { name: 'Client Management', icon: Icons.Briefcase, view: 'ClientManagement', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
+            { name: 'Guard Management', icon: Icons.Users, view: 'GuardManagement', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
+            { name: 'Client Management', icon: Icons.Briefcase, view: 'ClientManagement', roles: [...operationsRoles, ...managementRoles, ...executiveRoles] },
             { name: 'Site Roster', icon: Icons.LocationMarker, view: 'SiteRoster', roles: [...operationsRoles, ...executiveRoles] },
             { name: 'Communications', icon: Icons.Mail, view: 'Communications', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
             { name: 'Alerts', icon: Icons.Bell, view: 'Alerts', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
@@ -1079,7 +1100,7 @@ const getSidebarStructure = (currentUser) => [
         roles: [...operationsRoles, ...executiveRoles, ...managementRoles],
         items: [
             { name: 'Applications', icon: Icons.DocumentText, view: 'Applications', roles: [...operationsRoles, UserRole.Secretary, ...executiveRoles] },
-            { name: 'Contract Approvals', icon: Icons.DocumentDuplicate, view: 'ContractApprovals', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Contract Approvals', icon: Icons.DocumentDuplicate, view: 'ContractApprovals', roles: [...operationsRoles, ...managementRoles, ...executiveRoles] },
             { name: 'Site Approvals', icon: Icons.CheckCircle, view: 'SiteApprovals', roles: [...operationsRoles, ...executiveRoles] },
             { name: 'Promotions', icon: Icons.ArrowUpTray, view: 'Promotions', roles: [...operationsRoles, ...executiveRoles] },
             { name: 'Appeals', icon: Icons.Flag, view: 'Appeals', roles: [UserRole.OperationsDirector, ...executiveRoles] },
@@ -1631,7 +1652,8 @@ const Billing = ({ user }) => `
     </div>
 `;
 const GuardManagement = ({ user }) => {
-    const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
+    const canSeeAll = canAlwaysApproveRoles.includes(user.role);
+    const teamId = canSeeAll ? null : user.teamId;
     const guards = getUsers(fieldRoles).filter(g => teamId ? g.teamId === teamId : true);
     return `
         <div class="animate-in" style="opacity: 0;">
@@ -1675,7 +1697,8 @@ const GuardManagement = ({ user }) => {
     `;
 };
 const ClientManagement = ({ user }) => {
-    const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
+    const canSeeAll = canAlwaysApproveRoles.includes(user.role);
+    const teamId = canSeeAll ? null : user.teamId;
     const clients = getClients().filter(c => teamId ? c.teamId === teamId : true);
     return `
         <div class="animate-in" style="opacity: 0;">
@@ -1706,7 +1729,8 @@ const ClientManagement = ({ user }) => {
     `;
 };
 const MissionControl = ({ user }) => {
-    const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
+    const canSeeAll = canAlwaysApproveRoles.includes(user.role);
+    const teamId = canSeeAll ? null : user.teamId;
     const missions = getMissions().filter(m => {
         if (!teamId) return true;
         const client = getClients().find(c => c.id === m.clientId);
@@ -1760,7 +1784,8 @@ const MissionControl = ({ user }) => {
     `;
 };
 const ActiveMissions = ({ user }) => {
-    const teamId = [UserRole.Owner, UserRole.CoOwner, UserRole.Secretary, UserRole.Dispatch].includes(user.role) ? null : user.teamId;
+    const canSeeAll = canAlwaysApproveRoles.includes(user.role);
+    const teamId = canSeeAll ? null : user.teamId;
     const activeMissions = getMissions().filter(m => {
         if (m.status !== 'Active') return false;
         if (!teamId) return true;
@@ -2147,6 +2172,7 @@ const MyContracts = ({ user }) => {
         switch (status) {
             case 'Active': return 'bg-green-100 text-green-800';
             case 'Pending': return 'bg-yellow-100 text-yellow-800';
+            case 'Ready for Review': return 'bg-blue-100 text-blue-800';
             case 'Denied': return 'bg-red-100 text-red-800';
             default: return 'bg-[var(--border-tertiary)] text-[var(--text-secondary)]';
         }
@@ -2164,12 +2190,43 @@ const MyContracts = ({ user }) => {
     `;
 };
 const ContractApprovals = ({ user }) => {
-    const pendingContracts = getContracts().filter(c => c.status === 'Pending');
+    const canApprove = canAlwaysApproveRoles.includes(user.role);
+    const canReview = managementAndOpsRoles.includes(user.role);
+
+    const statusesToShow = canApprove ? ['Pending', 'Ready for Review'] : ['Pending'];
+    const pendingContracts = getContracts().filter(c => statusesToShow.includes(c.status));
+
     return `
          <div class="animate-in" style="opacity: 0;">
             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Pending Contract Approvals</h1>
             <div class="space-y-4">
-                ${pendingContracts.length > 0 ? pendingContracts.map(contract => `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm"><div class="flex justify-between items-center"><div><p class="font-bold text-lg text-[var(--text-primary)]">${contract.title}</p><p class="text-sm text-[var(--text-secondary)]">Budget: $${contract.totalBudget.toLocaleString()}</p></div><div class="space-x-2"><button data-action="approve-contract" data-id="${contract.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button><button data-action="deny-contract" data-id="${contract.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button></div></div></div>`).join('') : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No contracts are pending approval.</p>`}
+                ${pendingContracts.length > 0 ? pendingContracts.map(contract => {
+                    const buttons = (() => {
+                        if (canApprove) {
+                            if (contract.status === 'Pending' || contract.status === 'Ready for Review') {
+                                return `<div class="space-x-2 flex-shrink-0 self-end md:self-center">
+                                    <button data-action="approve-contract" data-id="${contract.id}" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm font-semibold hover:bg-green-600">Approve</button>
+                                    <button data-action="deny-contract" data-id="${contract.id}" class="px-3 py-1 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Deny</button>
+                                </div>`;
+                            }
+                        } else if (canReview && contract.status === 'Pending') {
+                            return `<div class="flex-shrink-0 self-end md:self-center">
+                                <button data-action="review-contract" data-id="${contract.id}" class="px-3 py-1 bg-blue-500 text-white rounded-md text-sm font-semibold hover:bg-blue-600">Mark Ready for Review</button>
+                            </div>`;
+                        }
+                        return `<div class="flex-shrink-0 self-end md:self-center"><span class="text-sm text-[var(--text-secondary)] italic">Awaiting action</span></div>`;
+                    })();
+                    return `<div class="bg-[var(--bg-secondary)] p-4 border border-[var(--border-primary)] rounded-lg shadow-sm">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                            <div>
+                                <p class="font-bold text-lg text-[var(--text-primary)]">${contract.title}</p>
+                                <p class="text-sm text-[var(--text-secondary)]">Budget: $${contract.totalBudget.toLocaleString()}</p>
+                                <p class="text-xs font-semibold px-2 py-0.5 rounded-full inline-block mt-1 ${contract.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}">${contract.status}</p>
+                            </div>
+                            ${buttons}
+                        </div>
+                    </div>`
+                }).join('') : `<p class="text-[var(--text-secondary)] p-4 bg-[var(--bg-tertiary)] rounded-md border border-[var(--border-primary)]">No contracts are pending approval.</p>`}
             </div>
         </div>
     `;
@@ -2649,6 +2706,16 @@ function attachFormEventListeners() {
             forms.forEach(form => form.addEventListener('submit', formInfo.handler));
         }
     });
+
+    const addSiteCheckbox = root.querySelector('#add-site-checkbox');
+    if (addSiteCheckbox) {
+        addSiteCheckbox.addEventListener('change', (e) => {
+            const newSiteFields = root.querySelector('#new-site-fields');
+            if (newSiteFields) {
+                newSiteFields.classList.toggle('hidden', !e.target.checked);
+            }
+        });
+    }
 }
 
 function openModal(type, id = null) {
@@ -2680,291 +2747,315 @@ function handleNavigation(view) {
     state.activeMissionId = null;
     state.isMobileMenuOpen = false;
     render();
-    const contentArea = document.getElementById('dashboard-content');
-    if(contentArea) contentArea.scrollTop = 0;
-}
-function handleClaimMission(missionId) {
-    if (!state.currentUser) return;
-    const result = claimMission(missionId, state.currentUser.id);
-    alert(result.message);
-    if(result.success) closeModal();
-    refreshAndRender();
-}
-function handleStartMission(missionId) {
-    if (!state.currentUser) return;
-    if(confirm("Verify attendance with a selfie? (Simulation)")) {
-        state.activeMissionId = missionId;
-        missionCheckIn(missionId, state.currentUser.id);
-        refreshAndRender();
-    }
-}
-function handleMissionCheckout(missionId) {
-     if (!state.currentUser) return;
-     if(confirm("Verify checkout with a selfie? (Simulation)")) {
-        missionCheckOut(missionId, state.currentUser.id);
-        state.activeMissionId = null;
-        alert("You have successfully checked out.");
-        refreshAndRender();
-    }
-}
-function handleLeadGuardAction(missionId, guardId, action) {
-    if (!state.currentUser) return;
-    if(action === 'checkin') missionCheckIn(missionId, state.currentUser.id, true, guardId);
-    else missionCheckOut(missionId, state.currentUser.id, true, guardId);
-    refreshAndRender();
-}
-function handleUpdateRoster(guardId, listType) {
-    if (!state.currentUser) return;
-    const client = getClients().find(c => c.userId === state.currentUser.id);
-    if (client) {
-        const list = client[listType] || [];
-        const action = list.includes(guardId) ? 'remove' : 'add';
-        updateClientGuardList(client.id, guardId, listType, action);
-        refreshAndRender();
-    }
-}
-function handleUpdateApplication(appId, status) {
-    updateApplicationStatus(appId, status);
-    alert(`Application ${status.toLowerCase()}.`);
-    refreshAndRender();
-}
-function handleUpdateContract(contractId, status) {
-    updateContractStatus(contractId, status);
-    alert(`Contract ${status.toLowerCase()}.`);
-    refreshAndRender();
-}
-function handleUpdatePromotion(promoId, status) {
-    updatePromotionStatus(promoId, status);
-    alert(`Promotion ${status.toLowerCase()}.`);
-    refreshAndRender();
-}
-function handleUpdateTrainingStatus(progressId, status) {
-    updateTrainingProgressStatus(progressId, status);
-    alert(`Training submission has been ${status.toLowerCase()}.`);
-    refreshAndRender();
-}
-function handleStartSpotCheck(missionId) {
-    if (!state.currentUser) return;
-    addSpotCheck(state.currentUser.id, missionId);
-    state.activeMissionId = missionId;
-    refreshAndRender();
 }
 
-// --- Form Submissions ---
+// --- Form Handlers ---
+function getFormData(form) {
+    const formData = new FormData(form);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        const element = form.elements[key];
+        if (element && element.type === 'number') {
+            data[key] = parseFloat(value) || 0;
+        } else if (element && element.type === 'date') {
+            // Add a day to counteract timezone issues where it might select the day before
+            const [year, month, day] = value.split('-').map(Number);
+            data[key] = new Date(Date.UTC(year, month - 1, day));
+        } else if (element && element.type === 'datetime-local') {
+             data[key] = new Date(value);
+        } else if (element && element.type === 'checkbox') {
+             data[key] = element.checked;
+        } else {
+            data[key] = value;
+        }
+    }
+    return data;
+}
+
 function handleApplicationSubmit(e) {
     e.preventDefault();
     const form = e.target;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    addApplication({ type: form.dataset.type, data });
-    alert('Application submitted successfully!');
-    handleNavigation('Home');
+    const type = form.dataset.type;
+    const data = getFormData(form);
+    addApplication({ type, data });
+    alert(`Thank you for your application! We will review it shortly.`);
+    state.activeView = 'Home';
+    render();
 }
+
 function handlePostMission(e) {
     e.preventDefault();
-    if (!state.currentUser) return;
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    const client = getClients().find(c => c.userId === state.currentUser.id);
-    if(!client) return alert("Could not find client profile.");
-    addMission({
-        title: data.title, contractId: data.contractId, siteId: data.siteId, 
-        description: data.description, clientId: client.id, 
-        startTime: new Date(data.startTime), endTime: new Date(data.endTime),
-        payRate: parseFloat(data.payRate), requiredGuards: parseInt(data.requiredGuards, 10), 
-        requiredLevel: parseInt(data.requiredLevel, 10),
-        requiredTrainingId: data.requiredTrainingId,
-        leadGuardId: data.leadGuardId || null,
-    });
-    alert('Mission posted successfully!');
-    handleNavigation('MyMissions');
+    const data = getFormData(e.target);
+    data.clientId = state.currentUser ? getClients().find(c => c.userId === state.currentUser.id)?.id : null;
+    if (data.clientId) {
+        addMission(data);
+        alert('Mission posted successfully!');
+        state.activeView = 'MyMissions';
+        render();
+    } else {
+        alert('Could not identify client. Please log in again.');
+    }
 }
+
 function handleCreatePayroll(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const startDate = new Date(formData.get('startDate'));
-    const endDate = new Date(formData.get('endDate'));
-    if (startDate >= endDate) return alert('Start date must be before end date.');
-    createPayrollRun(startDate, endDate);
-    alert('Payroll run created.');
-    refreshAndRender();
+    const data = getFormData(e.target);
+    if (data.endDate < data.startDate) {
+        alert('End date cannot be before start date.');
+        return;
+    }
+    createPayrollRun(data.startDate, data.endDate);
+    alert('Payroll run created successfully.');
+    render();
 }
+
 function handlePromotionSubmit(e) {
     e.preventDefault();
-    if (!state.currentUser) return;
-    const formData = new FormData(e.target);
-    addPromotion({ userId: state.currentUser.id, toRole: formData.get('role'), reason: formData.get('reason') });
+    const data = getFormData(e.target);
+    addPromotion({
+        userId: state.currentUser.id,
+        fromRole: state.currentUser.role,
+        toRole: data.role,
+        reason: data.reason
+    });
     alert('Promotion application submitted.');
-    refreshAndRender();
+    render();
 }
+
 function handleTrainingSubmit(e) {
     e.preventDefault();
-    if (!state.currentUser || state.selectedModal.type !== 'Training') return;
-    const formData = new FormData(e.target);
-    const answers = Object.fromEntries(formData.entries());
+    const form = e.target;
+    const answers = getFormData(form);
     const passed = submitTraining(state.currentUser.id, state.selectedModal.id, answers);
-    if (passed === null) return;
-    alert(passed ? 'Quiz submitted! Your results are pending approval.' : 'You did not pass the quiz. Please review the material and request a retake.');
+    if (passed === null) return; // Already attempted
+    alert(passed ? 'Quiz submitted! Awaiting approval.' : 'Quiz failed. Please request a retake.');
     closeModal();
 }
+
 function handleContractSubmit(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    if (data.addSite) {
-        if (!data.siteName || !data.siteAddress) return alert("Please provide a name and address for the new site.");
-        const contractId = `contract-${Date.now()}`;
-        _DB.contracts.push({ id: contractId, clientId: data.clientId, title: data.title, startDate: new Date(data.startDate), endDate: new Date(data.endDate), totalBudget: parseFloat(data.totalBudget), status: 'Pending' });
-        addSiteApprovalRequest({ clientId: data.clientId, siteName: data.siteName, siteAddress: data.siteAddress, contractId });
-    } else {
-        addContract({ clientId: data.clientId, title: data.title, startDate: new Date(data.startDate), endDate: new Date(data.endDate), totalBudget: parseFloat(data.totalBudget) });
+    const data = getFormData(e.target);
+    addContract(data);
+    if (data.addSite && data.siteName && data.siteAddress) {
+        addSiteApprovalRequest({
+            clientId: data.clientId,
+            siteName: data.siteName,
+            siteAddress: data.siteAddress
+        });
     }
-    alert('New contract submitted for approval!');
+    alert('Contract submitted for approval.');
     closeModal();
-    handleNavigation('MyContracts');
 }
+
 function handleSiteSubmit(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    addSiteApprovalRequest(Object.fromEntries(formData.entries()));
-    alert('New site request submitted for approval!');
+    const data = getFormData(e.target);
+    addSiteApprovalRequest(data);
+    alert('New site submitted for approval.');
     closeModal();
 }
+
+function handleSystemSettingsSubmit(e) {
+    e.preventDefault();
+    const data = getFormData(e.target);
+    _DB.systemSettings = { ..._DB.systemSettings, ...data };
+    save();
+    alert('Settings updated.');
+    render();
+}
+
 function handleUserDetailsSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const userId = form.dataset.userId;
-    const formData = new FormData(form);
+    const data = getFormData(form);
     const updates = {
-        level: parseInt(formData.get('level'), 10),
-        teamId: formData.get('teamId'),
+        level: parseInt(data.level, 10),
+        teamId: data.teamId,
     };
-    updateById('users', userId, updates);
-    alert('User details updated.');
-    closeModal();
+    if(updateById('users', userId, updates)) {
+        alert('User details updated.');
+        closeModal();
+    } else {
+        alert('Failed to update user.');
+    }
 }
-function handleSystemSettingsSubmit(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const updates = Object.fromEntries(formData.entries());
-    // In a real DB, you'd find the single settings document. Here we know its key.
-    _DB.systemSettings = { ..._DB.systemSettings, ...updates };
-    save();
-    alert('System settings saved.');
-    refreshAndRender();
-}
+
 function handleSpotCheckSubmit(e) {
     e.preventDefault();
     const form = e.target;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    const { checkType, spotCheckId } = form.dataset;
+    const checkType = form.dataset.checkType;
+    const spotCheckId = form.dataset.spotCheckId;
+    const data = getFormData(form);
     updateSpotCheck(spotCheckId, checkType, data);
     alert(`${checkType} check submitted.`);
-    refreshAndRender();
-}
-function handleCompleteSpotCheck(spotCheckId) {
-    const report = document.getElementById('final-spot-report')?.value;
-    if (!report) return alert('Please fill out the final report.');
-    // In a real app, you'd handle the file upload here. We simulate success.
-    addSpotCheckSelfie(spotCheckId, 'end', 'simulated_image_data_end');
-    completeSpotCheck(spotCheckId, report);
-    alert('Spot check completed and final report submitted.');
-    state.activeMissionId = null;
-    refreshAndRender();
-}
-function handleUpdateSiteApproval(requestId, status) {
-    updateSiteApprovalStatus(requestId, status);
-    alert(`Site request has been ${status.toLowerCase()}.`);
-    refreshAndRender();
-}
-
-// --- App Initialization ---
-function refreshData() {
-    state.users = getUsers();
-    if (state.currentUser) {
-        state.currentUser = getUserById(state.currentUser.id) || null;
-    }
-}
-function refreshAndRender() {
-    refreshData();
     render();
 }
 
-function initializeApp() {
-    console.log("Initializing SSS App...");
-    initializeDB();
-    state.isLoading = true;
-    render();
-
-    document.body.addEventListener('click', (e) => {
+// --- Main Event Listener ---
+function attachEventListeners() {
+    root.addEventListener('click', (e) => {
         const target = e.target.closest('[data-action]');
         if (!target) return;
-        
-        const { action, id, type, guardId, listType, missionId } = target.dataset;
 
-        if (action === 'close-mobile-menu' && e.target.closest('[data-menu-panel]')) return;
-        if(action === 'close-modal-backdrop' && e.target.closest('[data-modal-content]')) return;
+        e.preventDefault();
+        const action = target.dataset.action;
+        const id = target.dataset.id;
         
-        const actions = {
-            'open-login': () => openModal('Login'),
-            'close-modal': closeModal,
-            'close-modal-backdrop': closeModal,
-            'open-mobile-menu': () => { state.isMobileMenuOpen = true; render(); },
-            'close-mobile-menu': () => { state.isMobileMenuOpen = false; render(); },
+        const actionMap = {
             'login': () => handleLogin(id),
-            'logout': handleLogout,
-            'navigate': () => handleNavigation(type),
-            'back-to-home': () => handleNavigation('Home'),
-            'claim-mission': () => handleClaimMission(id),
-            'start-mission': () => handleStartMission(id),
-            'mission-checkout': () => handleMissionCheckout(id),
-            'lead-checkin': () => handleLeadGuardAction(missionId, guardId, 'checkin'),
-            'lead-checkout': () => handleLeadGuardAction(missionId, guardId, 'checkout'),
-            'view-mission-dashboard': () => { state.activeMissionId = id; render(); },
-            'exit-mission-dashboard': () => { state.activeMissionId = null; render(); },
-            'update-roster': () => handleUpdateRoster(guardId, listType),
-            'approve-application': () => handleUpdateApplication(id, 'Approved'),
-            'deny-application': () => handleUpdateApplication(id, 'Denied'),
-            'approve-contract': () => handleUpdateContract(id, 'Active'),
-            'deny-contract': () => handleUpdateContract(id, 'Denied'),
-            'approve-promotion': () => handleUpdatePromotion(id, 'Approved'),
-            'deny-promotion': () => handleUpdatePromotion(id, 'Denied'),
+            'logout': () => handleLogout(),
+            'navigate': () => handleNavigation(target.dataset.type),
+            'open-login': () => openModal('Login'),
+            'open-mobile-menu': () => { state.isMobileMenuOpen = true; render(); },
+            'close-modal': closeModal,
+            'close-modal-backdrop': (e) => { if (!e.target.closest('[data-modal-content]')) closeModal(); },
+            'close-mobile-menu': (e) => { if (!e.target.closest('[data-menu-panel]')) { state.isMobileMenuOpen = false; render(); }},
+            'back-to-home': () => { state.activeView = 'Home'; render(); },
+            
+            // Guard Actions
+            'claim-mission': () => {
+                const result = claimMission(id, state.currentUser.id);
+                alert(result.message);
+                if (result.success) render();
+            },
             'start-training': () => openModal('Training', id),
-            'approve-training': () => handleUpdateTrainingStatus(id, 'Approved'),
-            'request-retake': () => handleUpdateTrainingStatus(id, 'Retake Requested'),
-            'deny-training': () => handleUpdateTrainingStatus(id, 'Denied'),
-            'request-retake-info': () => alert("Please contact a Training Officer or Supervisor to request a retake."),
-            'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
-            'approve-payroll-run': () => { approvePayrollRun(id); alert('Payroll run approved.'); refreshAndRender(); },
-            'confirm-payment': () => { confirmPayment(id); refreshAndRender(); },
+            'request-retake-info': () => alert('Please contact a Supervisor or Training Officer to request a retake for this module.'),
+            'start-mission': () => {
+                const mission = getMissionById(id);
+                if (!mission) return;
+                const leadAssignment = getLeadGuardAssignment(id);
+                const isLead = leadAssignment && leadAssignment.userId === state.currentUser.id;
+                
+                if (!isLead && leadAssignment && !mission.checkIns[leadAssignment.userId]) {
+                    alert('The Site Lead must check in first.');
+                    return;
+                }
+                
+                missionCheckIn(id, state.currentUser.id);
+                state.activeMissionId = id;
+                render();
+            },
+            'view-mission-dashboard': () => {
+                state.activeMissionId = id;
+                render();
+            },
+            'exit-mission-dashboard': () => {
+                state.activeMissionId = null;
+                render();
+            },
+            'mission-checkout': () => {
+                 const mission = getMissionById(id);
+                 if (mission) {
+                    const leadAssignment = getLeadGuardAssignment(id);
+                    const isLead = leadAssignment && leadAssignment.userId === state.currentUser.id;
+                    if(isLead){
+                         const allOthersOut = mission.claimedBy.every(gid => gid === state.currentUser.id || mission.checkOuts[gid]);
+                         if (!allOthersOut) {
+                             alert('You must check out all other guards before checking yourself out.');
+                             return;
+                         }
+                    }
+                    missionCheckOut(id, state.currentUser.id);
+                    const allCheckedOut = mission.claimedBy.every(guardId => mission.checkOuts[guardId]);
+                    if (allCheckedOut) {
+                        alert("Mission complete!");
+                        state.activeMissionId = null;
+                    } else {
+                        alert("Checked out successfully.");
+                    }
+                    render();
+                 }
+            },
+            'lead-checkin': () => {
+                const { missionId, guardId } = target.dataset;
+                missionCheckIn(missionId, state.currentUser.id, true, guardId);
+                render();
+            },
+            'lead-checkout': () => {
+                const { missionId, guardId } = target.dataset;
+                missionCheckOut(missionId, state.currentUser.id, true, guardId);
+                render();
+            },
+
+            // Client Actions
             'open-contract-modal': () => openModal('Contract'),
             'open-site-modal': () => openModal('Site'),
-            'open-mission-details': () => openModal('MissionDetails', id),
+            'update-roster': () => {
+                const { guardId, listType } = target.dataset;
+                const client = getClients().find(c => c.userId === state.currentUser.id);
+                const list = client[listType];
+                const action = list.includes(guardId) ? 'remove' : 'add';
+                updateClientGuardList(client.id, guardId, listType, action);
+                render();
+            },
+            
+            // Admin/Ops Actions
+            'approve-application': () => { updateApplicationStatus(id, 'Approved'); render(); },
+            'deny-application': () => { updateApplicationStatus(id, 'Denied'); render(); },
+            'approve-training': () => { updateTrainingProgressStatus(id, 'Approved'); render(); },
+            'deny-training': () => { updateTrainingProgressStatus(id, 'Denied'); render(); },
+            'request-retake': () => { updateTrainingProgressStatus(id, 'Retake Requested'); render(); },
+            'approve-contract': () => { updateContractStatus(id, 'Active', state.currentUser); render(); },
+            'deny-contract': () => { updateContractStatus(id, 'Denied', state.currentUser); render(); },
+            'review-contract': () => { updateContractStatus(id, 'Ready for Review', state.currentUser); render(); },
+            'approve-promotion': () => { updatePromotionStatus(id, 'Approved'); render(); },
+            'deny-promotion': () => { updatePromotionStatus(id, 'Denied'); render(); },
+            'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
+            'approve-payroll-run': () => { approvePayrollRun(id); render(); },
+            'confirm-payment': () => { confirmPayment(id); render(); },
             'open-user-details': () => openModal('UserDetails', id),
-            'mark-uniform-sent': () => { markUniformSent(id); refreshAndRender(); },
-            'start-spot-check': () => handleStartSpotCheck(id),
-            'complete-spot-check': () => handleCompleteSpotCheck(id),
-            'approve-site': () => handleUpdateSiteApproval(id, 'Approved'),
-            'deny-site': () => handleUpdateSiteApproval(id, 'Denied'),
+            'open-mission-details': () => openModal('MissionDetails', id),
+            'start-spot-check': () => {
+                addSpotCheck(state.currentUser.id, id);
+                state.activeMissionId = id;
+                render();
+            },
+            'complete-spot-check': () => {
+                const report = root.querySelector('#final-spot-report')?.value || 'No report submitted.';
+                completeSpotCheck(id, report);
+                state.activeMissionId = null;
+                alert('Spot check completed and submitted.');
+                render();
+            },
+            'mark-uniform-sent': () => { markUniformSent(id); render(); },
+            'approve-site': () => { updateSiteApprovalStatus(id, 'Approved'); render(); },
+            'deny-site': () => { updateSiteApprovalStatus(id, 'Denied'); render(); },
         };
-
-        if (actions[action]) {
-            actions[action]();
+        
+        if (actionMap[action]) {
+            actionMap[action](e);
         }
     });
 
-    window.addEventListener('storage', () => {
-        console.log('Storage changed, refreshing data.');
-        load();
-        refreshAndRender();
+    // Handle file inputs for spot checks separately as they are not clicks
+    root.addEventListener('change', (e) => {
+        if (e.target.matches('#start-selfie')) {
+            const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
+            addSpotCheckSelfie(spotCheck.id, 'start', 'image_data_placeholder');
+            render();
+        }
+        if (e.target.matches('#end-selfie')) {
+            const spotCheck = getSpotCheckByMissionId(state.activeMissionId);
+            addSpotCheckSelfie(spotCheck.id, 'end', 'image_data_placeholder');
+            render();
+        }
     });
-
-    setTimeout(() => {
-        refreshData();
-        state.isLoading = false;
-        render();
-    }, 250);
 }
 
-initializeApp();
+function main() {
+    initializeDB();
+    state.users = getUsers();
+    state.isLoading = false;
+    render();
+    attachEventListeners();
+}
+
+window.addEventListener('storage', () => {
+    // When localStorage changes in another tab, reload the state
+    load();
+    // Re-render if the current view depends on the changed data
+    render();
+});
+
+main();
