@@ -98,14 +98,14 @@ const getSidebarStructure = (currentUser: any): NavGroup[] => [
 export const CommandSidebar = ({ currentUser, activeView }) => {
     const sidebarStructure = getSidebarStructure(currentUser);
     return `
-        <div class="w-72 bg-[var(--color-bg-surface)] flex flex-col border-r border-[var(--color-border)] min-h-full">
+        <div class="w-full flex flex-col h-full">
             <div class="flex items-center justify-center h-24 border-b border-[var(--color-border)] flex-shrink-0 px-6">
                 <div class="text-center">
                     <p class="font-bold text-lg">${currentUser.firstName} ${currentUser.lastName}</p>
                     <p class="text-xs text-[var(--color-text-muted)]">${currentUser.role}</p>
                 </div>
             </div>
-            <nav class="flex-grow py-6 px-4 space-y-6">
+            <nav class="flex-grow py-6 px-4 space-y-6 overflow-y-auto">
                 ${sidebarStructure.map((group) => {
                     const accessibleItems = group.items.filter(item => item.roles.includes(currentUser.role));
                     if (accessibleItems.length === 0) return '';

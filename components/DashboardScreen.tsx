@@ -124,7 +124,7 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     return `
         <div class="h-screen bg-[var(--color-bg-base)] text-[var(--color-text-base)] flex flex-col md:flex-row overflow-hidden">
             <!-- Desktop Command Sidebar -->
-            <div class="hidden md:flex flex-shrink-0 w-72 overflow-y-auto">
+            <div class="hidden md:flex flex-shrink-0 w-72 bg-[var(--color-bg-surface)] border-r border-[var(--color-border)]">
                 ${CommandSidebar({ currentUser, activeView })}
             </div>
 

@@ -1,5 +1,3 @@
-
-
 import { Icons } from '../Icons.js';
 import { adminRoles, executiveRoles, managementRoles, fieldRoles, clientRole } from '../../constants.js';
 import { getApplications, getMissions, getPendingTrainingApprovals, getPendingSiteApprovals, getContracts, getAlerts, getUserTrainingProgress, getClients } from '../../database.js';
@@ -9,37 +7,38 @@ export const DashboardView = ({ user }) => {
     const isGuard = fieldRoles.includes(user.role);
     const isClient = clientRole.includes(user.role);
 
-    const StatCard = ({ title, value, icon, color }) => `
-        <div class="bg-white p-4 rounded-lg shadow border border-[var(--border-primary)] flex items-center">
-            <div class="p-3 rounded-full ${color.bg} ${color.text} mr-4">${icon({ className: "w-6 h-6" })}</div>
+    const StatCard = ({ title, value, icon, color, action, type }) => `
+        <div class="bg-[var(--color-bg-surface)] p-5 rounded-xl border border-[var(--color-border)] flex items-center transition-all duration-300 hover:border-[var(--color-accent)] hover:-translate-y-1">
+            <div class="p-3 rounded-lg ${color.bg} ${color.text} mr-4">${icon({ className: "w-6 h-6" })}</div>
             <div>
-                <p class="text-sm text-[var(--text-secondary)]">${title}</p>
-                <p class="text-2xl font-bold text-[var(--text-primary)]">${value}</p>
+                <p class="text-sm font-medium text-[var(--color-text-muted)]">${title}</p>
+                <p class="text-2xl font-bold text-[var(--color-text-base)]">${value}</p>
             </div>
+             ${action ? `<button data-action="${action}" data-type="${type}" class="ml-auto text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors">&rarr;</button>` : ''}
         </div>
     `;
 
     const AdminDashboard = () => {
         const pendingApps = getApplications().length;
         const activeMissions = getMissions().filter(m => m.status === 'Active').length;
-        const pendingApprovals = getPendingTrainingApprovals().length + getPendingSiteApprovals().length + getContracts().filter(c => c.status === 'Pending').length;
+        const pendingApprovals = getPendingTrainingApprovals().length + getPendingSiteApprovals().length + getContracts().filter(c => c.status === 'Pending' || c.status === 'Ready for Review').length;
         const alerts = getAlerts().filter(a => a.severity === 'High').length;
         
         return `
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                ${StatCard({ title: "Pending Applications", value: pendingApps, icon: Icons.DocumentText, color: { bg: 'bg-blue-100', text: 'text-blue-600' } })}
-                ${StatCard({ title: "Active Missions", value: activeMissions, icon: Icons.Flag, color: { bg: 'bg-yellow-100', text: 'text-yellow-600' } })}
-                ${StatCard({ title: "Pending Approvals", value: pendingApprovals, icon: Icons.CheckCircle, color: { bg: 'bg-purple-100', text: 'text-purple-600' } })}
-                ${StatCard({ title: "High-Priority Alerts", value: alerts, icon: Icons.Bell, color: { bg: 'bg-red-100', text: 'text-red-600' } })}
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                ${StatCard({ title: "Pending Applications", value: pendingApps, icon: Icons.DocumentText, color: { bg: 'bg-[var(--color-secondary)]/20', text: 'text-[var(--color-text-base)]' }, action: 'navigate', type: 'Applications' })}
+                ${StatCard({ title: "Active Missions", value: activeMissions, icon: Icons.Flag, color: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' }, action: 'navigate', type: 'ActiveMissions' })}
+                ${StatCard({ title: "Pending Approvals", value: pendingApprovals, icon: Icons.CheckCircle, color: { bg: 'bg-purple-500/10', text: 'text-purple-400' }, action: 'navigate', type: 'ContractApprovals' })}
+                ${StatCard({ title: "High-Priority Alerts", value: alerts, icon: Icons.Bell, color: { bg: 'bg-red-500/10', text: 'text-red-400' }, action: 'navigate', type: 'Alerts' })}
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow border border-[var(--border-primary)]">
-                    <h2 class="font-bold text-lg mb-2">Actionable Items</h2>
-                     <p class="text-sm text-[var(--text-secondary)]">A feed of approvals, new missions, and other tasks would appear here.</p>
+                <div class="lg:col-span-2 bg-[var(--color-bg-surface)] p-6 rounded-xl border border-[var(--color-border)]">
+                    <h2 class="font-bold text-lg mb-4 text-[var(--color-text-base)]">Actionable Items</h2>
+                     <p class="text-sm text-[var(--color-text-muted)]">A feed of approvals, new missions, and other tasks would appear here.</p>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow border border-[var(--border-primary)]">
-                     <h2 class="font-bold text-lg mb-2">Recent Alerts</h2>
-                     <p class="text-sm text-[var(--text-secondary)]">A list of the latest system alerts.</p>
+                <div class="bg-[var(--color-bg-surface)] p-6 rounded-xl border border-[var(--color-border)]">
+                     <h2 class="font-bold text-lg mb-4 text-[var(--color-text-base)]">Recent Alerts</h2>
+                     <p class="text-sm text-[var(--color-text-muted)]">A list of the latest system alerts.</p>
                 </div>
             </div>
         `;
@@ -49,18 +48,18 @@ export const DashboardView = ({ user }) => {
         const upcomingMissions = getMissions().filter(m => m.claimedBy.includes(user.id) && new Date(m.startTime) > new Date()).length;
         const trainingProgress = getUserTrainingProgress(user.id);
         const pendingTraining = trainingProgress.filter(p => p.status === 'Pending Approval').length;
-        const failedTraining = trainingProgress.filter(p => p.status === 'Failed').length;
+        const failedTraining = trainingProgress.filter(p => p.status === 'Failed' || p.status === 'Denied').length;
 
         return `
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                ${StatCard({ title: "Upcoming Missions", value: upcomingMissions, icon: Icons.Calendar, color: { bg: 'bg-blue-100', text: 'text-blue-600' } })}
-                ${StatCard({ title: "Performance Rating", value: user.performanceRating.toFixed(2), icon: Icons.Trophy, color: { bg: 'bg-green-100', text: 'text-green-600' } })}
-                ${StatCard({ title: "Approvals Pending", value: pendingTraining, icon: Icons.CheckCircle, color: { bg: 'bg-yellow-100', text: 'text-yellow-600' } })}
-                ${StatCard({ title: "Failed Trainings", value: failedTraining, icon: Icons.AcademicCap, color: { bg: 'bg-red-100', text: 'text-red-600' } })}
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                ${StatCard({ title: "Upcoming Missions", value: upcomingMissions, icon: Icons.Calendar, color: { bg: 'bg-[var(--color-secondary)]/20', text: 'text-[var(--color-text-base)]' }, action: 'navigate', type: 'MyMissions' })}
+                ${StatCard({ title: "Performance Rating", value: user.performanceRating.toFixed(2), icon: Icons.Trophy, color: { bg: 'bg-[var(--color-accent)]/10', text: 'text-[var(--color-accent)]' } })}
+                ${StatCard({ title: "Approvals Pending", value: pendingTraining, icon: Icons.CheckCircle, color: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' }, action: 'navigate', type: 'Training' })}
+                ${StatCard({ title: "Trainings To Retake", value: failedTraining, icon: Icons.AcademicCap, color: { bg: 'bg-red-500/10', text: 'text-red-400' }, action: 'navigate', type: 'Training' })}
             </div>
-             <div class="bg-white p-4 rounded-lg shadow border border-[var(--border-primary)]">
-                <h2 class="font-bold text-lg mb-2">Your Next Mission</h2>
-                <p class="text-sm text-[var(--text-secondary)]">Details about your next scheduled mission would appear here.</p>
+             <div class="bg-[var(--color-bg-surface)] p-6 rounded-xl border border-[var(--color-border)]">
+                <h2 class="font-bold text-lg mb-4 text-[var(--color-text-base)]">Your Next Mission</h2>
+                <p class="text-sm text-[var(--color-text-muted)]">Details about your next scheduled mission would appear here.</p>
             </div>
         `;
     };
@@ -72,18 +71,18 @@ export const DashboardView = ({ user }) => {
         const activeContracts = client ? getContracts().filter(c => c.clientId === client.id && c.status === 'Active').length : 0;
         
         return `
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                ${StatCard({ title: "Active Missions", value: activeMissions, icon: Icons.Flag, color: { bg: 'bg-yellow-100', text: 'text-yellow-600' } })}
-                ${StatCard({ title: "Open Missions", value: openMissions, icon: Icons.ClipboardList, color: { bg: 'bg-blue-100', text: 'text-blue-600' } })}
-                ${StatCard({ title: "Active Contracts", value: activeContracts, icon: Icons.DocumentDuplicate, color: { bg: 'bg-green-100', text: 'text-green-600' } })}
-                <button data-action="navigate" data-type="PostMission" class="bg-[var(--accent-secondary)] text-white rounded-lg shadow hover:bg-[var(--accent-secondary-hover)] flex items-center justify-center p-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                ${StatCard({ title: "Active Missions", value: activeMissions, icon: Icons.Flag, color: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' }, action: 'navigate', type: 'MyMissions' })}
+                ${StatCard({ title: "Open Missions", value: openMissions, icon: Icons.ClipboardList, color: { bg: 'bg-[var(--color-secondary)]/20', text: 'text-[var(--color-text-base)]' } })}
+                ${StatCard({ title: "Active Contracts", value: activeContracts, icon: Icons.DocumentDuplicate, color: { bg: 'bg-[var(--color-accent)]/10', text: 'text-[var(--color-accent)]' }, action: 'navigate', type: 'MyContracts' })}
+                <button data-action="navigate" data-type="PostMission" class="bg-[var(--color-secondary)] text-[var(--color-secondary-text)] rounded-xl shadow-lg shadow-[var(--color-secondary)]/20 hover:bg-[var(--color-secondary-hover)] transition-all duration-300 hover:-translate-y-1 flex items-center justify-center p-4">
                     ${Icons.PlusCircle({className:"w-8 h-8 mr-3"})}
                     <span class="text-xl font-bold">Post Mission</span>
                 </button>
             </div>
-             <div class="bg-white p-4 rounded-lg shadow border border-[var(--border-primary)]">
-                <h2 class="font-bold text-lg mb-2">Contract Overview</h2>
-                <p class="text-sm text-[var(--text-secondary)]">A summary of your current contract budget and usage would be displayed here.</p>
+             <div class="bg-[var(--color-bg-surface)] p-6 rounded-xl border border-[var(--color-border)]">
+                <h2 class="font-bold text-lg mb-4 text-[var(--color-text-base)]">Contract Overview</h2>
+                <p class="text-sm text-[var(--color-text-muted)]">A summary of your current contract budget and usage would be displayed here.</p>
             </div>
         `;
     };
@@ -95,8 +94,8 @@ export const DashboardView = ({ user }) => {
     
     return `
         <div class="animate-in">
-             <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-2">Welcome back, ${user.firstName}!</h1>
-             <p class="text-[var(--text-secondary)] mb-6">This is your central command. Here's a snapshot of your current operations.</p>
+             <h1 class="text-4xl font-bold tracking-tighter text-[var(--color-text-base)] mb-2">Welcome back, ${user.firstName}.</h1>
+             <p class="text-[var(--color-text-muted)] mb-8">This is your central command. Here's a snapshot of current operations.</p>
              ${content}
         </div>
     `;

@@ -17,20 +17,20 @@ export const Analytics = ({ user }) => {
 
     return `
         <div class="animate-in" style="opacity: 0;">
-            <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Analytics Dashboard</h1>
+            <h1 class="text-3xl font-bold text-[var(--color-text-base)] mb-6">Analytics Dashboard</h1>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 ${stats.map(stat => {
                     const Icon = stat.icon;
                     return `
-                        <div class="bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm flex items-center">
-                            <div class="p-3 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] mr-4">${Icon({ className: "w-6 h-6" })}</div>
-                            <div><p class="text-sm text-[var(--text-secondary)]">${stat.title}</p><p class="text-2xl font-bold text-[var(--text-primary)]">${stat.value}</p></div>
+                        <div class="bg-[var(--color-bg-surface)] p-6 border border-[var(--color-border)] rounded-lg shadow-sm flex items-center">
+                            <div class="p-3 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] mr-4">${Icon({ className: "w-6 h-6" })}</div>
+                            <div><p class="text-sm text-[var(--color-text-muted)]">${stat.title}</p><p class="text-2xl font-bold text-[var(--color-text-base)]">${stat.value}</p></div>
                         </div>`;
                 }).join('')}
             </div>
-            <div class="mt-8 bg-[var(--bg-secondary)] p-6 border border-[var(--border-primary)] rounded-lg shadow-sm">
-                <h2 class="text-xl font-bold text-[var(--text-primary)] mb-4">Mission Completion Trends</h2>
-                <p class="text-[var(--text-secondary)]">A chart showing mission trends over time would be displayed here.</p>
+            <div class="mt-8 bg-[var(--color-bg-surface)] p-6 border border-[var(--color-border)] rounded-lg shadow-sm">
+                <h2 class="text-xl font-bold text-[var(--color-text-base)] mb-4">Mission Completion Trends</h2>
+                <p class="text-[var(--color-text-muted)]">A chart showing mission trends over time would be displayed here.</p>
             </div>
         </div>
     `;
