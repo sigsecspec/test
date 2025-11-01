@@ -24,9 +24,9 @@ export const LeadGuardMissionDashboard = ({ user, mission }) => {
     const otherGuards = mission.claimedBy.filter(id => id !== user.id).map(id => getUserById(id)).filter(Boolean);
     return `
         <div class="animate-in max-w-4xl mx-auto p-4" style="opacity: 0;">
-            <div class="bg-blue-500/10 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
-                <h1 class="text-2xl font-bold text-blue-300">Site Lead Dashboard: ${mission.title}</h1>
-                <p class="text-blue-400">You are responsible for checking in and out all guards on this mission.</p>
+            <div class="bg-gray-500/10 border-l-4 border-gray-400 p-4 mb-6 rounded-r-lg">
+                <h1 class="text-2xl font-bold text-gray-300">Site Lead Dashboard: ${mission.title}</h1>
+                <p class="text-gray-400">You are responsible for checking in and out all guards on this mission.</p>
             </div>
             
             <div class="bg-[var(--color-bg-surface)] p-6 rounded-lg shadow border border-[var(--color-border)] mb-6">
@@ -34,7 +34,7 @@ export const LeadGuardMissionDashboard = ({ user, mission }) => {
                 <ul class="space-y-3">
                     <li class="flex justify-between items-center p-2 bg-[var(--color-bg-surface-raised)] rounded">
                         <span>${user.firstName} ${user.lastName} (You)</span>
-                        <span class="text-sm font-semibold ${mission.checkOuts[user.id] ? 'text-red-400' : 'text-green-400'}">
+                        <span class="text-sm font-semibold ${mission.checkOuts[user.id] ? 'text-red-400' : 'text-[var(--color-accent)]'}">
                             ${mission.checkOuts[user.id] ? `Checked Out: ${new Date(mission.checkOuts[user.id].time).toLocaleTimeString()}` : `Checked In: ${new Date(mission.checkIns[user.id].time).toLocaleTimeString()}`}
                         </span>
                     </li>
@@ -46,7 +46,7 @@ export const LeadGuardMissionDashboard = ({ user, mission }) => {
                                     ? (mission.checkOuts[g.id]
                                         ? `<span class="text-sm font-semibold text-red-400">Checked Out</span>`
                                         : `<button data-action="lead-checkout" data-mission-id="${mission.id}" data-guard-id="${g.id}" class="px-2 py-1 text-xs bg-red-500 text-white rounded">Check Out</button>`)
-                                    : `<button data-action="lead-checkin" data-mission-id="${mission.id}" data-guard-id="${g.id}" class="px-2 py-1 text-xs bg-green-500 text-white rounded">Check In</button>`
+                                    : `<button data-action="lead-checkin" data-mission-id="${mission.id}" data-guard-id="${g.id}" class="px-2 py-1 text-xs bg-[var(--color-accent)] text-[var(--color-accent-text)] rounded">Check In</button>`
                                 }
                             </div>
                         </li>

@@ -46,7 +46,7 @@ export const ContractApprovals = ({ user }: { user: User }) => {
             }
         } else if (canReview && contract.status === 'Pending') {
             // Mgmt/Ops can only review 'Pending' contracts
-            buttons = `<button data-action="review-contract" data-id="${contract.id}" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700">Mark as Reviewed</button>`;
+            buttons = `<button data-action="review-contract" data-id="${contract.id}" class="px-3 py-1 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] rounded-md text-sm font-semibold hover:bg-[var(--color-secondary-hover)]">Mark as Reviewed</button>`;
         }
         return buttons;
     };

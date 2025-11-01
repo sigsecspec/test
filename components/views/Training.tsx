@@ -18,20 +18,20 @@ export const Training = ({ user }) => {
             <div class="space-y-4">
                 ${availableModules.map(module => {
                     const prog = getModuleProgress(module.id);
-                    let statusColor = 'bg-[var(--color-border)] text-[var(--color-text-muted)]';
+                    let statusClass = 'status-pill status-gray';
                     let statusText = 'Not Started';
                     let actionButton = `<button data-action="start-training" data-id="${module.id}" class="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] font-bold rounded-md hover:bg-[var(--color-secondary-hover)] transition-transform hover:scale-105">Start Training</button>`;
 
                     if (prog) {
                         statusText = prog.status;
                         if (prog.status === 'Approved') {
-                            statusColor = 'status-pill status-green';
+                            statusClass = 'status-pill status-green';
                             actionButton = `<span class="font-semibold text-[var(--color-accent)] flex items-center">${Icons.CheckCircle({className: "w-5 h-5 mr-2"})} Completed</span>`;
                         } else if (prog.status === 'Pending Approval') {
-                            statusColor = 'status-pill status-yellow';
+                            statusClass = 'status-pill status-yellow';
                             actionButton = `<span class="font-semibold text-yellow-400">Pending</span>`;
                         } else if (prog.status === 'Failed' || prog.status === 'Denied') {
-                            statusColor = 'status-pill status-red';
+                            statusClass = 'status-pill status-red';
                             actionButton = `<button data-action="request-retake-info" class="px-4 py-2 bg-red-600 text-white font-bold rounded-md hover:bg-red-700">Request Retake</button>`;
                         }
                     }
@@ -43,7 +43,7 @@ export const Training = ({ user }) => {
                                 <p class="text-sm text-[var(--color-text-muted)]">${module.content.substring(0, 100)}...</p>
                             </div>
                             <div class="flex-shrink-0 flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
-                                <span class="px-3 py-1 text-sm font-semibold rounded-full ${statusColor} text-center">${statusText}</span>
+                                <span class="${statusClass} text-center">${statusText}</span>
                                 <div class="w-full md:w-auto">${actionButton}</div>
                             </div>
                         </div>

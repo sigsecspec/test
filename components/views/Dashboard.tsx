@@ -30,7 +30,7 @@ export const DashboardView = ({ user }: DashboardViewProps) => {
         
         return `
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-                ${StatCard({ title: "Pending Applications", value: pendingApps, icon: Icons.DocumentText, color: { bg: 'bg-blue-500/10', text: 'text-blue-400' }, action: 'navigate', type: 'Applications' })}
+                ${StatCard({ title: "Pending Applications", value: pendingApps, icon: Icons.DocumentText, color: { bg: 'bg-[var(--color-secondary)]/20', text: 'text-[var(--color-text-base)]' }, action: 'navigate', type: 'Applications' })}
                 ${StatCard({ title: "Active Missions", value: activeMissions, icon: Icons.Flag, color: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' }, action: 'navigate', type: 'ActiveMissions' })}
                 ${StatCard({ title: "Pending Approvals", value: pendingApprovals, icon: Icons.CheckCircle, color: { bg: 'bg-purple-500/10', text: 'text-purple-400' }, action: 'navigate', type: 'ContractApprovals' })}
                 ${StatCard({ title: "High-Priority Alerts", value: alerts, icon: Icons.Bell, color: { bg: 'bg-red-500/10', text: 'text-red-400' }, action: 'navigate', type: 'Alerts' })}
@@ -56,7 +56,7 @@ export const DashboardView = ({ user }: DashboardViewProps) => {
 
         return `
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-                ${StatCard({ title: "Upcoming Missions", value: upcomingMissions, icon: Icons.Calendar, color: { bg: 'bg-blue-500/10', text: 'text-blue-400' }, action: 'navigate', type: 'MyMissions' })}
+                ${StatCard({ title: "Upcoming Missions", value: upcomingMissions, icon: Icons.Calendar, color: { bg: 'bg-[var(--color-secondary)]/20', text: 'text-[var(--color-text-base)]' }, action: 'navigate', type: 'MyMissions' })}
                 ${StatCard({ title: "Performance Rating", value: user.performanceRating.toFixed(2), icon: Icons.Trophy, color: { bg: 'bg-[var(--color-accent)]/10', text: 'text-[var(--color-accent)]' } })}
                 ${StatCard({ title: "Approvals Pending", value: pendingTraining, icon: Icons.CheckCircle, color: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' }, action: 'navigate', type: 'Training' })}
                 ${StatCard({ title: "Trainings To Retake", value: failedTraining, icon: Icons.AcademicCap, color: { bg: 'bg-red-500/10', text: 'text-red-400' }, action: 'navigate', type: 'Training' })}
@@ -77,7 +77,7 @@ export const DashboardView = ({ user }: DashboardViewProps) => {
         return `
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                 ${StatCard({ title: "Active Missions", value: activeMissions, icon: Icons.Flag, color: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' }, action: 'navigate', type: 'MyMissions' })}
-                ${StatCard({ title: "Open Missions", value: openMissions, icon: Icons.ClipboardList, color: { bg: 'bg-blue-500/10', text: 'text-blue-400' } })}
+                ${StatCard({ title: "Open Missions", value: openMissions, icon: Icons.ClipboardList, color: { bg: 'bg-[var(--color-secondary)]/20', text: 'text-[var(--color-text-base)]' } })}
                 ${StatCard({ title: "Active Contracts", value: activeContracts, icon: Icons.DocumentDuplicate, color: { bg: 'bg-[var(--color-accent)]/10', text: 'text-[var(--color-accent)]' }, action: 'navigate', type: 'MyContracts' })}
                 <button data-action="navigate" data-type="PostMission" class="bg-[var(--color-secondary)] text-white rounded-xl shadow-lg shadow-[var(--color-secondary)]/20 hover:bg-[var(--color-secondary-hover)] transition-all duration-300 hover:-translate-y-1 flex items-center justify-center p-4">
                     ${Icons.PlusCircle({className:"w-8 h-8 mr-3"})}
