@@ -1,12 +1,13 @@
 import { getMissions, getClients } from '../../database.js';
-import { canAlwaysApproveRoles } from '../../constants.js';
+import { canAlwaysApproveRoles, managementAndOpsRoles } from '../../constants.js';
 
 export const MissionControl = ({ user }) => {
     const canSeeAll = canAlwaysApproveRoles.includes(user.role);
     const teamId = canSeeAll ? null : user.teamId;
+    const allClients = getClients();
     const missions = getMissions().filter(m => {
         if (!teamId) return true;
-        const client = getClients().find(c => c.id === m.clientId);
+        const client = allClients.find(c => c.id === m.clientId);
         return client && client.teamId === teamId;
     });
 
@@ -27,18 +28,31 @@ export const MissionControl = ({ user }) => {
                 <table class="min-w-full leading-normal hidden md:table">
                     <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Title</th><th class="px-5 py-3 font-semibold">Status</th><th class="px-5 py-3 font-semibold">Time</th><th class="px-5 py-3 font-semibold">Guards</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
                     <tbody class="divide-y divide-[var(--border-primary)]">
-                        ${missions.map(mission => `
+                        ${missions.map(mission => {
+                            const client = allClients.find(c => c.id === mission.clientId);
+                            const canManage = canAlwaysApproveRoles.includes(user.role) || (managementAndOpsRoles.includes(user.role) && client && client.teamId === user.teamId);
+                            return `
                              <tr class="hover:bg-[var(--bg-tertiary)]">
                                 <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap">${mission.title}</p></td>
                                 <td class="px-5 py-4 text-sm"><span class="px-2 py-1 font-semibold rounded-full text-xs ${statusColor(mission.status)}">${mission.status}</span></td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${new Date(mission.startTime).toLocaleDateString()}</td>
                                 <td class="px-5 py-4 text-sm text-[var(--text-secondary)]">${mission.claimedBy.length}/${mission.requiredGuards}</td>
-                                <td class="px-5 py-4 text-sm"><button data-action="open-mission-details" data-id="${mission.id}" class="text-[var(--accent-primary)] hover:underline font-semibold">Details</button></td>
-                            </tr>`).join('')}
+                                <td class="px-5 py-4 text-sm whitespace-nowrap">
+                                    <button data-action="open-mission-details" data-id="${mission.id}" class="text-[var(--accent-primary)] hover:underline font-semibold">Details</button>
+                                    ${mission.status !== 'Completed' && mission.status !== 'Cancelled' && canManage ? `
+                                        <button data-action="open-edit-mission-modal" data-id="${mission.id}" class="ml-4 text-blue-600 hover:underline font-semibold">Edit</button>
+                                        <button data-action="cancel-mission" data-id="${mission.id}" class="ml-4 text-red-600 hover:underline font-semibold">Cancel</button>
+                                    ` : ''}
+                                </td>
+                            </tr>`;
+                        }).join('')}
                     </tbody>
                 </table>
                  <div class="md:hidden space-y-3 p-3">
-                    ${missions.map(mission => `
+                    ${missions.map(mission => {
+                        const client = allClients.find(c => c.id === mission.clientId);
+                        const canManage = canAlwaysApproveRoles.includes(user.role) || (managementAndOpsRoles.includes(user.role) && client && client.teamId === user.teamId);
+                        return `
                         <div class="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-primary)]">
                              <div class="flex justify-between items-start">
                                 <p class="font-bold text-[var(--text-primary)]">${mission.title}</p>
@@ -47,10 +61,17 @@ export const MissionControl = ({ user }) => {
                             <p class="text-sm text-[var(--text-secondary)] mt-1">${new Date(mission.startTime).toLocaleString([], {dateStyle:'short', timeStyle:'short'})}</p>
                              <div class="flex justify-between items-center mt-2 pt-2 border-t border-[var(--border-primary)]">
                                 <p class="text-sm text-[var(--text-secondary)]">Guards: ${mission.claimedBy.length}/${mission.requiredGuards}</p>
-                                <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm text-[var(--accent-primary)] font-semibold">Details &rarr;</button>
+                                <div class="whitespace-nowrap">
+                                    <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm text-[var(--accent-primary)] font-semibold">Details</button>
+                                    ${mission.status !== 'Completed' && mission.status !== 'Cancelled' && canManage ? `
+                                        <button data-action="open-edit-mission-modal" data-id="${mission.id}" class="ml-2 text-sm text-blue-600 font-semibold">Edit</button>
+                                        <button data-action="cancel-mission" data-id="${mission.id}" class="ml-2 text-sm text-red-600 font-semibold">Cancel</button>
+                                    ` : ''}
+                                </div>
                             </div>
                         </div>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </div>
             </div>
         </div>

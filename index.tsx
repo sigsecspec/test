@@ -9,6 +9,7 @@ import {
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
+import { canAlwaysApproveRoles } from './constants.js';
 
 // --- START: MAIN APP LOGIC ---
 interface AppState {
@@ -45,6 +46,7 @@ function attachFormEventListeners() {
     const forms: {id?: string, selector?: string, handler: (e: Event) => void}[] = [
         { id: '#application-form', handler: handleApplicationSubmit },
         { id: '#post-mission-form', handler: handlePostMission },
+        { id: '#edit-mission-form', handler: handleEditMission },
         { id: '#create-payroll-form', handler: handleCreatePayroll },
         { id: '#promotion-form', handler: handlePromotionSubmit },
         { id: '#training-form', handler: handleTrainingSubmit },
@@ -153,6 +155,21 @@ function handlePostMission(e: Event) {
     }
 }
 
+function handleEditMission(e: Event) {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const missionId = form.dataset.missionId;
+    if (!missionId) return;
+
+    const data = getFormData(form);
+    if (updateById('missions', missionId, data)) {
+        alert('Mission updated successfully!');
+        closeModal();
+    } else {
+        alert('Failed to update mission.');
+    }
+}
+
 function handleCreatePayroll(e: Event) {
     e.preventDefault();
     const data = getFormData(e.target as HTMLFormElement);
@@ -253,14 +270,21 @@ function handleUserDetailsSubmit(e: Event) {
 
     const updates: Record<string, any> = {};
     
-    // For all roles, these fields might be editable now
     if(data.firstName) updates.firstName = data.firstName;
     if(data.lastName) updates.lastName = data.lastName;
 
-    // Internal roles have level and team
     if (userToUpdate.role !== UserRole.Client) {
-        if(data.level) updates.level = parseInt(data.level, 10);
-        if(data.teamId) updates.teamId = data.teamId;
+        if(data.level) updates.level = parseInt(data.level as string, 10);
+        if(data.teamId !== undefined) updates.teamId = data.teamId === "" ? null : data.teamId;
+    } else { // It's a client
+        if (state.currentUser && canAlwaysApproveRoles.includes(state.currentUser.role) && data.teamId !== undefined) {
+             const newTeamId = data.teamId === "" ? null : data.teamId;
+             updates.teamId = newTeamId;
+             const client = getClients().find(c => c.userId === userId);
+             if (client) {
+                 updateById('clients', client.id, { teamId: newTeamId });
+             }
+        }
     }
 
     if (Object.keys(updates).length > 0) {
@@ -405,6 +429,17 @@ function attachEventListeners() {
             'confirm-payment': () => { confirmPayment(id); render(); },
             'open-user-details': () => openModal('UserDetails', id),
             'open-mission-details': () => openModal('MissionDetails', id),
+            'open-edit-mission-modal': () => openModal('EditMission', id),
+            'cancel-mission': () => {
+                if (id && confirm('Are you sure you want to cancel this mission? This action cannot be undone.')) {
+                    if (updateById('missions', id, { status: 'Cancelled' })) {
+                        alert('Mission has been cancelled.');
+                        render();
+                    } else {
+                        alert('Failed to cancel mission.');
+                    }
+                }
+            },
             'start-spot-check': () => {
                 if(!id || !state.currentUser) return;
                 addSpotCheck(state.currentUser.id, id);

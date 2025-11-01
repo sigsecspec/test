@@ -5,6 +5,7 @@ import { ContractModal } from './ContractModal.js';
 import { SiteModal } from './SiteModal.js';
 import { MissionDetailsModal } from './MissionDetailsModal.js';
 import { UserDetailsModal } from './UserDetailsModal.js';
+import { EditMissionModal } from './EditMissionModal.js';
 
 import { Sidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
 
@@ -118,6 +119,7 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     if (selectedModal.type === 'Site') modalHtml = SiteModal({ user: currentUser });
     if (selectedModal.type === 'MissionDetails' && selectedModal.id) modalHtml = MissionDetailsModal({ missionId: selectedModal.id, user: currentUser });
     if (selectedModal.type === 'UserDetails' && selectedModal.id) modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
+    if (selectedModal.type === 'EditMission' && selectedModal.id) modalHtml = EditMissionModal({ missionId: selectedModal.id });
 
     return `
         <div class="h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col md:flex-row overflow-hidden">

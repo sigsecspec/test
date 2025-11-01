@@ -51,6 +51,15 @@ export const UserDetailsModal = ({ userId, currentUser }: UserDetailsModalProps)
                 <label for="user-lastname" class="block text-xs font-bold mb-1">Last Name:</label>
                 <input id="user-lastname" name="lastName" type="text" value="${user.lastName}" ${!canEdit ? 'disabled' : ''} class="w-full p-2 border rounded-md bg-white disabled:bg-gray-100" />
             </div>
+            ${canAlwaysApproveRoles.includes(currentUser.role) ? `
+                <div>
+                    <label for="user-team" class="block text-xs font-bold mb-1">Assigned Team:</label>
+                    <select id="user-team" name="teamId" class="w-full p-2 border rounded-md bg-white">
+                        <option value="">No Team</option>
+                        ${teams.map(t => `<option value="${t.id}" ${user.teamId === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
+                    </select>
+                </div>
+            ` : `<p><strong>Team:</strong> ${teams.find(t => t.id === user.teamId)?.name || 'N/A'}</p>`}
         </div>
     `;
 
@@ -88,7 +97,7 @@ export const UserDetailsModal = ({ userId, currentUser }: UserDetailsModalProps)
                 </div>
                 <div class="p-4 bg-[var(--bg-tertiary)] border-t border-[var(--border-primary)] flex justify-end items-center space-x-3 flex-shrink-0">
                     <button type="button" data-action="close-modal" class="px-4 py-2 bg-white text-gray-800 font-semibold rounded-md hover:bg-gray-100 border border-[var(--border-secondary)]">Close</button>
-                    ${canEdit ? `<button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Save Changes</button>` : ''}
+                    ${canEdit || (isClientContact && canAlwaysEdit) ? `<button type="submit" class="px-4 py-2 bg-[var(--accent-secondary)] text-white font-semibold rounded-md hover:bg-[var(--accent-secondary-hover)]">Save Changes</button>` : ''}
                 </div>
             </form>
         </div>
