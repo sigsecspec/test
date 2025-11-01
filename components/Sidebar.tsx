@@ -1,5 +1,3 @@
-
-
 import { Icons } from './Icons.js';
 import { UserRole } from '../types.js';
 import { allInternalRoles, clientRole, fieldRoles, operationsRoles, executiveRoles, managementRoles } from '../constants.js';
@@ -136,7 +134,6 @@ export const CommandSidebar = ({ currentUser, activeView }) => {
 // Keep old Sidebar for compatibility in case it's referenced elsewhere, but it's deprecated.
 export const Sidebar = CommandSidebar;
 
-// FIX: Add type for nav items to allow either view or action.
 type NavItem = {
     name: string;
     icon: ({ className }: { className?: string; }) => string;

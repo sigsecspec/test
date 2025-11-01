@@ -1,6 +1,4 @@
-
 import { getCollection } from '../../database.js';
-// FIX: Import User type from types.js, not database.js
 import { User } from '../../types.js';
 import { executiveRoles, operationsRoles } from '../../constants.js';
 import { Icons } from '../Icons.js';

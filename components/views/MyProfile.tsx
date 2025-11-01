@@ -10,7 +10,7 @@ export const MyProfile = ({ user }) => `
                     ${Icons.Pencil({ className: "w-4 h-4" })}
                     Edit Profile
                 </button>
-                <button data-action="open-history-modal" data-entity-type="users" data-id="${user.id}" class="flex items-center gap-2 px-4 py-2 text-sm bg-[var(--color-bg-surface-raised)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] transition-colors">
+                <button data-action="open-history-modal" data-id="${user.id}" class="flex items-center gap-2 px-4 py-2 text-sm bg-[var(--color-bg-surface-raised)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] transition-colors">
                     ${Icons.ClipboardList({ className: "w-4 h-4" })}
                     View History
                 </button>

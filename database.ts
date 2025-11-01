@@ -1,5 +1,3 @@
-
-
 import { UserRole, Ranks } from './types.js';
 import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles, canCreateMissionsDirectly, canCreateMissionsForApproval, operationsRoles } from './constants.js';
 
@@ -87,16 +85,15 @@ const initialData = {
       { id: `log-${Date.now()}`, timestamp: new Date(), userId: 'user-1', actionType: 'SYSTEM_INITIALIZED', entityType: 'System', entityId: 'system-0', severity: 'Low', details: { description: 'Database was seeded with initial data.' } }
   ]
 };
-// FIX: Change type of _DB to any to allow dynamic properties
 let _DB: any = {};
 let _currentUser = null; // Store current user for logging
 
 function logAction(
-    actionType,
-    entityType,
-    entityId,
-    severity,
-    details
+    actionType: string,
+    entityType: string,
+    entityId: string,
+    severity: 'Low' | 'Medium' | 'High',
+    details: object
 ) {
     if (!_currentUser) return; // Don't log if no user is acting
     const logEntry = {

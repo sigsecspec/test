@@ -1,6 +1,4 @@
-
 import { getMissions, getClients, getUserById } from '../../database.js';
-// FIX: Import User type from types.js, not database.js
 import { User } from '../../types.js';
 import { canAlwaysApproveRoles, managementAndOpsRoles, executiveRoles, canApproveMissions } from '../../constants.js';
 import { Icons } from '../Icons.js';

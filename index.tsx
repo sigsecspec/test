@@ -1,6 +1,3 @@
-
-
-
 import { 
     initializeDB, getUsers, getUserByEmail, getMissionById, claimMission, 
     missionCheckIn, missionCheckOut, addApplication, updateApplicationStatus,
@@ -70,7 +67,6 @@ function attachFormEventListeners() {
         addSiteCheckbox.addEventListener('change', (e) => {
             const newSiteFields = root.querySelector('#new-site-fields');
             if (newSiteFields) {
-                // FIX: Cast e.target to HTMLInputElement to access 'checked' property
                 newSiteFields.classList.toggle('hidden', !(e.target as HTMLInputElement).checked);
             }
         });
@@ -115,25 +111,19 @@ function handleNavigation(view) {
 }
 
 // --- Form Handlers ---
-// FIX: Add type annotation for form parameter and return type.
 function getFormData(form: HTMLFormElement): { [key: string]: any } {
     const formData = new FormData(form);
-    // FIX: Define data with an index signature to allow dynamic property assignment.
     const data: { [key: string]: any } = {};
     for (let [key, value] of formData.entries()) {
         const element = form.elements[key] as HTMLInputElement;
         if (element && element.type === 'number') {
-            // FIX: Cast FormDataEntryValue to string for parseFloat
             data[key] = parseFloat(value as string) || 0;
         } else if (element && element.type === 'date') {
-            // FIX: Cast FormDataEntryValue to string for split
             const [year, month, day] = (value as string).split('-').map(Number);
             data[key] = new Date(Date.UTC(year, month - 1, day));
         } else if (element && element.type === 'datetime-local') {
-             // FIX: Cast FormDataEntryValue to string for new Date()
              data[key] = new Date(value as string);
         } else if (element && element.type === 'checkbox') {
-             // FIX: Use checked property from HTMLInputElement
              data[key] = element.checked;
         } else {
             data[key] = value;
@@ -273,7 +263,6 @@ function handleSystemSettingsSubmit(e: Event) {
     e.preventDefault();
     if(!state.currentUser) return;
     const data = getFormData(e.target as HTMLFormElement);
-    // FIX: Add index signature to allow adding commissionRates property later.
     const updates: { [key: string]: any } = {
         companyName: data.companyName,
         payrollCycle: data.payrollCycle,
@@ -376,7 +365,6 @@ function handleSpotCheckSubmit(e: Event) {
     const spotCheckId = form.dataset.spotCheckId;
     if(!spotCheckId || !checkType) return;
     const data = getFormData(form);
-    // FIX: Argument of type 'string' is not assignable to parameter of type '"start" | "mid" | "end"'.
     updateSpotCheck(spotCheckId, checkType as 'start' | 'mid' | 'end', data);
     alert(`${checkType} check submitted.`);
     render();
@@ -476,11 +464,8 @@ function handleAuditLogFilter() {
     const container = root?.querySelector('#audit-log-list-container');
     if (!container) return;
 
-    // FIX: Cast Element to HTMLInputElement to access value property.
     const searchTerm = (root?.querySelector('#audit-search-input') as HTMLInputElement).value.toLowerCase() || '';
-    // FIX: Cast Element to HTMLSelectElement to access value property.
     const typeFilter = (root?.querySelector('#audit-type-filter') as HTMLSelectElement).value || '';
-    // FIX: Cast Element to HTMLSelectElement to access value property.
     const roleFilter = (root?.querySelector('#audit-role-filter') as HTMLSelectElement).value || '';
     
     const allLogs = getActionLog();
@@ -500,7 +485,6 @@ function handleAuditLogFilter() {
         return typeMatch && roleMatch && searchMatch;
     });
 
-    // FIX: Cast window to any to access dynamically added property.
     const { renderAuditLogCards, renderAuditLogTable } = (window as any).auditLogRenderers;
     container.innerHTML = renderAuditLogTable(filteredLogs, allUsers) + renderAuditLogCards(filteredLogs, allUsers);
 }
@@ -508,7 +492,6 @@ function handleAuditLogFilter() {
 // --- Main Event Listener ---
 function attachEventListeners() {
     root.addEventListener('click', (e) => {
-        // FIX: Cast EventTarget to HTMLElement to use 'closest' method.
         const target = (e.target as HTMLElement).closest('[data-action]');
         if (!target) return;
 
@@ -529,6 +512,7 @@ function attachEventListeners() {
             'close-modal-backdrop': (e) => { if (!(e.target as HTMLElement).closest('[data-modal-content]')) closeModal(); },
             'close-mobile-menu': (e) => { if (!(e.target as HTMLElement).closest('[data-menu-panel]')) { state.isMobileMenuOpen = false; render(); }},
             'back-to-home': () => { state.activeView = 'Home'; render(); },
+            'open-history-modal': () => openModal('History', target.getAttribute('data-id')),
             
             'claim-mission': () => {
                 if(!id || !state.currentUser) return;
@@ -610,7 +594,6 @@ function attachEventListeners() {
                 if(!client || !guardId || !listType) return;
                 const list = client[listType as 'whitelist' | 'blacklist'];
                 const action = list.includes(guardId) ? 'remove' : 'add';
-                // FIX: Argument of type 'string' is not assignable to parameter of type '"whitelist" | "blacklist"'.
                 updateClientGuardList(client.id, guardId, listType as 'whitelist' | 'blacklist', action);
                 render();
             },
@@ -649,7 +632,6 @@ function attachEventListeners() {
             },
             'complete-spot-check': () => {
                 if(!id) return;
-                // FIX: Cast Element to HTMLTextAreaElement to access value property.
                 const report = (root.querySelector('#final-spot-report') as HTMLTextAreaElement).value || 'No report submitted.';
                 completeSpotCheck(id, report);
                 state.activeMissionId = null;
@@ -676,7 +658,6 @@ function attachEventListeners() {
     });
 
     root.addEventListener('input', (e) => {
-        // FIX: Cast EventTarget to HTMLInputElement to access 'id' and 'value' properties.
         const target = e.target as HTMLInputElement;
 
         if (target.id === 'client-search-input') {
@@ -688,7 +669,6 @@ function attachEventListeners() {
     });
 
     root.addEventListener('change', (e) => {
-        // FIX: Cast EventTarget to HTMLInputElement to access 'matches' and 'id' properties.
         const target = e.target as HTMLInputElement;
         if (target.matches('#start-selfie') || target.matches('#end-selfie')) {
             if (state.activeMissionId) {

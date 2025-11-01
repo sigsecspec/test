@@ -32,7 +32,6 @@ export const Ranks = {
     [UserRole.Client]: "Client",
 };
 
-// FIX: Add User type definition
 export type User = {
     id: string;
     firstName: string;

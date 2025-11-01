@@ -1,5 +1,3 @@
-
-
 import { UserRole } from '../types.js';
 import { getMissionById, getLeadGuardAssignment, getSpotCheckByMissionId } from '../database.js';
 import { TrainingModal } from './TrainingModal.js';
@@ -15,6 +13,7 @@ import { AdminContractModal } from './AdminContractModal.js';
 import { AdminSiteModal } from './AdminSiteModal.js';
 import { OpsSiteModal } from './OpsSiteModal.js';
 import { ApplicationView } from './ApplicationModal.js';
+import { HistoryModal } from './HistoryModal.js';
 
 import { CommandSidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
 
@@ -129,6 +128,10 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     if (selectedModal.type === 'AdminContract') modalHtml = AdminContractModal();
     if (selectedModal.type === 'AdminSite') modalHtml = AdminSiteModal();
     if (selectedModal.type === 'OpsSite') modalHtml = OpsSiteModal();
+    if (selectedModal.type === 'History' && selectedModal.id) {
+        const entityType = 'users'; // Simple assumption for now
+        modalHtml = HistoryModal({ entityInfo: { entityType, entityId: selectedModal.id } });
+    }
 
     return `
         <div class="h-screen bg-[var(--color-bg-base)] text-[var(--color-text-base)] flex flex-col md:flex-row overflow-hidden">

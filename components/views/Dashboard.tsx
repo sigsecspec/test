@@ -1,7 +1,5 @@
-
-
 import { Icons } from '../Icons.js';
-import { adminRoles, executiveRoles, managementRoles, fieldRoles, clientRole } from '../constants.js';
+import { adminRoles, executiveRoles, managementRoles, fieldRoles, clientRole } from '../../constants.js';
 import { getApplications, getMissions, getPendingTrainingApprovals, getPendingSiteApprovals, getContracts, getAlerts, getUserTrainingProgress, getClients } from '../../database.js';
 
 export const DashboardView = ({ user }) => {
@@ -9,7 +7,6 @@ export const DashboardView = ({ user }) => {
     const isGuard = fieldRoles.includes(user.role);
     const isClient = clientRole.includes(user.role);
 
-    // FIX: Make action and type props optional
     const StatCard = ({ title, value, icon, color, action, type }: { title: string, value: any, icon: any, color: any, action?: string, type?: string }) => `
         <div class="bg-[var(--color-bg-surface)] p-5 rounded-xl border border-[var(--color-border)] flex items-center transition-all duration-300 hover:border-[var(--color-accent)] hover:-translate-y-1">
             <div class="p-3 rounded-lg ${color.bg} ${color.text} mr-4">${icon({ className: "w-6 h-6" })}</div>
