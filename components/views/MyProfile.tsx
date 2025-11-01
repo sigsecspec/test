@@ -3,7 +3,19 @@ import { UserRole } from '../../types.js';
 
 export const MyProfile = ({ user }) => `
     <div class="animate-in max-w-3xl mx-auto" style="opacity: 0;">
-        <h1 class="text-3xl font-bold text-[var(--color-text-base)] mb-6">My Profile</h1>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <h1 class="text-3xl font-bold text-[var(--color-text-base)]">My Profile</h1>
+            <div class="flex items-center gap-2 mt-4 sm:mt-0">
+                <button data-action="open-user-details" data-id="${user.id}" class="flex items-center gap-2 px-4 py-2 text-sm bg-[var(--color-bg-surface-raised)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] transition-colors">
+                    ${Icons.Pencil({ className: "w-4 h-4" })}
+                    Edit Profile
+                </button>
+                <button data-action="open-history-modal" data-entity-type="users" data-id="${user.id}" class="flex items-center gap-2 px-4 py-2 text-sm bg-[var(--color-bg-surface-raised)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] transition-colors">
+                    ${Icons.ClipboardList({ className: "w-4 h-4" })}
+                    View History
+                </button>
+            </div>
+        </div>
         <div class="bg-[var(--color-bg-surface)] p-6 border border-[var(--color-border)] rounded-lg shadow-sm">
             <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
                 <div class="w-24 h-24 rounded-full bg-[var(--color-bg-surface-raised)] border border-[var(--color-border)] flex items-center justify-center flex-shrink-0">

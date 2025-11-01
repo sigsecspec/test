@@ -125,7 +125,7 @@ function load() {
       const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests', 'appeals', 'vehicleAssignments', 'actionLog', 'changeRequests'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
-              (parsedDB)[collection].forEach((item) => {
+              (parsedDB)[collection].forEach((item: any) => {
                   if (item.startTime) item.startTime = new Date(item.startTime);
                   if (item.endTime) item.endTime = new Date(item.endTime);
                   if (item.startDate) item.startDate = new Date(item.startDate);
@@ -161,43 +161,48 @@ export function initializeDB() {
   }
 }
 
-export const setCurrentUserForDB = (user) => {
+export const setCurrentUserForDB = (user: any) => {
     _currentUser = user;
 }
 
-export const getCollection = (name) => _DB[name] || [];
+export const getCollection = (name: string) => _DB[name] || [];
 
-export const getUsers = (roles = null) => {
+export const getUsers = (roles: string[] | null = null) => {
     if (!roles) return getCollection('users');
-    return (getCollection('users')).filter(u => roles.includes(u.role));
+    return (getCollection('users')).filter((u: any) => roles.includes(u.role));
 };
 
-export const getUserById = (id) => (getCollection('users')).find(u => u.id === id);
-export const getUserByEmail = (email) => (getCollection('users')).find(u => u.email === email);
+export const getUserById = (id: string) => (getCollection('users')).find((u: any) => u.id === id);
+export const getUserByEmail = (email: string) => (getCollection('users')).find((u: any) => u.email === email);
 export const getClients = () => getCollection('clients');
-export const getClientById = (id) => (getCollection('clients')).find(c => c.id === id);
+export const getClientById = (id: string) => (getCollection('clients')).find((c: any) => c.id === id);
 
-export const getMissions = (teamId = null) => {
+export const getMissions = (teamId: string | null = null) => {
     const missions = getCollection('missions');
     if (!teamId) return missions;
-    return missions.filter(m => {
+    return missions.filter((m: any) => {
         const client = getClientById(m.clientId);
         return client && client.teamId === teamId;
     });
 };
 
-export const getMissionById = (id) => (getCollection('missions')).find(m => m.id === id);
-export const getSites = () => getCollection('sites');
-export const getSiteById = (id) => getCollection('sites').find(s => s.id === id);
-export const getContracts = () => getCollection('contracts');
-export const getApplications = (status = 'Pending') => getCollection('applications').filter(a => a.status === status);
-export const getTrainingModules = () => getCollection('trainingModules');
-export const getUserTrainingProgress = (userId) => getCollection('trainingProgress').filter(p => p.userId === userId);
+export const getMissionsForUser = (userId: string) => {
+    return getCollection('missions').filter((m: any) => m.claimedBy.includes(userId))
+        .sort((a: any, b: any) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+}
 
-export const getPendingTrainingApprovals = (teamId = null) => {
-    const pending = getCollection('trainingProgress').filter(p => p.status === 'Pending Approval');
+export const getMissionById = (id: string) => (getCollection('missions')).find((m: any) => m.id === id);
+export const getSites = () => getCollection('sites');
+export const getSiteById = (id: string) => getCollection('sites').find((s: any) => s.id === id);
+export const getContracts = () => getCollection('contracts');
+export const getApplications = (status = 'Pending') => getCollection('applications').filter((a: any) => a.status === status);
+export const getTrainingModules = () => getCollection('trainingModules');
+export const getUserTrainingProgress = (userId: string) => getCollection('trainingProgress').filter((p: any) => p.userId === userId);
+
+export const getPendingTrainingApprovals = (teamId: string | null = null) => {
+    const pending = getCollection('trainingProgress').filter((p: any) => p.status === 'Pending Approval');
     if (!teamId) return pending;
-    return pending.filter(p => {
+    return pending.filter((p: any) => {
         const user = getUserById(p.userId);
         return user && user.teamId === teamId;
     });
@@ -206,36 +211,41 @@ export const getPendingTrainingApprovals = (teamId = null) => {
 export const getSystemSettings = () => getCollection('systemSettings');
 export const getAlerts = () => getCollection('alerts');
 export const getPromotions = () => getCollection('promotions');
-export const getPayrollRuns = () => getCollection('payrollRuns').sort((a,b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
-export const getPayrollEntriesForRun = (runId) => getCollection('payrollEntries').filter(e => e.runId === runId);
+export const getPayrollRuns = () => getCollection('payrollRuns').sort((a: any, b: any) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
+export const getPayrollEntriesForRun = (runId: string) => getCollection('payrollEntries').filter((e: any) => e.runId === runId);
 
-export const getMissionsForSpotCheck = (supervisorId) => {
+export const getMissionsForSpotCheck = (supervisorId: string) => {
     const supervisor = getUserById(supervisorId);
     if (!supervisor) return [];
-    return getMissions(supervisor.teamId).filter(m => m.status === 'Active' && !m.claimedBy.includes(supervisorId));
+    return getMissions(supervisor.teamId).filter((m: any) => m.status === 'Active' && !m.claimedBy.includes(supervisorId));
 };
 
-export const getSpotCheckByMissionId = (missionId) => getCollection('spotChecks').find(sc => sc.missionId === missionId);
-export const getLeadGuardAssignment = (missionId) => getCollection('leadGuardAssignments').find(lg => lg.missionId === missionId);
+export const getSpotCheckByMissionId = (missionId: string) => getCollection('spotChecks').find((sc: any) => sc.missionId === missionId);
+export const getLeadGuardAssignment = (missionId: string) => getCollection('leadGuardAssignments').find((lg: any) => lg.missionId === missionId);
 
-export const getPendingSiteApprovals = (teamId = null) => {
-    const pending = getCollection('siteApprovalRequests').filter(r => r.status === 'Pending');
+export const getPendingSiteApprovals = (teamId: string | null = null) => {
+    const pending = getCollection('siteApprovalRequests').filter((r: any) => r.status === 'Pending');
     if (!teamId) return pending;
-    return pending.filter(r => {
+    return pending.filter((r: any) => {
         const client = getClientById(r.clientId);
         return client && client.teamId === teamId;
     });
 };
 
-export const getVehicleById = (id) => getCollection('vehicles').find(v => v.id === id);
-export const getVehicleAssignments = (vehicleId) => (getCollection('vehicleAssignments')).filter(a => a.vehicleId === vehicleId);
-export const getActionLog = () => (getCollection('actionLog')).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-export const getActionLogEntryById = (id) => (getCollection('actionLog')).find(entry => entry.id === id);
+export const getVehicleById = (id: string) => getCollection('vehicles').find((v: any) => v.id === id);
+export const getVehicleAssignments = (vehicleId: string) => (getCollection('vehicleAssignments')).filter((a: any) => a.vehicleId === vehicleId);
+export const getActionLog = () => (getCollection('actionLog')).sort((a: any, b: any) => b.timestamp.getTime() - a.timestamp.getTime());
+export const getActionLogEntryById = (id: string) => (getCollection('actionLog')).find((entry: any) => entry.id === id);
+export const getActionLogForEntity = (entityId: string) => {
+    return (getCollection('actionLog'))
+        .filter((log: any) => log.entityId === entityId)
+        .sort((a: any, b: any) => b.timestamp.getTime() - a.timestamp.getTime());
+}
 
-export const getPendingChangeRequests = (teamId = null) => {
-    const pending = (getCollection('changeRequests')).filter(r => r.status === 'Pending');
+export const getPendingChangeRequests = (teamId: string | null | undefined = null) => {
+    const pending = (getCollection('changeRequests')).filter((r: any) => r.status === 'Pending');
     if (teamId === null || teamId === undefined) return pending; // For execs who see all
-    return pending.filter(r => {
+    return pending.filter((r: any) => {
         const targetUser = getUserById(r.entityId);
         // Assuming changes are only for users for now. This can be expanded.
         if (r.entityType === 'users' && targetUser) {
@@ -245,10 +255,10 @@ export const getPendingChangeRequests = (teamId = null) => {
     });
 };
 
-export function updateById(collectionName, id, updates) {
+export function updateById(collectionName: string, id: string, updates: any) {
     const collection = _DB[collectionName];
     if (!collection) return false;
-    const item = collection.find(i => i.id === id);
+    const item = collection.find((i: any) => i.id === id);
     if (item) {
         const before = { ...item };
         Object.assign(item, updates);
@@ -257,7 +267,7 @@ export function updateById(collectionName, id, updates) {
         if (collectionName === 'users' && updates.hasOwnProperty('teamId')) {
             const user = item;
             if (user.role === UserRole.Client) {
-                const client = (_DB.clients).find(c => c.userId === user.id);
+                const client = (_DB.clients).find((c: any) => c.userId === user.id);
                 if (client) {
                     client.teamId = updates.teamId;
                 }
@@ -271,7 +281,7 @@ export function updateById(collectionName, id, updates) {
     return false;
 }
 
-export function updateSystemSettings(updates) {
+export function updateSystemSettings(updates: any) {
     const before = { ..._DB.systemSettings };
     _DB.systemSettings = { ..._DB.systemSettings, ...updates };
     logAction('UPDATE', 'systemSettings', 'system-0', 'Medium', { before, after: _DB.systemSettings });
@@ -279,21 +289,21 @@ export function updateSystemSettings(updates) {
     return true;
 }
 
-export function addApplication({ type, data }) {
+export function addApplication({ type, data }: { type: string, data: any }) {
     const newApp = { id: `app-${Date.now()}`, type, data, status: 'Pending', submittedAt: new Date() };
     _DB.applications.push(newApp);
     logAction('CREATE', 'applications', newApp.id, 'Low', { after: newApp });
     save();
 }
 
-function addSite(siteData) {
+function addSite(siteData: any) {
     const newSite = { ...siteData, id: `site-${Date.now()}` };
     _DB.sites.push(newSite);
     logAction('CREATE', 'sites', newSite.id, 'Low', { after: newSite });
     save();
 }
 
-export function createSite(siteData, user) {
+export function createSite(siteData: any, user: any) {
     if (!executiveRoles.includes(user.role)) {
         alert("You don't have permission to create sites directly.");
         return false;
@@ -310,15 +320,15 @@ export function createSite(siteData, user) {
     return true;
 }
 
-export function addSiteApprovalRequest(requestData) {
+export function addSiteApprovalRequest(requestData: any) {
     const newRequest = { ...requestData, id: `sar-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
     _DB.siteApprovalRequests.push(newRequest);
     logAction('CREATE', 'siteApprovalRequests', newRequest.id, 'Low', { after: newRequest });
     save();
 }
 
-export function updateSiteApprovalStatus(requestId, status) {
-    const request = _DB.siteApprovalRequests.find(r => r.id === requestId);
+export function updateSiteApprovalStatus(requestId: string, status: string) {
+    const request = _DB.siteApprovalRequests.find((r: any) => r.id === requestId);
     if (request) {
         request.status = status;
         if (status === 'Approved') {
@@ -331,26 +341,26 @@ export function updateSiteApprovalStatus(requestId, status) {
         } else {
              logAction('DENY', 'siteApprovalRequests', requestId, 'Medium', { after: request });
         }
-        _DB.siteApprovalRequests = _DB.siteApprovalRequests.filter(r => r.id !== requestId);
+        _DB.siteApprovalRequests = _DB.siteApprovalRequests.filter((r: any) => r.id !== requestId);
     }
     save();
 }
 
-export function updateApplicationStatus(appId, status, teamId = null) {
-    const app = _DB.applications.find(a => a.id === appId);
+export function updateApplicationStatus(appId: string, status: string, teamId: string | null = null) {
+    const app = _DB.applications.find((a: any) => a.id === appId);
     if (app) {
         app.status = status;
         if (status === 'Approved') {
             logAction('APPROVE', 'applications', appId, 'Medium', { after: app });
-            const roleMap = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer, 'New Operations': UserRole.OperationsManager, 'New Management': UserRole.Secretary };
+            const roleMap: { [key: string]: string } = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer, 'New Operations': UserRole.OperationsManager, 'New Management': UserRole.Secretary };
             const role = roleMap[app.type];
             if (!role) return;
 
             let assignedTeamId = app.data.teamCode || teamId;
             if (!assignedTeamId && role !== UserRole.Client && !executiveRoles.includes(role)) {
-                const teamCounts = _DB.teams.map(t => ({ id: t.id, count: _DB.users.filter(u => u.teamId === t.id).length }));
+                const teamCounts = _DB.teams.map((t: any) => ({ id: t.id, count: _DB.users.filter((u: any) => u.teamId === t.id).length }));
                 if (teamCounts.length > 0) {
-                    assignedTeamId = teamCounts.sort((a, b) => a.count - b.count)[0].id;
+                    assignedTeamId = teamCounts.sort((a: any, b: any) => a.count - b.count)[0].id;
                 }
             }
             
@@ -360,7 +370,7 @@ export function updateApplicationStatus(appId, status, teamId = null) {
                 lastName: app.data.lastName || app.data.companyName.split(' ')[1] || 'Contact',
                 email: app.data.email || app.data.contactEmail,
                 role: role,
-                rank: Ranks[role],
+                rank: Ranks[role as keyof typeof Ranks],
                 level: 1,
                 certifications: [],
                 teamId: assignedTeamId,
@@ -394,15 +404,15 @@ export function updateApplicationStatus(appId, status, teamId = null) {
         } else {
             logAction('DENY', 'applications', appId, 'Medium', { after: app });
         }
-        _DB.applications = _DB.applications.filter(a => a.id !== appId);
+        _DB.applications = _DB.applications.filter((a: any) => a.id !== appId);
     }
     save();
 }
 
-export function addUser(userData) {
+export function addUser(userData: any) {
     const { role, email, firstName, lastName, teamId, companyName } = userData;
 
-    if (_DB.users.find(u => u.email === email)) {
+    if (_DB.users.find((u: any) => u.email === email)) {
         alert('A user with this email already exists.');
         return false;
     }
@@ -413,7 +423,7 @@ export function addUser(userData) {
         lastName,
         email,
         role,
-        rank: Ranks[role],
+        rank: Ranks[role as keyof typeof Ranks],
         level: 1,
         certifications: [],
         teamId: teamId || null,
@@ -442,7 +452,7 @@ export function addUser(userData) {
     return true;
 }
 
-export function addMission(missionData, user) {
+export function addMission(missionData: any, user: any) {
     const missionId = `mission-${Date.now()}`;
     const canCreateDirectly = canCreateMissionsDirectly.includes(user.role);
     
@@ -471,13 +481,13 @@ export function addMission(missionData, user) {
     save();
 }
 
-export function claimMission(missionId, userId) {
+export function claimMission(missionId: string, userId: string) {
     const mission = getMissionById(missionId);
     const user = getUserById(userId);
     const client = mission ? getClientById(mission.clientId) : undefined;
     const userProgress = getUserTrainingProgress(userId);
-    const requiredTraining = mission ? getTrainingModules().find(tm => tm.id === mission.requiredTrainingId) : undefined;
-    const hasTraining = mission ? userProgress.some(p => p.moduleId === mission.requiredTrainingId && p.status === 'Approved') : false;
+    const requiredTraining = mission ? getTrainingModules().find((tm: any) => tm.id === mission.requiredTrainingId) : undefined;
+    const hasTraining = mission ? userProgress.some((p: any) => p.moduleId === mission.requiredTrainingId && p.status === 'Approved') : false;
 
     if (!mission || !user || !client) return { success: false, message: "Mission, user, or client not found." };
     if (client.blacklist.includes(userId)) return { success: false, message: "You are blacklisted for this client." };
@@ -495,7 +505,7 @@ export function claimMission(missionId, userId) {
     return { success: true, message: "Mission claimed successfully!" };
 }
 
-export function missionCheckIn(missionId, userId, isLead = false, guardToCheckIn = null) {
+export function missionCheckIn(missionId: string, userId: string, isLead = false, guardToCheckIn: string | null = null) {
     const mission = getMissionById(missionId);
     if (!mission || !mission.claimedBy.includes(userId)) return;
 
@@ -521,7 +531,7 @@ export function missionCheckIn(missionId, userId, isLead = false, guardToCheckIn
     save();
 }
 
-export function missionCheckOut(missionId, userId, isLead = false, guardToCheckOut = null) {
+export function missionCheckOut(missionId: string, userId: string, isLead = false, guardToCheckOut: string | null = null) {
     const mission = getMissionById(missionId);
     if (!mission || !mission.checkIns[userId]) return;
 
@@ -534,7 +544,7 @@ export function missionCheckOut(missionId, userId, isLead = false, guardToCheckO
         }
     } else {
          if (isUserTheLead) {
-             const allOthersOut = mission.claimedBy.every(id => id === userId || mission.checkOuts[id]);
+             const allOthersOut = mission.claimedBy.every((id: string) => id === userId || mission.checkOuts[id]);
              if (!allOthersOut) {
                  alert('You must check out all other guards before checking yourself out.');
                  return;
@@ -542,7 +552,7 @@ export function missionCheckOut(missionId, userId, isLead = false, guardToCheckO
          }
         if (!mission.checkOuts[userId]) {
             mission.checkOuts[userId] = { time: new Date() };
-            const allCheckedOut = mission.claimedBy.every(guardId => mission.checkOuts[guardId]);
+            const allCheckedOut = mission.claimedBy.every((guardId: string) => mission.checkOuts[guardId]);
             if (allCheckedOut) {
                 mission.status = 'Completed';
             }
@@ -551,12 +561,12 @@ export function missionCheckOut(missionId, userId, isLead = false, guardToCheckO
     save();
 }
 
-export function updateClientGuardList(clientId, guardId, listType, action) {
+export function updateClientGuardList(clientId: string, guardId: string, listType: 'whitelist' | 'blacklist', action: 'add' | 'remove') {
     const client = getClientById(clientId);
     if (!client) return;
     const otherList = listType === 'whitelist' ? 'blacklist' : 'whitelist';
     if (action === 'add' && client[otherList].includes(guardId)) {
-        client[otherList] = client[otherList].filter(id => id !== guardId);
+        client[otherList] = client[otherList].filter((id: string) => id !== guardId);
     }
     const list = client[listType];
     const index = list.indexOf(guardId);
@@ -568,18 +578,18 @@ export function updateClientGuardList(clientId, guardId, listType, action) {
     save();
 }
 
-export function submitTraining(userId, moduleId, answers) {
-    const module = getTrainingModules().find(m => m.id === moduleId);
+export function submitTraining(userId: string, moduleId: string, answers: any) {
+    const module = getTrainingModules().find((m: any) => m.id === moduleId);
     if (!module) return false;
 
-    const existingAttempt = _DB.trainingProgress.find(p => p.userId === userId && p.moduleId === moduleId);
+    const existingAttempt = _DB.trainingProgress.find((p: any) => p.userId === userId && p.moduleId === moduleId);
     if (existingAttempt) {
         alert("You have already attempted this quiz. Request a retake from a Training Officer or Supervisor.");
         return null;
     }
 
     let correct = 0;
-    module.quiz.forEach((q, index) => {
+    module.quiz.forEach((q: any, index: number) => {
         if (answers[`q-${index}`]?.toLowerCase().trim() === q.a.toLowerCase().trim()) {
             correct++;
         }
@@ -599,36 +609,36 @@ export function submitTraining(userId, moduleId, answers) {
     return passed;
 }
 
-export function updateTrainingProgressStatus(progressId, status) {
-    const progress = _DB.trainingProgress.find(p => p.id === progressId);
+export function updateTrainingProgressStatus(progressId: string, status: string) {
+    const progress = _DB.trainingProgress.find((p: any) => p.id === progressId);
     if (progress) {
         progress.status = status;
         if (status === 'Approved') {
             const user = getUserById(progress.userId);
-            const module = getTrainingModules().find(m => m.id === progress.moduleId);
+            const module = getTrainingModules().find((m: any) => m.id === progress.moduleId);
             if (user && module && !user.certifications.includes(module.title)) {
                 user.certifications.push(module.title);
             }
         }
         if (status === 'Retake Requested') {
-            _DB.trainingProgress = _DB.trainingProgress.filter(p => p.id !== progressId);
+            _DB.trainingProgress = _DB.trainingProgress.filter((p: any) => p.id !== progressId);
         }
     }
     save();
 }
 
-export function addContract(contractData, status = 'Pending') {
+export function addContract(contractData: any, status = 'Pending') {
     const newContract = { ...contractData, id: `contract-${Date.now()}`, status };
     _DB.contracts.push(newContract);
     logAction('CREATE', 'contracts', newContract.id, 'Medium', { after: newContract });
     save();
 }
 
-export function updateContractStatus(contractId, status, user) {
+export function updateContractStatus(contractId: string, status: string, user: any) {
     if (!user) return false;
     const canApprove = canAlwaysApproveRoles.includes(user.role);
     const canReview = managementAndOpsRoles.includes(user.role);
-    const contract = _DB.contracts.find(c => c.id === contractId);
+    const contract = _DB.contracts.find((c: any) => c.id === contractId);
     if (!contract) return false;
 
     if (status === 'Ready for Review') {
@@ -644,15 +654,15 @@ export function updateContractStatus(contractId, status, user) {
     return false;
 }
 
-export function addPromotion(promoData) {
+export function addPromotion(promoData: any) {
     const newPromo = { ...promoData, id: `promo-${Date.now()}`, status: 'Pending Ops Approval', submittedAt: new Date() };
     _DB.promotions.push(newPromo);
     logAction('CREATE', 'promotions', newPromo.id, 'Medium', { after: newPromo });
     save();
 }
 
-export function updatePromotionStatus(promoId, decision, currentUser) {
-    const promo = _DB.promotions.find(p => p.id === promoId);
+export function updatePromotionStatus(promoId: string, decision: string, currentUser: any) {
+    const promo = _DB.promotions.find((p: any) => p.id === promoId);
     if (!promo) return;
 
     const before = { ...promo };
@@ -674,7 +684,7 @@ export function updatePromotionStatus(promoId, decision, currentUser) {
     } else if (promo.status === 'Pending Owner Approval' && isOwner) {
         promo.status = 'Approved';
         logAction('APPROVE_OWNER', 'promotions', promoId, 'High', { before, after: promo, description: `Final approval by ${currentUser.firstName}` });
-        updateById('users', promo.userId, { role: promo.toRole, rank: Ranks[promo.toRole], needsUniform: true });
+        updateById('users', promo.userId, { role: promo.toRole, rank: Ranks[promo.toRole as keyof typeof Ranks], needsUniform: true });
     } else {
         console.warn(`User ${currentUser.id} (${currentUser.role}) does not have permission to approve promotion ${promoId} in its current state (${promo.status}).`);
         return; // Don't save if no valid action was taken
@@ -682,19 +692,19 @@ export function updatePromotionStatus(promoId, decision, currentUser) {
     save();
 }
 
-export function createPayrollRun(startDate, endDate) {
+export function createPayrollRun(startDate: Date, endDate: Date) {
     const runId = `pr-${Date.now()}`;
     const run = { id: runId, startDate, endDate, status: 'Pending', totalAmount: 0, createdAt: new Date() };
-    const paidMissionIds = _DB.payrollEntries.map(e => e.missionIds).flat();
-    const missionsInPeriod = _DB.missions.filter(m => 
+    const paidMissionIds = _DB.payrollEntries.map((e: any) => e.missionIds).flat();
+    const missionsInPeriod = _DB.missions.filter((m: any) => 
         m.status === 'Completed' &&
         new Date(m.endTime) >= startDate &&
         new Date(m.endTime) <= endDate &&
         !paidMissionIds.includes(m.id)
     );
-    const guardPay = {};
-    missionsInPeriod.forEach(mission => {
-        mission.claimedBy.forEach(guardId => {
+    const guardPay: { [key: string]: any } = {};
+    missionsInPeriod.forEach((mission: any) => {
+        mission.claimedBy.forEach((guardId: string) => {
             const checkIn = mission.checkIns[guardId];
             const checkOut = mission.checkOuts[guardId];
             if (checkIn && checkOut) {
@@ -722,24 +732,24 @@ export function createPayrollRun(startDate, endDate) {
     save();
 }
 
-export function approvePayrollRun(runId) {
+export function approvePayrollRun(runId: string) {
     updateById('payrollRuns', runId, { status: 'Approved' });
 }
 
-export function confirmPayment(entryId) {
+export function confirmPayment(entryId: string) {
     updateById('payrollEntries', entryId, { paymentConfirmed: true });
-    const entry = _DB.payrollEntries.find(e => e.id === entryId);
+    const entry = _DB.payrollEntries.find((e: any) => e.id === entryId);
     if(entry) {
         const allPaid = _DB.payrollEntries
-            .filter(e => e.runId === entry.runId)
-            .every(e => e.paymentConfirmed);
+            .filter((e: any) => e.runId === entry.runId)
+            .every((e: any) => e.paymentConfirmed);
         if (allPaid) {
             updateById('payrollRuns', entry.runId, { status: 'Paid' });
         }
     }
 }
 
-export function addSpotCheck(supervisorId, missionId) {
+export function addSpotCheck(supervisorId: string, missionId: string) {
     const existing = getSpotCheckByMissionId(missionId);
     if(existing) {
         alert("A spot check for this mission is already in progress.");
@@ -759,23 +769,23 @@ export function addSpotCheck(supervisorId, missionId) {
     save();
 }
 
-export function updateSpotCheck(spotCheckId, checkType, checkData) {
-    const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
+export function updateSpotCheck(spotCheckId: string, checkType: 'start' | 'mid' | 'end', checkData: any) {
+    const spotCheck = _DB.spotChecks.find((sc: any) => sc.id === spotCheckId);
     if(spotCheck) {
         spotCheck.checks[checkType] = checkData;
         save();
     }
 }
 
-export function addSpotCheckSelfie(spotCheckId, type, imageData) {
-    const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
+export function addSpotCheckSelfie(spotCheckId: string, type: 'start' | 'end', imageData: any) {
+    const spotCheck = _DB.spotChecks.find((sc: any) => sc.id === spotCheckId);
     if (spotCheck) {
         updateById('spotChecks', spotCheckId, { selfies: { ...spotCheck.selfies, [type]: imageData } });
     }
 }
 
-export function completeSpotCheck(spotCheckId, report) {
-    const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
+export function completeSpotCheck(spotCheckId: string, report: string) {
+    const spotCheck = _DB.spotChecks.find((sc: any) => sc.id === spotCheckId);
     if(spotCheck && spotCheck.checks.start && spotCheck.checks.mid && spotCheck.checks.end) {
         updateById('spotChecks', spotCheckId, { finalReport: report, status: 'Completed', endTime: new Date() });
     } else {
@@ -783,20 +793,20 @@ export function completeSpotCheck(spotCheckId, report) {
     }
 }
 
-export function assignLeadGuard(missionId, userId) {
-    _DB.leadGuardAssignments = _DB.leadGuardAssignments.filter(lg => lg.missionId !== missionId);
+export function assignLeadGuard(missionId: string, userId: string) {
+    _DB.leadGuardAssignments = _DB.leadGuardAssignments.filter((lg: any) => lg.missionId !== missionId);
     const assignment = { id: `lg-${Date.now()}`, missionId, userId };
     _DB.leadGuardAssignments.push(assignment);
     save();
 }
 
-export const getNeedsUniformUsers = (teamId = null) => {
-    const users = _DB.users.filter(u => u.needsUniform);
+export const getNeedsUniformUsers = (teamId: string | null = null) => {
+    const users = _DB.users.filter((u: any) => u.needsUniform);
     if(!teamId) return users;
-    return users.filter(u => u.teamId === teamId);
+    return users.filter((u: any) => u.teamId === teamId);
 }
 
-export function markUniformSent(userId) {
+export function markUniformSent(userId: string) {
     const user = getUserById(userId);
     if(user && user.needsUniform) {
         const delivery = {
@@ -811,15 +821,15 @@ export function markUniformSent(userId) {
     }
 }
 
-export function confirmUniformReceived(userId) {
-    const delivery = _DB.uniformDeliveries.find(d => d.userId === userId && d.receivedAt === null);
+export function confirmUniformReceived(userId: string) {
+    const delivery = _DB.uniformDeliveries.find((d: any) => d.userId === userId && d.receivedAt === null);
     if(delivery) {
         delivery.receivedAt = new Date();
         save();
     }
 }
 
-export function suspendUser(userId) {
+export function suspendUser(userId: string) {
     const user = getUserById(userId);
     if(user) {
         const before = {...user};
@@ -831,7 +841,7 @@ export function suspendUser(userId) {
     return false;
 }
 
-export function terminateUser(userId) {
+export function terminateUser(userId: string) {
     const user = getUserById(userId);
     if(user) {
         const before = {...user};
@@ -843,10 +853,10 @@ export function terminateUser(userId) {
     return false;
 }
 
-export function deleteById(collectionName, id) {
+export function deleteById(collectionName: string, id: string) {
     const collection = _DB[collectionName];
     if (!collection) return false;
-    const index = collection.findIndex(i => i.id === id);
+    const index = collection.findIndex((i: any) => i.id === id);
     if (index > -1) {
         const item = collection[index];
         logAction('DELETE_PERMANENT', collectionName, id, 'High', { before: item });
@@ -857,17 +867,17 @@ export function deleteById(collectionName, id) {
     return false;
 }
 
-export function approveMission(missionId) {
+export function approveMission(missionId: string) {
     logAction('APPROVE', 'missions', missionId, 'Low', { description: "Mission status changed to Open" });
     return updateById('missions', missionId, { status: 'Open' });
 }
 
-export function denyMission(missionId) {
+export function denyMission(missionId: string) {
     logAction('DENY', 'missions', missionId, 'Medium', { description: "Mission status changed to Cancelled" });
     return updateById('missions', missionId, { status: 'Cancelled' });
 }
 
-export function addChangeRequest(proposerId, entityType, entityId, proposedChanges) {
+export function addChangeRequest(proposerId: string, entityType: string, entityId: string, proposedChanges: any) {
     const newRequest = {
         id: `cr-${Date.now()}`,
         proposerId,
@@ -882,8 +892,8 @@ export function addChangeRequest(proposerId, entityType, entityId, proposedChang
     save();
 }
 
-export function updateChangeRequestStatus(requestId, status, reviewerId) {
-    const request = (_DB.changeRequests).find(r => r.id === requestId);
+export function updateChangeRequestStatus(requestId: string, status: string, reviewerId: string) {
+    const request = (_DB.changeRequests).find((r: any) => r.id === requestId);
     if (request && request.status === 'Pending') {
         const before = { ...request };
         request.status = status;

@@ -1,4 +1,4 @@
-import { getMissionById, getClientById, getSiteById, getTrainingModules, getUserById, getLeadGuardAssignment } from '../database.js';
+import { getMissionById, getClientById, getSiteById, getTrainingModules, getUserById, getLeadGuardAssignment, getActionLogForEntity } from '../database.js';
 import { fieldRoles } from '../constants.js';
 import { Icons } from './Icons.js';
 
@@ -11,6 +11,7 @@ export const MissionDetailsModal = ({ missionId, user }) => {
     const guards = mission.claimedBy.map(id => getUserById(id)).filter(Boolean);
     const leadGuard = getLeadGuardAssignment(mission.id);
     const isGuard = fieldRoles.includes(user.role);
+    const actionLog = getActionLogForEntity(missionId).slice(0, 10);
 
     return `
     <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in" data-action="close-modal-backdrop">
@@ -47,6 +48,25 @@ export const MissionDetailsModal = ({ missionId, user }) => {
                         ${guards.length === 0 ? '<li class="text-sm text-[var(--color-text-muted)] italic p-3 bg-[var(--color-bg-surface-raised)] rounded-lg border border-dashed border-[var(--color-border)]">No guards have claimed this mission yet.</li>' : ''}
                     </ul>
                 </div>
+
+                 <div>
+                    <h3 class="font-bold text-lg mb-2 text-[var(--color-accent)]">Mission History</h3>
+                    <div class="bg-[var(--color-bg-surface-raised)] p-4 rounded-lg border border-[var(--color-border)] max-h-48 overflow-y-auto">
+                        <ul class="space-y-3">
+                        ${actionLog.length > 0 ? actionLog.map(log => {
+                            const actor = getUserById(log.userId);
+                            return `
+                            <li class="text-xs">
+                                <p class="font-semibold text-[var(--color-text-base)]">${log.actionType.replace(/_/g, ' ')} by ${actor ? `${actor.firstName} ${actor.lastName}` : 'System'}</p>
+                                <p class="text-[var(--color-text-muted)]">${new Date(log.timestamp).toLocaleString()}</p>
+                            </li>
+                            `}).join('') : `
+                            <li class="text-xs text-[var(--color-text-muted)] italic">No history found for this mission.</li>
+                        `}
+                        </ul>
+                    </div>
+                </div>
+
             </div>
             <div class="p-4 bg-[var(--color-bg-surface-raised)] border-t border-[var(--color-border)] flex justify-end items-center space-x-3 flex-shrink-0">
                 <button data-action="close-modal" class="px-4 py-2 bg-[var(--color-bg-surface)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] border border-[var(--color-border)]">Close</button>

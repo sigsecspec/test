@@ -1,5 +1,6 @@
 
 
+
 import { 
     initializeDB, getUsers, getUserByEmail, getMissionById, claimMission, 
     missionCheckIn, missionCheckOut, addApplication, updateApplicationStatus,
@@ -375,7 +376,8 @@ function handleSpotCheckSubmit(e: Event) {
     const spotCheckId = form.dataset.spotCheckId;
     if(!spotCheckId || !checkType) return;
     const data = getFormData(form);
-    updateSpotCheck(spotCheckId, checkType, data);
+    // FIX: Argument of type 'string' is not assignable to parameter of type '"start" | "mid" | "end"'.
+    updateSpotCheck(spotCheckId, checkType as 'start' | 'mid' | 'end', data);
     alert(`${checkType} check submitted.`);
     render();
 }
@@ -605,10 +607,11 @@ function attachEventListeners() {
                 if(!state.currentUser) return;
                 const { guardId, listType } = (target as HTMLElement).dataset;
                 const client = getClients().find(c => c.userId === state.currentUser.id);
-                if(!client) return;
-                const list = client[listType];
+                if(!client || !guardId || !listType) return;
+                const list = client[listType as 'whitelist' | 'blacklist'];
                 const action = list.includes(guardId) ? 'remove' : 'add';
-                updateClientGuardList(client.id, guardId, listType, action);
+                // FIX: Argument of type 'string' is not assignable to parameter of type '"whitelist" | "blacklist"'.
+                updateClientGuardList(client.id, guardId, listType as 'whitelist' | 'blacklist', action);
                 render();
             },
             
