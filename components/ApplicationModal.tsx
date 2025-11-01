@@ -1,4 +1,5 @@
 
+
 import { Icons } from './Icons.js';
 
 export const ApplicationView = ({ type }) => {

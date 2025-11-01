@@ -1,4 +1,5 @@
 
+
 import { getPendingSiteApprovals, getClients } from '../../database.js';
 
 export const SiteApprovals = ({ user }) => {
