@@ -1,5 +1,4 @@
 
-
 import { UserRole, Ranks } from './types.js';
 import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles, canCreateMissionsDirectly, canCreateMissionsForApproval } from './constants.js';
 
@@ -50,6 +49,21 @@ export interface Mission {
     checkOuts: { [userId: string]: { time: Date, verifiedBy?: string } };
 }
 
+export interface ActionLogEntry {
+    id: string;
+    timestamp: Date;
+    userId: string;
+    actionType: string;
+    entityType: string;
+    entityId: string;
+    severity: 'Low' | 'Medium' | 'High';
+    details: {
+        before?: any;
+        after?: any;
+        description: string;
+    };
+}
+
 interface DB {
     users: User[];
     clients: Client[];
@@ -72,6 +86,7 @@ interface DB {
     vehicles: any[];
     vehicleAssignments: any[];
     appeals: any[];
+    actionLog: ActionLogEntry[];
 }
 
 const initialData: DB = {
@@ -151,8 +166,33 @@ const initialData: DB = {
   appeals: [
       { id: 'appeal-1', missionId: 'mission-123', clientId: 'client-abc', reason: 'Guard was late and unprofessional.', status: 'Pending', createdAt: new Date() }
   ],
+  actionLog: [
+      { id: `log-${Date.now()}`, timestamp: new Date(), userId: 'user-1', actionType: 'SYSTEM_INITIALIZED', entityType: 'System', entityId: 'system-0', severity: 'Low', details: { description: 'Database was seeded with initial data.' } }
+  ]
 };
 let _DB: DB = {} as DB;
+let _currentUser: User | null = null; // Store current user for logging
+
+function logAction(
+    actionType: string,
+    entityType: string,
+    entityId: string,
+    severity: 'Low' | 'Medium' | 'High',
+    details: object
+) {
+    if (!_currentUser) return; // Don't log if no user is acting
+    const logEntry: ActionLogEntry = {
+        id: `log-${Date.now()}-${Math.random()}`,
+        timestamp: new Date(),
+        userId: _currentUser.id,
+        actionType,
+        entityType,
+        entityId,
+        severity,
+        details: { description: `${actionType} on ${entityType} (${entityId})`, ...details }
+    };
+    _DB.actionLog.push(logEntry);
+}
 
 function save() {
   localStorage.setItem('sss_db', JSON.stringify(_DB));
@@ -164,7 +204,7 @@ function load() {
   if (dbString) {
     try {
       const parsedDB = JSON.parse(dbString);
-      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests', 'appeals', 'vehicleAssignments'];
+      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests', 'appeals', 'vehicleAssignments', 'actionLog'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
               (parsedDB as any)[collection].forEach((item: any) => {
@@ -177,6 +217,7 @@ function load() {
                   if (item.time) item.time = new Date(item.time);
                   if (item.sentAt) item.sentAt = new Date(item.sentAt);
                   if (item.receivedAt) item.receivedAt = new Date(item.receivedAt);
+                  if (item.timestamp) item.timestamp = new Date(item.timestamp);
               });
           }
       });
@@ -199,6 +240,10 @@ export function initializeDB() {
   } else {
     console.log("Loaded DB from localStorage.");
   }
+}
+
+export const setCurrentUserForDB = (user: User | null) => {
+    _currentUser = user;
 }
 
 export const getCollection = (name: keyof DB) => _DB[name] || [];
@@ -265,14 +310,17 @@ export const getPendingSiteApprovals = (teamId: string | null = null) => {
 
 export const getVehicleById = (id: string) => getCollection('vehicles').find(v => v.id === id);
 export const getVehicleAssignments = (vehicleId: string) => (getCollection('vehicleAssignments') as any[]).filter(a => a.vehicleId === vehicleId);
+export const getActionLog = () => (getCollection('actionLog') as ActionLogEntry[]).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+export const getActionLogEntryById = (id: string) => (getCollection('actionLog') as ActionLogEntry[]).find(entry => entry.id === id);
 
-
-export function updateById(collectionName: keyof Omit<DB, 'systemSettings'>, id: string, updates: object) {
+export function updateById(collectionName: keyof Omit<DB, 'systemSettings' | 'actionLog'>, id: string, updates: object) {
     const collection = _DB[collectionName] as any[];
     if (!collection) return false;
     const item = collection.find(i => i.id === id);
     if (item) {
+        const before = { ...item };
         Object.assign(item, updates);
+        logAction('UPDATE', collectionName, id, 'Low', { before, after: item });
         save();
         return true;
     }
@@ -280,7 +328,9 @@ export function updateById(collectionName: keyof Omit<DB, 'systemSettings'>, id:
 }
 
 export function updateSystemSettings(updates: object) {
+    const before = { ..._DB.systemSettings };
     _DB.systemSettings = { ..._DB.systemSettings, ...updates };
+    logAction('UPDATE', 'systemSettings', 'system-0', 'Medium', { before, after: _DB.systemSettings });
     save();
     return true;
 }
@@ -288,18 +338,21 @@ export function updateSystemSettings(updates: object) {
 export function addApplication({ type, data }: { type: string, data: any }) {
     const newApp = { id: `app-${Date.now()}`, type, data, status: 'Pending', submittedAt: new Date() };
     _DB.applications.push(newApp);
+    logAction('CREATE', 'applications', newApp.id, 'Low', { after: newApp });
     save();
 }
 
 function addSite(siteData: any) {
     const newSite = { ...siteData, id: `site-${Date.now()}` };
     _DB.sites.push(newSite);
+    logAction('CREATE', 'sites', newSite.id, 'Low', { after: newSite });
     save();
 }
 
 export function addSiteApprovalRequest(requestData: any) {
     const newRequest = { ...requestData, id: `sar-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
     _DB.siteApprovalRequests.push(newRequest);
+    logAction('CREATE', 'siteApprovalRequests', newRequest.id, 'Low', { after: newRequest });
     save();
 }
 
@@ -308,11 +361,14 @@ export function updateSiteApprovalStatus(requestId: string, status: string) {
     if (request) {
         request.status = status;
         if (status === 'Approved') {
+            logAction('APPROVE', 'siteApprovalRequests', requestId, 'Low', { after: request });
             addSite({
                 clientId: request.clientId,
                 name: request.siteName,
                 address: request.siteAddress
             });
+        } else {
+             logAction('DENY', 'siteApprovalRequests', requestId, 'Medium', { after: request });
         }
         _DB.siteApprovalRequests = _DB.siteApprovalRequests.filter(r => r.id !== requestId);
     }
@@ -324,6 +380,7 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
     if (app) {
         app.status = status;
         if (status === 'Approved') {
+            logAction('APPROVE', 'applications', appId, 'Medium', { after: app });
             const roleMap: { [key: string]: string } = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer, 'New Operations': UserRole.OperationsManager, 'New Management': UserRole.Secretary };
             const role = roleMap[app.type];
             if (!role) return;
@@ -352,6 +409,7 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
                 status: 'Active',
             };
             _DB.users.push(newUser);
+             logAction('CREATE', 'users', newUser.id, 'Medium', { after: newUser, description: `User created from approved application ${appId}` });
             if(role === UserRole.Client) {
                 const newClient: Client = {
                     id: `client-${Date.now()}`,
@@ -363,6 +421,7 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
                     blacklist: []
                 };
                 _DB.clients.push(newClient);
+                logAction('CREATE', 'clients', newClient.id, 'Medium', { after: newClient, description: `Client created from approved application ${appId}` });
                  if (app.data.siteName && app.data.siteAddress) {
                     addSite({
                         clientId: newClient.id,
@@ -371,6 +430,8 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
                     });
                 }
             }
+        } else {
+            logAction('DENY', 'applications', appId, 'Medium', { after: app });
         }
         _DB.applications = _DB.applications.filter(a => a.id !== appId);
     }
@@ -394,6 +455,7 @@ export function addMission(missionData: any, user: User) {
     };
 
     _DB.missions.push(newMission);
+     logAction('CREATE', 'missions', newMission.id, 'Low', { after: newMission });
     _DB.alerts.push({
         id: `alert-${Date.now()}`,
         severity: 'Info',
@@ -424,6 +486,7 @@ export function claimMission(missionId: string, userId: string) {
     if (mission.claimedBy.length >= mission.requiredGuards) {
         mission.status = 'Claimed';
     }
+    logAction('CLAIM', 'missions', missionId, 'Low', { description: `User ${userId} claimed mission.` });
     save();
     return { success: true, message: "Mission claimed successfully!" };
 }
@@ -731,18 +794,36 @@ export function confirmUniformReceived(userId: string) {
 }
 
 export function suspendUser(userId: string) {
-    return updateById('users', userId, { status: 'Suspended' });
+    const user = getUserById(userId);
+    if(user) {
+        const before = {...user};
+        user.status = 'Suspended';
+        logAction('SUSPEND', 'users', userId, 'Medium', { before, after: user });
+        save();
+        return true;
+    }
+    return false;
 }
 
 export function terminateUser(userId: string) {
-    return updateById('users', userId, { status: 'Terminated' });
+    const user = getUserById(userId);
+    if(user) {
+        const before = {...user};
+        user.status = 'Terminated';
+        logAction('TERMINATE', 'users', userId, 'High', { before, after: user });
+        save();
+        return true;
+    }
+    return false;
 }
 
-export function deleteById(collectionName: keyof Omit<DB, 'systemSettings'>, id: string) {
+export function deleteById(collectionName: keyof Omit<DB, 'systemSettings' | 'actionLog'>, id: string) {
     const collection = _DB[collectionName] as any[];
     if (!collection) return false;
     const index = collection.findIndex(i => i.id === id);
     if (index > -1) {
+        const item = collection[index];
+        logAction('DELETE_PERMANENT', collectionName, id, 'High', { before: item });
         collection.splice(index, 1);
         save();
         return true;
@@ -751,9 +832,11 @@ export function deleteById(collectionName: keyof Omit<DB, 'systemSettings'>, id:
 }
 
 export function approveMission(missionId: string) {
+    logAction('APPROVE', 'missions', missionId, 'Low', { description: "Mission status changed to Open" });
     return updateById('missions', missionId, { status: 'Open' });
 }
 
 export function denyMission(missionId: string) {
+    logAction('DENY', 'missions', missionId, 'Medium', { description: "Mission status changed to Cancelled" });
     return updateById('missions', missionId, { status: 'Cancelled' });
 }

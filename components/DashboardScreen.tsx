@@ -1,3 +1,4 @@
+
 import { UserRole } from '../types.js';
 import { getMissionById, getLeadGuardAssignment, getSpotCheckByMissionId, User } from '../database.js';
 import { TrainingModal } from './TrainingModal.js';
@@ -7,6 +8,7 @@ import { MissionDetailsModal } from './MissionDetailsModal.js';
 import { UserDetailsModal } from './UserDetailsModal.js';
 import { EditMissionModal } from './EditMissionModal.js';
 import { VehicleDetailsModal } from './VehicleDetailsModal.js';
+import { ActionLogDetailsModal } from './ActionLogDetailsModal.js';
 
 import { CommandSidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
 
@@ -43,6 +45,7 @@ import { Payroll } from './views/Payroll.js';
 import { Analytics } from './views/Analytics.js';
 import { LiveControl } from './views/LiveControl.js';
 import { SystemSettings } from './views/SystemSettings.js';
+import { OwnerActionAudit } from './views/OwnerActionAudit.js';
 import { GuardMissionDashboard, LeadGuardMissionDashboard, SupervisorSpotCheckDashboard } from './views/MissionDashboards.js';
 
 interface DashboardScreenProps {
@@ -110,6 +113,7 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
             'Analytics': () => Analytics({ user: currentUser }),
             'LiveControl': () => LiveControl({ user: currentUser }),
             'SystemSettings': () => SystemSettings({ user: currentUser }),
+            'OwnerActionAudit': () => OwnerActionAudit({ user: currentUser }),
         };
         viewContent = viewMap[activeView] ? viewMap[activeView]() : `<div>View "${activeView}" not found.</div>`;
     }
@@ -122,6 +126,7 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     if (selectedModal.type === 'UserDetails' && selectedModal.id) modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
     if (selectedModal.type === 'EditMission' && selectedModal.id) modalHtml = EditMissionModal({ missionId: selectedModal.id });
     if (selectedModal.type === 'VehicleDetails' && selectedModal.id) modalHtml = VehicleDetailsModal({ vehicleId: selectedModal.id, currentUser });
+    if (selectedModal.type === 'ActionLogDetails' && selectedModal.id) modalHtml = ActionLogDetailsModal({ logEntryId: selectedModal.id });
 
     return `
         <div class="h-screen bg-[var(--color-bg-base)] text-[var(--color-text-base)] flex flex-col md:flex-row overflow-hidden">

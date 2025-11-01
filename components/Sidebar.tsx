@@ -1,3 +1,4 @@
+
 import { Icons } from './Icons.js';
 import { UserRole } from '../types.js';
 import { allInternalRoles, clientRole, fieldRoles, operationsRoles, executiveRoles, managementRoles } from '../constants.js';
@@ -90,6 +91,7 @@ const getSidebarStructure = (currentUser: any): NavGroup[] => [
             { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...executiveRoles] },
             { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...executiveRoles] },
             { name: 'Live Control', icon: Icons.Shield, view: 'LiveControl', roles: executiveRoles },
+            { name: 'Action Audit', icon: Icons.ClipboardList, view: 'OwnerActionAudit', roles: [UserRole.Owner] },
             { name: 'System Settings', icon: Icons.Cog, view: 'SystemSettings', roles: [UserRole.Owner] },
         ]
     },

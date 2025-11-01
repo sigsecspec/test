@@ -1,3 +1,4 @@
+
 import { 
     initializeDB, getUsers, getUserByEmail, getMissionById, claimMission, 
     missionCheckIn, missionCheckOut, addApplication, updateApplicationStatus,
@@ -6,7 +7,8 @@ import {
     createPayrollRun, approvePayrollRun, confirmPayment, updateById, addSpotCheck,
     updateSpotCheck, addSpotCheckSelfie, completeSpotCheck, markUniformSent, getSpotCheckByMissionId,
     getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients, getSystemSettings, 
-    updateSystemSettings, getUserById, User, suspendUser, terminateUser, deleteById, approveMission, denyMission
+    updateSystemSettings, getUserById, User, suspendUser, terminateUser, deleteById, approveMission, denyMission,
+    setCurrentUserForDB, getActionLog
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
@@ -96,12 +98,14 @@ function handleLogin(email: string) {
             return;
         }
         state.currentUser = user;
+        setCurrentUserForDB(user);
         state.activeView = 'Dashboard';
         closeModal();
     } else { alert('User not found.'); }
 }
 function handleLogout() {
     state.currentUser = null;
+    setCurrentUserForDB(null);
     state.activeView = 'Home';
     state.isMobileMenuOpen = false;
     render();
@@ -420,6 +424,35 @@ function handleClientSearch(searchTerm: string) {
     }
 }
 
+function handleAuditLogFilter() {
+    const container = root?.querySelector('#audit-log-list-container');
+    if (!container) return;
+
+    const searchTerm = (root?.querySelector('#audit-search-input') as HTMLInputElement)?.value.toLowerCase() || '';
+    const typeFilter = (root?.querySelector('#audit-type-filter') as HTMLSelectElement)?.value || '';
+    const roleFilter = (root?.querySelector('#audit-role-filter') as HTMLSelectElement)?.value || '';
+    
+    const allLogs = getActionLog();
+    const allUsers = getUsers();
+
+    const filteredLogs = allLogs.filter(log => {
+        const user = allUsers.find(u => u.id === log.userId);
+        if (!user) return false;
+
+        const typeMatch = !typeFilter || log.entityType === typeFilter;
+        const roleMatch = !roleFilter || user.role === roleFilter;
+        const searchMatch = !searchTerm || 
+            log.actionType.toLowerCase().includes(searchTerm) ||
+            log.entityId.toLowerCase().includes(searchTerm) ||
+            `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm);
+
+        return typeMatch && roleMatch && searchMatch;
+    });
+
+    const { renderAuditLogCards, renderAuditLogTable } = (window as any).auditLogRenderers;
+    container.innerHTML = renderAuditLogTable(filteredLogs, allUsers) + renderAuditLogCards(filteredLogs, allUsers);
+}
+
 // --- Main Event Listener ---
 function attachEventListeners() {
     root.addEventListener('click', (e: MouseEvent) => {
@@ -512,6 +545,7 @@ function attachEventListeners() {
             'open-contract-modal': () => openModal('Contract'),
             'open-site-modal': () => openModal('Site'),
             'open-vehicle-details': () => openModal('VehicleDetails', id),
+            'open-action-log-details': () => openModal('ActionLogDetails', id),
             'update-roster': () => {
                 if(!state.currentUser) return;
                 const { guardId, listType } = (target as HTMLElement).dataset as {guardId: string, listType: 'whitelist' | 'blacklist'};
@@ -586,6 +620,9 @@ function attachEventListeners() {
 
         if (target.id === 'client-search-input') {
             handleClientSearch(target.value);
+        }
+        if (target.id === 'audit-search-input' || target.id === 'audit-type-filter' || target.id === 'audit-role-filter') {
+            handleAuditLogFilter();
         }
     });
 
