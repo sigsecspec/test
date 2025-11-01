@@ -348,46 +348,50 @@ function handleClientSearch(searchTerm: string) {
     if (filteredClients.length > 0) {
         const tableBodyContent = filteredClients.map(client => {
             const contactUser = getUserById(client.userId);
-            const editButton = canEditClient(client) 
-               ? `<button data-action="open-user-details" data-id="${client.userId}" class="text-[var(--accent-primary)] hover:underline font-semibold">View / Edit Contact</button>`
-               : `<button data-action="open-user-details" data-id="${client.userId}" class="text-[var(--text-secondary)] hover:underline font-semibold">View Contact</button>`;
-    
+            const buttonClass = canEditClient(client)
+                ? `text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]`
+                : `text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]`;
+            const buttonText = canEditClient(client) ? `View / Edit` : `View`;
             return `
-           <tr class="hover:bg-[var(--bg-tertiary)]">
-               <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${client.companyName}</p></td>
-               <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : 'N/A'}</p><p class="text-[var(--text-secondary)] whitespace-no-wrap text-xs">${client.contactEmail}</p></td>
-               <td class="px-5 py-4 text-sm">
-                   ${editButton}
-               </td>
+           <tr class="border-b border-[var(--color-border)]">
+                <td class="px-5 py-4 text-sm"><p class="font-semibold text-[var(--color-text-base)] whitespace-no-wrap">${client.companyName}</p></td>
+                <td class="px-5 py-4 text-sm"><p class="font-semibold text-[var(--color-text-base)] whitespace-no-wrap">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : 'N/A'}</p><p class="text-[var(--color-text-muted)] whitespace-no-wrap text-xs">${client.contactEmail}</p></td>
+                <td class="px-5 py-4 text-sm"><button data-action="open-user-details" data-id="${client.userId}" class="font-semibold ${buttonClass} transition-colors">${buttonText}</button></td>
            </tr>`;
        }).join('');
     
         const mobileCardsContent = filteredClients.map(client => {
             const contactUser = getUserById(client.userId);
-            const editButtonText = canEditClient(client) ? "View / Edit Contact" : "View Contact";
+            const buttonText = canEditClient(client) ? "View / Edit Contact" : "View Contact";
             return `
-            <div class="bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">
-                <p class="font-bold text-[var(--text-primary)]">${client.companyName}</p>
-                 <p class="text-sm text-[var(--text-secondary)]">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : client.contactEmail}</p>
-                <div class="mt-2 pt-2 border-t border-[var(--border-primary)] flex justify-end">
-                    <button data-action="open-user-details" data-id="${client.userId}" class="text-sm text-[var(--accent-primary)] font-semibold">${editButtonText} &rarr;</button>
+            <div class="bg-[var(--color-bg-surface-raised)] p-4 rounded-lg">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-bold text-[var(--color-text-base)]">${client.companyName}</p>
+                        <p class="text-sm text-[var(--color-text-muted)]">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : client.contactEmail}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-[var(--color-border)] flex justify-end">
+                    <button data-action="open-user-details" data-id="${client.userId}" class="text-sm text-[var(--color-accent)] font-semibold">${buttonText} &rarr;</button>
                 </div>
             </div>
         `}).join('');
 
         finalContent = `
-            <table class="min-w-full leading-normal hidden md:table">
-                <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Company Name</th><th class="px-5 py-3 font-semibold">Contact</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
-                <tbody class="divide-y divide-[var(--border-primary)]">
-                    ${tableBodyContent}
-                </tbody>
-            </table>
-             <div class="md:hidden space-y-3 p-3">
+            <div class="hidden md:block">
+                <table class="min-w-full leading-normal">
+                    <thead><tr class="text-left text-[var(--color-text-muted)] uppercase text-xs tracking-wider"><th class="px-5 py-3 font-semibold">Company Name</th><th class="px-5 py-3 font-semibold">Contact</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
+                    <tbody>
+                        ${tableBodyContent}
+                    </tbody>
+                </table>
+            </div>
+             <div class="md:hidden space-y-3 p-4">
                 ${mobileCardsContent}
             </div>
         `;
     } else {
-        finalContent = `<div class="p-8 text-center text-[var(--text-secondary)]">No clients found matching your search.</div>`;
+        finalContent = `<div class="p-8 text-center text-[var(--color-text-muted)]">No clients found matching your search.</div>`;
     }
 
     if(root) {

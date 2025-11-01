@@ -7,109 +7,80 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       :root {
-        --bg-primary: #f8f9fa;
-        --bg-secondary: #ffffff;
-        --bg-tertiary: #f1f3f5;
-        --bg-dark: #212529;
+        --color-bg-base: #030712; /* Rich Black */
+        --color-bg-surface: #111827; /* Darker Grey/Blue */
+        --color-bg-surface-raised: #1f2937; /* Lighter Grey/Blue */
+        --color-border: #374151;
         
-        --border-primary: #dee2e6;
-        --border-secondary: #ced4da;
-        --border-tertiary: #e9ecef;
+        --color-text-base: #f9fafb;
+        --color-text-muted: #9ca3af;
+        --color-text-inactive: #6b7280;
+        --color-text-inverted: #030712;
 
-        --text-primary: #0f0f0f;
-        --text-secondary: #787876;
-        --text-light: #f8f9fa;
-        --text-inverted: #ffffff;
+        --color-accent: #84a98c; /* Sage Green */
+        --color-accent-hover: #6e8f75; /* Darker Sage */
+        --color-accent-text: #101c14; /* Very Dark Green for text on Sage */
 
-        --accent-primary: #aeae5a;
-        --accent-primary-hover: #9a9a4c;
-        --accent-primary-text: #ffffff;
-
-        --accent-secondary: #535347;
-        --accent-secondary-hover: #40403a;
-        --accent-secondary-text: #ffffff;
-
-        --shadow-color-light: rgba(0, 0, 0, 0.05);
-        --shadow-color-medium: rgba(0, 0, 0, 0.1);
+        --color-secondary: #343E33; /* Ebony Green */
+        --color-secondary-hover: #4a594b; /* Lighter Ebony */
+        --color-secondary-text: #f9fafb;
+        
+        --shadow-color-medium: rgba(0, 0, 0, 0.3);
+        --glow-color: rgba(132, 169, 140, 0.5);
       }
       body {
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
+        background-color: var(--color-bg-base);
+        color: var(--color-text-base);
         font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
       }
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
       
       ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
-      ::-webkit-scrollbar-thumb { background-color: var(--border-secondary); border-radius: 4px; border: 2px solid var(--bg-tertiary); }
-      ::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
+      ::-webkit-scrollbar-track { background: var(--color-bg-base); }
+      ::-webkit-scrollbar-thumb { background-color: var(--color-bg-surface-raised); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background-color: var(--color-border); }
       html { scroll-behavior: smooth; }
-
-      .animate-in { 
-        animation: fadeIn 0.5s ease-out forwards; 
-        opacity: 0;
-      }
-      .animate-in-delay {
-        animation: fadeIn 0.5s ease-out 0.2s forwards;
-        opacity: 0;
-      }
-      
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes slideIn {
-        from { transform: translateX(-100%); }
-        to { transform: translateX(0); }
-      }
 
       .hidden { display: none; }
 
-      /* Tablet Collapsed Sidebar */
-      .collapsed-sidebar {
-        transition: width 0.3s ease;
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
-      .collapsed-sidebar:hover {
-        width: 16rem; /* 256px */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(1rem); }
+        to { opacity: 1; transform: translateY(0); }
       }
-      .collapsed-sidebar .sidebar-text {
+       @keyframes backgroundPan {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+       @keyframes slideInUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+      .animate-in { 
+        animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
         opacity: 0;
-        transition: opacity 0.2s ease;
       }
-      .collapsed-sidebar:hover .sidebar-text {
-        opacity: 1;
-        transition-delay: 0.1s;
+      
+      /* Status Pills */
+      .status-pill {
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: inline-block;
       }
-
-      /* Mobile Bottom Navigation */
-      .bottom-nav {
-        box-shadow: 0 -4px 12px var(--shadow-color-medium);
-      }
-
-      /* Utility Color Classes for Dashboard */
-      .text-blue-600 { color: #2563eb; }
-      .bg-blue-100 { background-color: #dbeafe; }
-      .text-green-600 { color: #16a34a; }
-      .bg-green-100 { background-color: #dcfce7; }
-      .text-yellow-600 { color: #ca8a04; }
-      .bg-yellow-100 { background-color: #fef9c3; }
-      .text-purple-600 { color: #9333ea; }
-      .bg-purple-100 { background-color: #f3e8ff; }
-      .text-red-600 { color: #dc2626; }
-      .bg-red-100 { background-color: #fee2e2; }
-      .text-red-800 { color: #991b1b; }
-      .bg-red-50 { background-color: #fef2f2; }
-      .border-red-500 { border-color: #ef4444; }
-      .text-yellow-800 { color: #854d0e; }
-      .bg-yellow-50 { background-color: #fefce8; }
-      .border-yellow-500 { border-color: #eab308; }
-      .text-green-800 { color: #166534; }
-      .text-blue-800 { color: #1e40af; }
-      .text-purple-800 { color: #6b21a8; }
-      .text-gray-500 { color: #6b7280; }
-      .text-gray-700 { color: #374151; }
-      .text-gray-800 { color: #1f2937; }
+      .status-green { background-color: rgba(132, 169, 140, 0.1); color: var(--color-accent); }
+      .status-yellow { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+      .status-blue { background-color: rgba(96, 165, 250, 0.1); color: #60a5fa; }
+      .status-purple { background-color: rgba(167, 139, 250, 0.1); color: #a78bfa; }
+      .status-red { background-color: rgba(248, 113, 113, 0.1); color: #f87171; }
+      .status-gray { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; }
     </style>
 </head>
 <body class="antialiased">

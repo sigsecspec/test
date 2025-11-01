@@ -2,25 +2,25 @@ import { Icons } from './Icons.js';
 import { featureList, statList } from '../content/homepageContent.js';
 
 export const HomePage = () => `
-    <div id="home-page" class="bg-[var(--bg-secondary)]">
-        <header class="sticky top-0 z-40 bg-[var(--bg-secondary)]/80 backdrop-blur-md border-b border-[var(--border-primary)]">
+    <div id="home-page" class="bg-[var(--color-bg-base)] text-[var(--color-text-base)]">
+        <header class="sticky top-0 z-40 bg-[var(--color-bg-base)]/80 backdrop-blur-md border-b border-[var(--color-border)]">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-16">
+                <div class="flex items-center justify-between h-20">
                     <div class="flex items-center">
-                        <div class="font-bold text-xl text-[var(--text-primary)] tracking-tight">
-                            <span>Signature</span><span class="text-[var(--accent-primary)]">Security</span>
+                        <div class="font-bold text-2xl tracking-tighter">
+                            <span>SIGNATURE</span><span class="text-[var(--color-accent)]">SECURITY</span>
                         </div>
                     </div>
                     <nav class="hidden md:flex items-center space-x-2">
-                        <a href="#home" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Home</a>
-                        <a href="#features" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Features</a>
-                        <a href="#how-it-works" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">How It Works</a>
-                        <button data-action="open-login" class="ml-4 px-4 py-2 rounded-md text-sm font-semibold border border-[var(--accent-secondary)] text-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] hover:text-[var(--accent-secondary-text)] transition-all duration-200">
+                        <a href="#home" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-base)] transition-colors">Home</a>
+                        <a href="#features" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-base)] transition-colors">Features</a>
+                        <a href="#how-it-works" class="px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-base)] transition-colors">Process</a>
+                        <button data-action="open-login" class="ml-6 px-5 py-2.5 rounded-md text-sm font-semibold border-2 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-text)] transition-all duration-300 transform hover:scale-105">
                             Portal Login
                         </button>
                     </nav>
                     <div class="md:hidden">
-                        <button data-action="open-login" class="text-[var(--text-primary)]">
+                        <button data-action="open-login" class="text-[var(--color-text-base)] p-2">
                            ${Icons.Menu({ className: "h-6 w-6" })}
                         </button>
                     </div>
@@ -28,55 +28,48 @@ export const HomePage = () => `
             </div>
         </header>
         <main>
-            <section id="home" class="relative text-center py-20 md:py-32 lg:py-40 bg-[var(--bg-secondary)] overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-gray-100 opacity-80"></div>
-                <div class="absolute inset-0 pattern-dots text-gray-200/50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+            <section id="home" class="relative text-center py-24 md:py-40 lg:py-48 overflow-hidden border-b border-[var(--color-border)]">
+                <div class="absolute inset-0 bg-gradient-to-tr from-[var(--color-secondary)] via-[var(--color-bg-base)] to-[var(--color-accent)] opacity-10 animate-[backgroundPan_20s_ease-in-out_infinite]"></div>
+                <div class="absolute inset-0 bg-[var(--color-bg-base)] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
                 <div class="container mx-auto px-4 relative">
-                    <h1 class="text-4xl md:text-6xl font-extrabold text-[var(--text-primary)] tracking-tighter">Professional Security, <br class="hidden md:block" /> Perfected by Technology.</h1>
-                    <p class="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-[var(--text-secondary)]">Connecting qualified professionals with clients who demand excellence. Our platform ensures safety, accountability, and operational superiority.</p>
-                    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <button data-action="navigate" data-type="GuardApplication" class="w-full sm:w-auto px-8 py-3 rounded-md font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-text)] transition-transform duration-200 hover:scale-105 shadow-lg hover:shadow-xl">Join as Guard</button>
-                        <button data-action="navigate" data-type="ClientApplication" class="w-full sm:w-auto px-8 py-3 rounded-md font-bold bg-[var(--accent-secondary)] text-[var(--accent-secondary-text)] transition-transform duration-200 hover:scale-105 shadow-lg hover:shadow-xl">Hire Security</button>
-                    </div>
-                    <button data-action="navigate" data-type="OperationsApplication" class="mt-4 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors">or, Join our Operations Team &rarr;</button>
-                </div>
-            </section>
-            <section class="py-16 bg-[var(--bg-tertiary)] border-y border-[var(--border-primary)]">
-                <div class="container mx-auto px-4">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        ${statList.map(stat => `<div class="text-center animate-in"><h2 class="text-3xl lg:text-4xl font-bold text-[var(--accent-primary)]">${stat.value}</h2><p class="mt-1 text-sm text-[var(--text-secondary)]">${stat.label}</p></div>`).join('')}
+                    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter animate-in">Elite Security, <br class="hidden md:block" /> Powered by Precision Technology.</h1>
+                    <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-[var(--color-text-muted)] animate-in" style="animation-delay: 200ms;">Unifying top-tier professionals and discerning clients on a single platform for unmatched safety, accountability, and operational excellence.</p>
+                    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-in" style="animation-delay: 400ms;">
+                        <button data-action="navigate" data-type="GuardApplication" class="w-full sm:w-auto px-8 py-4 rounded-lg font-bold bg-[var(--color-accent)] text-[var(--color-accent-text)] transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[var(--glow-color)]">Join The Elite</button>
+                        <button data-action="navigate" data-type="ClientApplication" class="w-full sm:w-auto px-8 py-4 rounded-lg font-bold bg-[var(--color-bg-surface-raised)] text-[var(--color-text-base)] border border-[var(--color-border)] transition-all duration-300 hover:scale-105 hover:border-[var(--color-text-muted)]">Hire Professionals</button>
                     </div>
                 </div>
             </section>
-            <section id="features" class="py-20 bg-[var(--bg-secondary)]">
+            
+            <section class="py-20 bg-[var(--color-bg-surface)] border-b border-[var(--color-border)]">
                  <div class="container mx-auto px-4">
-                     <div class="text-center mb-16"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">A Unified Platform for Modern Security</h2><p class="mt-3 text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">Everything you need to manage security operations efficiently and effectively.</p></div>
+                     <div class="text-center mb-16"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">A Unified Command & Control Platform</h2><p class="mt-3 text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto">Engineered for efficiency, transparency, and performance across all security operations.</p></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                          ${featureList.map((feature, index) => `
-                             <div class="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:border-[var(--accent-primary)]/50 animate-in" style="animation-delay: ${index * 100}ms">
-                                 <h3 class="text-xl font-bold mb-4 text-[var(--accent-secondary)]">${feature.title}</h3>
-                                 <ul class="space-y-2 text-[var(--text-secondary)]">
-                                     ${feature.items.map(item => `<li class="flex items-start"><span class="text-[var(--accent-primary)] mr-2 mt-1">&#10003;</span><span>${item}</span></li>`).join('')}
+                             <div class="bg-[var(--color-bg-surface-raised)] border border-[var(--color-border)] rounded-xl p-6 transition-all duration-300 hover:-translate-y-2 hover:border-[var(--color-accent)] animate-in" style="animation-delay: ${index * 150}ms">
+                                <h3 class="text-xl font-bold mb-4 flex items-center gap-3 text-[var(--color-text-base)]">${feature.title}</h3>
+                                 <ul class="space-y-3 text-[var(--color-text-muted)] text-sm">
+                                     ${feature.items.map(item => `<li class="flex items-start"><span class="text-[var(--color-accent)] mr-3 mt-1">${Icons.CheckCircle({className:"w-4 h-4"})}</span><span>${item}</span></li>`).join('')}
                                  </ul>
                              </div>
                         `).join('')}
                     </div>
                 </div>
             </section>
-             <section id="how-it-works" class="py-20 bg-[var(--bg-tertiary)] border-t border-[var(--border-primary)]">
+             <section id="how-it-works" class="py-20 bg-[var(--color-bg-base)] border-b border-[var(--color-border)]">
                 <div class="container mx-auto px-4">
-                    <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">Simple, Streamlined, Secure</h2></div>
+                    <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">Streamlined. Secure. Superior.</h2></div>
                     <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                       <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-8 animate-in"><h3 class="text-2xl font-bold mb-4">For Security Guards</h3><ol class="list-decimal list-inside space-y-3 text-[var(--text-secondary)]"><li><strong>Apply Online:</strong> Submit your application and certifications in minutes.</li><li><strong>Complete Training:</strong> Access our library of mission-specific training modules.</li><li><strong>Get Approved:</strong> Our officers review and approve your qualifications.</li><li><strong>Browse & Claim:</strong> See available missions and claim the ones that fit your schedule.</li><li><strong>Work & Earn:</strong> Complete your mission and track your earnings in real-time.</li></ol></div>
-                       <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-8 animate-in-delay"><h3 class="text-2xl font-bold mb-4">For Businesses</h3><ol class="list-decimal list-inside space-y-3 text-[var(--text-secondary)]"><li><strong>Apply for Service:</strong> Submit your business information and security needs.</li><li><strong>Get Verified:</strong> We'll verify your business and set up your account.</li><li><strong>Post Missions:</strong> Easily create missions with detailed requirements.</li><li><strong>Get Coverage:</strong> Qualified, certified guards will claim and cover your missions.</li><li><strong>Monitor & Rate:</strong> Track mission progress and provide valuable feedback.</li></ol></div>
+                       <div class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-8 animate-in"><h3 class="text-2xl font-bold mb-4 text-[var(--color-accent)]">For Security Professionals</h3><ol class="list-decimal list-outside ml-5 space-y-4 text-[var(--color-text-muted)]"><li><strong>Apply & Verify:</strong> Submit your credentials for a swift vetting process.</li><li><strong>Certify & Train:</strong> Access advanced, mission-specific training modules to level up.</li><li><strong>Browse & Claim:</strong> The mission board provides opportunities that match your skill set.</li><li><strong>Execute & Earn:</strong> Perform your duties with excellence and get paid reliably.</li></ol></div>
+                       <div class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-8 animate-in" style="animation-delay: 200ms;"><h3 class="text-2xl font-bold mb-4 text-[var(--color-secondary)]">For Business Clients</h3><ol class="list-decimal list-outside ml-5 space-y-4 text-[var(--color-text-muted)]"><li><strong>Register & Define Needs:</strong> Onboard your business and detail your security requirements.</li><li><strong>Post Missions:</strong> Easily deploy missions with specific parameters, times, and locations.</li><li><strong>Gain Coverage:</strong> Our system matches your mission with qualified, vetted professionals.</li><li><strong>Monitor & Manage:</strong> Oversee mission progress in real-time through your dedicated portal.</li></ol></div>
                     </div>
                 </div>
             </section>
-            <footer id="contact" class="bg-[var(--accent-secondary)] text-[var(--text-light)] py-12">
-                <div class="container mx-auto px-4 text-center">
-                    <p class="font-bold text-lg">Signature Security Specialist</p>
-                    <p class="text-sm opacity-80">Protect with Purpose and Perform with Excellence.</p>
-                     <div class="mt-8 pt-8 border-t border-white/10 text-center text-sm opacity-70">
+            <footer class="bg-[var(--color-bg-base)] py-12">
+                <div class="container mx-auto px-4 text-center text-[var(--color-text-muted)]">
+                    <p class="font-bold text-lg text-[var(--color-text-base)] tracking-wider">SIGNATURE SECURITY SPECIALIST</p>
+                    <p class="text-sm">Protect with Purpose. Perform with Excellence.</p>
+                     <div class="mt-8 pt-8 border-t border-[var(--color-border)] text-center text-xs">
                         <p>© ${new Date().getFullYear()} Signature Security Specialist. All rights reserved.</p>
                     </div>
                 </div>

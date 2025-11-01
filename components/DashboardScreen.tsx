@@ -7,7 +7,7 @@ import { MissionDetailsModal } from './MissionDetailsModal.js';
 import { UserDetailsModal } from './UserDetailsModal.js';
 import { EditMissionModal } from './EditMissionModal.js';
 
-import { Sidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
+import { CommandSidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
 
 import { DashboardView } from './views/Dashboard.js';
 import { MyProfile } from './views/MyProfile.js';
@@ -122,26 +122,24 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     if (selectedModal.type === 'EditMission' && selectedModal.id) modalHtml = EditMissionModal({ missionId: selectedModal.id });
 
     return `
-        <div class="h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col md:flex-row overflow-hidden">
-            <!-- Desktop Sidebar -->
-            <div class="hidden lg:flex flex-shrink-0">
-                ${Sidebar({ currentUser, activeView, isCollapsed: false })}
-            </div>
-            <!-- Tablet Collapsed Sidebar -->
-            <div class="hidden md:flex lg:hidden flex-shrink-0">
-                ${Sidebar({ currentUser, activeView, isCollapsed: true })}
+        <div class="h-screen bg-[var(--color-bg-base)] text-[var(--color-text-base)] flex flex-col md:flex-row overflow-hidden">
+            <!-- Desktop Command Sidebar -->
+            <div class="hidden md:flex flex-shrink-0 w-72 overflow-y-auto">
+                ${CommandSidebar({ currentUser, activeView })}
             </div>
 
             <div class="flex-1 flex flex-col overflow-hidden">
-                <main id="dashboard-content" class="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 md:pb-6">
+                <main id="dashboard-content" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
                     ${viewContent}
                 </main>
             </div>
 
             <!-- Mobile Bottom Nav -->
-            ${BottomNavBar({ currentUser, activeView })}
-
-            <!-- Mobile Slide-out Menu -->
+            <div class="md:hidden">
+                ${BottomNavBar({ currentUser, activeView })}
+            </div>
+            
+            <!-- Mobile Slide-up Menu -->
             ${isMobileMenuOpen ? MobileMenu({ currentUser, activeView }) : ''}
 
             <!-- Modals -->

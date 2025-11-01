@@ -95,42 +95,35 @@ const getSidebarStructure = (currentUser: any): NavGroup[] => [
     },
 ];
 
-export const Sidebar = ({ currentUser, activeView, isCollapsed = false }) => {
+export const CommandSidebar = ({ currentUser, activeView }) => {
     const sidebarStructure = getSidebarStructure(currentUser);
-    const containerClasses = isCollapsed 
-        ? "w-20 bg-[var(--accent-secondary)] text-[var(--text-light)] h-full overflow-y-auto flex flex-col items-center py-4 space-y-4 collapsed-sidebar" 
-        : "w-64 bg-[var(--accent-secondary)] text-[var(--text-light)] h-full overflow-y-auto flex flex-col";
-    
     return `
-        <div class="${containerClasses}">
-            <div class="flex items-center justify-center h-16 border-b border-white/10 flex-shrink-0 px-4 w-full">
-                <div class="text-center ${isCollapsed ? 'hidden' : ''}">
-                    <p class="font-bold text-md">${currentUser.firstName} ${currentUser.lastName}</p>
-                    <p class="text-xs opacity-70">${currentUser.role}</p>
-                </div>
-                <div class="${isCollapsed ? '' : 'hidden'} text-center">
-                    ${Icons.Shield({ className: "w-8 h-8 text-[var(--accent-primary)]"})}
+        <div class="w-72 bg-[var(--color-bg-surface)] flex flex-col border-r border-[var(--color-border)] min-h-full">
+            <div class="flex items-center justify-center h-24 border-b border-[var(--color-border)] flex-shrink-0 px-6">
+                <div class="text-center">
+                    <p class="font-bold text-lg">${currentUser.firstName} ${currentUser.lastName}</p>
+                    <p class="text-xs text-[var(--color-text-muted)]">${currentUser.role}</p>
                 </div>
             </div>
-            <nav class="flex-1 ${isCollapsed ? '' : 'py-4'}">
+            <nav class="flex-grow py-6 px-4 space-y-6">
                 ${sidebarStructure.map((group) => {
                     const accessibleItems = group.items.filter(item => item.roles.includes(currentUser.role));
                     if (accessibleItems.length === 0) return '';
                     return `
                         <div>
-                            <h3 class="${isCollapsed ? 'hidden' : ''} px-4 pt-4 pb-2 text-xs font-semibold uppercase opacity-50 tracking-wider">${group.title}</h3>
+                            <h3 class="px-3 pb-2 text-xs font-bold uppercase text-[var(--color-text-muted)] tracking-wider">${group.title}</h3>
                             <ul class="space-y-1">
                                 ${accessibleItems.map((item) => {
                                     const isActive = activeView === item.view;
                                     const Icon = item.icon;
-                                    const activeClasses = 'bg-black/20 text-white font-bold';
-                                    const inactiveClasses = 'text-white/70 hover:bg-black/20 hover:text-white';
-                                    const linkClasses = `flex items-center text-sm font-medium transition-colors ${isCollapsed ? 'justify-center p-4 rounded-lg' : 'px-4 py-3'}`;
+                                    const activeClasses = 'bg-[var(--color-accent)] text-[var(--color-accent-text)] shadow-lg shadow-[var(--glow-color)]';
+                                    const inactiveClasses = 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-surface-raised)] hover:text-[var(--color-text-base)]';
+                                    const linkClasses = `flex items-center text-sm font-semibold transition-all duration-200 px-3 py-2.5 rounded-md`;
                                     return `
                                         <li>
-                                            <a href="#" title="${item.name}" data-action="navigate" data-type="${item.view}" class="${linkClasses} ${isActive ? activeClasses : inactiveClasses}">
-                                                ${Icon({ className: 'w-6 h-6 flex-shrink-0' })}
-                                                <span class="ml-3 ${isCollapsed ? 'sidebar-text absolute left-20 bg-[var(--accent-secondary)] px-3 py-1 rounded-md' : ''}">${item.name}</span>
+                                            <a href="#" data-action="navigate" data-type="${item.view}" class="${linkClasses} ${isActive ? activeClasses : inactiveClasses}">
+                                                ${Icon({ className: 'w-5 h-5 flex-shrink-0' })}
+                                                <span class="ml-3">${item.name}</span>
                                             </a>
                                         </li>
                                     `;
@@ -140,15 +133,18 @@ export const Sidebar = ({ currentUser, activeView, isCollapsed = false }) => {
                     `;
                 }).join('')}
             </nav>
-             <div class="flex-shrink-0 p-4 border-t border-white/10 ${isCollapsed ? 'hidden' : ''}">
-                <button data-action="logout" class="w-full flex items-center text-sm font-medium text-white/70 hover:text-white transition-colors">
-                    ${Icons.Logout({ className: "w-5 h-5 mr-2" })}
+             <div class="flex-shrink-0 p-4 border-t border-[var(--color-border)]">
+                <button data-action="logout" class="w-full flex items-center text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-base)] transition-colors p-2 rounded-md">
+                    ${Icons.Logout({ className: "w-5 h-5 mr-3" })}
                     Logout
                 </button>
             </div>
         </div>
     `;
 };
+
+// Keep old Sidebar for compatibility in case it's referenced elsewhere, but it's deprecated.
+export const Sidebar = CommandSidebar;
 
 type BottomNavItem = {
     name: string;
@@ -175,17 +171,18 @@ export const BottomNavBar = ({ currentUser, activeView }) => {
     
     primaryNav.push({ name: 'Menu', icon: Icons.Menu, action: 'open-mobile-menu' });
 
-
     return `
-        <div class="bottom-nav fixed bottom-0 left-0 right-0 h-20 bg-[var(--bg-secondary)] border-t border-[var(--border-primary)] md:hidden z-40">
+        <div class="fixed bottom-0 left-0 right-0 h-20 bg-[var(--color-bg-surface)] border-t border-[var(--color-border)] z-40">
             <div class="grid h-full max-w-lg grid-cols-${primaryNav.length} mx-auto font-medium">
                 ${primaryNav.map(item => {
                     const isActive = activeView === item.view;
                     const Icon = item.icon;
                     return `
-                        <button type="button" data-action="${item.action || 'navigate'}" data-type="${item.view || ''}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-[var(--bg-tertiary)] group">
-                            ${Icon({ className: `w-6 h-6 mb-1 ${isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}` })}
-                            <span class="text-xs ${isActive ? 'text-[var(--accent-primary)] font-bold' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}">${item.name}</span>
+                        <button type="button" data-action="${item.action || 'navigate'}" data-type="${item.view || ''}" class="inline-flex flex-col items-center justify-center px-2 group">
+                            <div class="relative">
+                                ${Icon({ className: `w-7 h-7 mb-1 transition-colors ${isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-inactive)] group-hover:text-[var(--color-text-muted)]'}` })}
+                                ${isActive ? '<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-1 bg-[var(--color-accent)] rounded-full"></div>' : ''}
+                            </div>
                         </button>
                     `;
                 }).join('')}
@@ -197,35 +194,35 @@ export const BottomNavBar = ({ currentUser, activeView }) => {
 export const MobileMenu = ({ currentUser, activeView }) => {
     const sidebarStructure = getSidebarStructure(currentUser);
     return `
-    <div class="fixed inset-0 bg-black/60 z-50 md:hidden animate-in" data-action="close-mobile-menu">
-        <div class="absolute inset-y-0 left-0 w-4/5 max-w-sm bg-[var(--accent-secondary)] text-white shadow-xl flex flex-col" style="animation: slideIn 0.3s ease-out forwards;" data-menu-panel>
-            <div class="flex items-center justify-between h-16 border-b border-white/10 px-4 flex-shrink-0">
+    <div class="fixed inset-0 bg-black/70 z-50 md:hidden" data-action="close-mobile-menu">
+        <div class="absolute inset-x-0 bottom-0 bg-[var(--color-bg-surface)] border-t border-[var(--color-border)] rounded-t-2xl flex flex-col max-h-[85vh]" style="animation: slideInUp 0.4s cubic-bezier(0.25, 1, 0.5, 1);" data-menu-panel>
+            <div class="flex items-center justify-between h-20 border-b border-[var(--color-border)] px-5 flex-shrink-0">
                 <div>
-                    <p class="font-bold">${currentUser.firstName} ${currentUser.lastName}</p>
-                    <p class="text-xs opacity-70">${currentUser.role}</p>
+                    <p class="font-bold text-lg">${currentUser.firstName} ${currentUser.lastName}</p>
+                    <p class="text-xs text-[var(--color-text-muted)]">${currentUser.role}</p>
                 </div>
-                <button data-action="close-mobile-menu" class="p-2 -mr-2">
+                <button data-action="close-mobile-menu" class="p-2 -mr-2 text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]">
                     ${Icons.X({ className: "w-6 h-6" })}
                 </button>
             </div>
-            <nav class="flex-1 overflow-y-auto py-4">
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-4">
                 ${sidebarStructure.map((group) => {
                     const accessibleItems = group.items.filter(item => item.roles.includes(currentUser.role));
                     if (accessibleItems.length === 0) return '';
                     return `
                         <div>
-                            <h3 class="px-4 pt-4 pb-2 text-xs font-semibold uppercase opacity-50 tracking-wider">${group.title}</h3>
+                            <h3 class="px-3 pb-2 text-xs font-bold uppercase text-[var(--color-text-muted)] tracking-wider">${group.title}</h3>
                             <ul class="space-y-1">
                                 ${accessibleItems.map((item) => {
                                     const isActive = activeView === item.view;
                                     const Icon = item.icon;
-                                    const linkClasses = `flex items-center text-sm font-medium transition-colors px-4 py-3 rounded-md mx-2`;
-                                    const activeClasses = 'bg-black/20 text-white font-bold';
-                                    const inactiveClasses = 'text-white/70 hover:bg-black/20 hover:text-white';
+                                    const linkClasses = `flex items-center text-sm font-semibold transition-colors px-3 py-3 rounded-md`;
+                                    const activeClasses = 'bg-[var(--color-accent)] text-[var(--color-accent-text)]';
+                                    const inactiveClasses = 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-surface-raised)] hover:text-[var(--color-text-base)]';
                                     return `
                                         <li>
                                             <a href="#" data-action="navigate" data-type="${item.view}" class="${linkClasses} ${isActive ? activeClasses : inactiveClasses}">
-                                                ${Icon({ className: 'w-6 h-6 flex-shrink-0 mr-3' })}
+                                                ${Icon({ className: 'w-5 h-5 flex-shrink-0 mr-4' })}
                                                 <span>${item.name}</span>
                                             </a>
                                         </li>
@@ -236,8 +233,8 @@ export const MobileMenu = ({ currentUser, activeView }) => {
                     `;
                 }).join('')}
             </nav>
-            <div class="p-4 border-t border-white/10 flex-shrink-0">
-                <button data-action="logout" class="w-full flex items-center text-sm font-medium text-white/70 hover:text-white transition-colors">
+            <div class="p-3 border-t border-[var(--color-border)] flex-shrink-0">
+                <button data-action="logout" class="w-full flex items-center text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-base)] transition-colors p-2 rounded-md">
                     ${Icons.Logout({ className: "w-5 h-5 mr-3" })}
                     Logout
                 </button>
