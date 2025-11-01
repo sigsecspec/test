@@ -1,3 +1,4 @@
+
 import { getAlerts } from '../../database.js';
 
 export const Alerts = ({ user }) => {

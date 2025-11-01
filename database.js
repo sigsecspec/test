@@ -81,7 +81,7 @@ function load() {
       const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
-              parsedDB[collection].forEach((item) => {
+              (parsedDB)[collection].forEach((item) => {
                   if (item.startTime) item.startTime = new Date(item.startTime);
                   if (item.endTime) item.endTime = new Date(item.endTime);
                   if (item.startDate) item.startDate = new Date(item.startDate);
@@ -119,13 +119,13 @@ export const getCollection = (name) => _DB[name] || [];
 
 export const getUsers = (roles = null) => {
     if (!roles) return getCollection('users');
-    return getCollection('users').filter(u => roles.includes(u.role));
+    return (getCollection('users')).filter(u => roles.includes(u.role));
 };
 
-export const getUserById = (id) => getCollection('users').find(u => u.id === id);
-export const getUserByEmail = (email) => getCollection('users').find(u => u.email === email);
+export const getUserById = (id) => (getCollection('users')).find(u => u.id === id);
+export const getUserByEmail = (email) => (getCollection('users')).find(u => u.email === email);
 export const getClients = () => getCollection('clients');
-export const getClientById = (id) => getCollection('clients').find(c => c.id === id);
+export const getClientById = (id) => (getCollection('clients')).find(c => c.id === id);
 
 export const getMissions = (teamId = null) => {
     const missions = getCollection('missions');
@@ -136,7 +136,7 @@ export const getMissions = (teamId = null) => {
     });
 };
 
-export const getMissionById = (id) => getCollection('missions').find(m => m.id === id);
+export const getMissionById = (id) => (getCollection('missions')).find(m => m.id === id);
 export const getSites = () => getCollection('sites');
 export const getSiteById = (id) => getCollection('sites').find(s => s.id === id);
 export const getContracts = () => getCollection('contracts');

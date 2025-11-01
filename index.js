@@ -10,6 +10,7 @@ import {
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
+import { canAlwaysApproveRoles, managementAndOpsRoles } from './constants.js';
 
 // --- START: MAIN APP LOGIC ---
 const state = {
@@ -35,6 +36,7 @@ function attachFormEventListeners() {
     const forms = [
         { id: '#application-form', handler: handleApplicationSubmit },
         { id: '#post-mission-form', handler: handlePostMission },
+        { id: '#edit-mission-form', handler: handleEditMission },
         { id: '#create-payroll-form', handler: handleCreatePayroll },
         { id: '#promotion-form', handler: handlePromotionSubmit },
         { id: '#training-form', handler: handleTrainingSubmit },
@@ -143,6 +145,21 @@ function handlePostMission(e) {
     }
 }
 
+function handleEditMission(e) {
+    e.preventDefault();
+    const form = e.target;
+    const missionId = form.dataset.missionId;
+    if (!missionId) return;
+
+    const data = getFormData(form);
+    if (updateById('missions', missionId, data)) {
+        alert('Mission updated successfully!');
+        closeModal();
+    } else {
+        alert('Failed to update mission.');
+    }
+}
+
 function handleCreatePayroll(e) {
     e.preventDefault();
     const data = getFormData(e.target);
@@ -243,14 +260,21 @@ function handleUserDetailsSubmit(e) {
 
     const updates = {};
     
-    // For all roles, these fields might be editable now
     if(data.firstName) updates.firstName = data.firstName;
     if(data.lastName) updates.lastName = data.lastName;
 
-    // Internal roles have level and team
     if (userToUpdate.role !== UserRole.Client) {
         if(data.level) updates.level = parseInt(data.level, 10);
-        if(data.teamId) updates.teamId = data.teamId;
+        if(data.teamId !== undefined) updates.teamId = data.teamId === "" ? null : data.teamId;
+    } else { // It's a client
+        if (state.currentUser && canAlwaysApproveRoles.includes(state.currentUser.role) && data.teamId !== undefined) {
+             const newTeamId = data.teamId === "" ? null : data.teamId;
+             updates.teamId = newTeamId;
+             const client = getClients().find(c => c.userId === userId);
+             if (client) {
+                 updateById('clients', client.id, { teamId: newTeamId });
+             }
+        }
     }
 
     if (Object.keys(updates).length > 0) {
@@ -276,6 +300,96 @@ function handleSpotCheckSubmit(e) {
     updateSpotCheck(spotCheckId, checkType, data);
     alert(`${checkType} check submitted.`);
     render();
+}
+
+function handleClientSearch(searchTerm) {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    
+    const { currentUser } = state;
+    if (!currentUser) return;
+
+    const canSeeAll = canAlwaysApproveRoles.includes(currentUser.role);
+    const canEditOnTeam = managementAndOpsRoles.includes(currentUser.role);
+    
+    const allClients = getClients();
+    const visibleClients = allClients.filter(c => {
+        if (canSeeAll) return true;
+        return c.teamId === currentUser.teamId;
+    });
+
+    const filteredClients = visibleClients.filter(client => {
+        const contactUser = getUserById(client.userId);
+        const companyMatch = client.companyName.toLowerCase().includes(lowerCaseSearchTerm);
+        const emailMatch = client.contactEmail.toLowerCase().includes(lowerCaseSearchTerm);
+        let nameMatch = false;
+        if (contactUser) {
+            nameMatch = `${contactUser.firstName} ${contactUser.lastName}`.toLowerCase().includes(lowerCaseSearchTerm);
+        }
+        return companyMatch || emailMatch || nameMatch;
+    });
+    
+    const canEditClient = (client) => {
+        if (canSeeAll) return true;
+        if (canEditOnTeam && client.teamId === currentUser.teamId) return true;
+        return false;
+    };
+
+    let finalContent = '';
+    if (filteredClients.length > 0) {
+        const tableBodyContent = filteredClients.map(client => {
+            const contactUser = getUserById(client.userId);
+            const buttonClass = canEditClient(client)
+                ? `text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]`
+                : `text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]`;
+            const buttonText = canEditClient(client) ? `View / Edit` : `View`;
+            return `
+           <tr class="border-b border-[var(--color-border)]">
+                <td class="px-5 py-4 text-sm"><p class="font-semibold text-[var(--color-text-base)] whitespace-no-wrap">${client.companyName}</p></td>
+                <td class="px-5 py-4 text-sm"><p class="font-semibold text-[var(--color-text-base)] whitespace-no-wrap">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : 'N/A'}</p><p class="text-[var(--color-text-muted)] whitespace-no-wrap text-xs">${client.contactEmail}</p></td>
+                <td class="px-5 py-4 text-sm"><button data-action="open-user-details" data-id="${client.userId}" class="font-semibold ${buttonClass} transition-colors">${buttonText}</button></td>
+           </tr>`;
+       }).join('');
+    
+        const mobileCardsContent = filteredClients.map(client => {
+            const contactUser = getUserById(client.userId);
+            const buttonText = canEditClient(client) ? "View / Edit Contact" : "View Contact";
+            return `
+            <div class="bg-[var(--color-bg-surface-raised)] p-4 rounded-lg">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-bold text-[var(--color-text-base)]">${client.companyName}</p>
+                        <p class="text-sm text-[var(--color-text-muted)]">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : client.contactEmail}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-[var(--color-border)] flex justify-end">
+                    <button data-action="open-user-details" data-id="${client.userId}" class="text-sm text-[var(--color-accent)] font-semibold">${buttonText} &rarr;</button>
+                </div>
+            </div>
+        `}).join('');
+
+        finalContent = `
+            <div class="hidden md:block">
+                <table class="min-w-full leading-normal">
+                    <thead><tr class="text-left text-[var(--color-text-muted)] uppercase text-xs tracking-wider"><th class="px-5 py-3 font-semibold">Company Name</th><th class="px-5 py-3 font-semibold">Contact</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
+                    <tbody>
+                        ${tableBodyContent}
+                    </tbody>
+                </table>
+            </div>
+             <div class="md:hidden space-y-3 p-4">
+                ${mobileCardsContent}
+            </div>
+        `;
+    } else {
+        finalContent = `<div class="p-8 text-center text-[var(--color-text-muted)]">No clients found matching your search.</div>`;
+    }
+
+    if(root) {
+        const clientListContainer = root.querySelector('#client-list-container');
+        if (clientListContainer) {
+            clientListContainer.innerHTML = finalContent;
+        }
+    }
 }
 
 // --- Main Event Listener ---
@@ -395,6 +509,17 @@ function attachEventListeners() {
             'confirm-payment': () => { confirmPayment(id); render(); },
             'open-user-details': () => openModal('UserDetails', id),
             'open-mission-details': () => openModal('MissionDetails', id),
+            'open-edit-mission-modal': () => openModal('EditMission', id),
+            'cancel-mission': () => {
+                if (id && confirm('Are you sure you want to cancel this mission? This action cannot be undone.')) {
+                    if (updateById('missions', id, { status: 'Cancelled' })) {
+                        alert('Mission has been cancelled.');
+                        render();
+                    } else {
+                        alert('Failed to cancel mission.');
+                    }
+                }
+            },
             'start-spot-check': () => {
                 if(!id || !state.currentUser) return;
                 addSpotCheck(state.currentUser.id, id);
@@ -417,6 +542,14 @@ function attachEventListeners() {
         if (actionMap[action]) {
             e.preventDefault();
             actionMap[action](e);
+        }
+    });
+
+    root.addEventListener('input', (e) => {
+        const target = e.target;
+
+        if (target.id === 'client-search-input') {
+            handleClientSearch(target.value);
         }
     });
 
