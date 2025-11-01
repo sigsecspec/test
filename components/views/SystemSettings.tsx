@@ -1,7 +1,8 @@
-import { getSystemSettings, User } from '../../database.js';
+
+import { getSystemSettings } from '../../database.js';
 import { UserRole } from '../../types.js';
 
-export const SystemSettings = ({ user }: { user: User }) => {
+export const SystemSettings = ({ user }) => {
     const settings = getSystemSettings();
     const inputStyles = "mt-1 block w-full border border-[var(--color-border)] rounded-md shadow-sm p-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] bg-[var(--color-bg-surface-raised)] text-[var(--color-text-base)]";
     

@@ -1,3 +1,4 @@
+
 import { Icons } from './Icons.js';
 import { featureList, statList } from '../content/homepageContent.js';
 
@@ -41,7 +42,7 @@ export const HomePage = () => `
                 </div>
             </section>
             
-            <section class="py-20 bg-[var(--color-bg-surface)] border-b border-[var(--color-border)]">
+            <section id="features" class="py-20 bg-[var(--color-bg-surface)] border-b border-[var(--color-border)]">
                  <div class="container mx-auto px-4">
                      <div class="text-center mb-16"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">A Unified Command & Control Platform</h2><p class="mt-3 text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto">Engineered for efficiency, transparency, and performance across all security operations.</p></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -61,7 +62,7 @@ export const HomePage = () => `
                     <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold tracking-tight">Streamlined. Secure. Superior.</h2></div>
                     <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                        <div class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-8 animate-in"><h3 class="text-2xl font-bold mb-4 text-[var(--color-accent)]">For Security Professionals</h3><ol class="list-decimal list-outside ml-5 space-y-4 text-[var(--color-text-muted)]"><li><strong>Apply & Verify:</strong> Submit your credentials for a swift vetting process.</li><li><strong>Certify & Train:</strong> Access advanced, mission-specific training modules to level up.</li><li><strong>Browse & Claim:</strong> The mission board provides opportunities that match your skill set.</li><li><strong>Execute & Earn:</strong> Perform your duties with excellence and get paid reliably.</li></ol></div>
-                       <div class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-8 animate-in" style="animation-delay: 200ms;"><h3 class="text-2xl font-bold mb-4 text-[var(--color-secondary)]">For Business Clients</h3><ol class="list-decimal list-outside ml-5 space-y-4 text-[var(--color-text-muted)]"><li><strong>Register & Define Needs:</strong> Onboard your business and detail your security requirements.</li><li><strong>Post Missions:</strong> Easily deploy missions with specific parameters, times, and locations.</li><li><strong>Gain Coverage:</strong> Our system matches your mission with qualified, vetted professionals.</li><li><strong>Monitor & Manage:</strong> Oversee mission progress in real-time through your dedicated portal.</li></ol></div>
+                       <div class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl p-8 animate-in" style="animation-delay: 200ms;"><h3 class="text-2xl font-bold mb-4 text-[var(--color-accent)]">For Business Clients</h3><ol class="list-decimal list-outside ml-5 space-y-4 text-[var(--color-text-muted)]"><li><strong>Register & Define Needs:</strong> Onboard your business and detail your security requirements.</li><li><strong>Post Missions:</strong> Easily deploy missions with specific parameters, times, and locations.</li><li><strong>Gain Coverage:</strong> Our system matches your mission with qualified, vetted professionals.</li><li><strong>Monitor & Manage:</strong> Oversee mission progress in real-time through your dedicated portal.</li></ol></div>
                     </div>
                 </div>
             </section>

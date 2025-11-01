@@ -1,4 +1,5 @@
 
+
 import { 
     initializeDB, getUsers, getUserByEmail, getMissionById, claimMission, 
     missionCheckIn, missionCheckOut, addApplication, updateApplicationStatus,
@@ -7,26 +8,16 @@ import {
     createPayrollRun, approvePayrollRun, confirmPayment, updateById, addSpotCheck,
     updateSpotCheck, addSpotCheckSelfie, completeSpotCheck, markUniformSent, getSpotCheckByMissionId,
     getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients, getSystemSettings, 
-    updateSystemSettings, getUserById, User, suspendUser, terminateUser, deleteById, approveMission, denyMission,
-    setCurrentUserForDB, getActionLog
+    updateSystemSettings, getUserById, suspendUser, terminateUser, deleteById, approveMission, denyMission,
+    setCurrentUserForDB, getActionLog, addChangeRequest, updateChangeRequestStatus, addUser, createSite
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
-import { canAlwaysApproveRoles, managementAndOpsRoles, executiveRoles } from './constants.js';
+import { canAlwaysApproveRoles, managementAndOpsRoles, executiveRoles, canProposeChanges } from './constants.js';
 
 // --- START: MAIN APP LOGIC ---
-interface AppState {
-    currentUser: User | null;
-    users: User[];
-    isLoading: boolean;
-    activeView: string;
-    activeMissionId: string | null;
-    selectedPayrollRunId: string | null;
-    selectedModal: { type: string | null, id: string | null };
-    isMobileMenuOpen: boolean;
-}
 
-const state: AppState = {
+const state = {
     currentUser: null,
     users: [],
     isLoading: true,
@@ -46,7 +37,7 @@ function render() {
 
 function attachFormEventListeners() {
     if (!root) return;
-    const forms: {id?: string, selector?: string, handler: (e: Event) => void}[] = [
+    const forms = [
         { id: '#application-form', handler: handleApplicationSubmit },
         { id: '#post-mission-form', handler: handlePostMission },
         { id: '#edit-mission-form', handler: handleEditMission },
@@ -54,9 +45,13 @@ function attachFormEventListeners() {
         { id: '#promotion-form', handler: handlePromotionSubmit },
         { id: '#training-form', handler: handleTrainingSubmit },
         { id: '#contract-form', handler: handleContractSubmit },
+        { id: '#admin-contract-form', handler: handleAdminContractSubmit },
         { id: '#site-request-form', handler: handleSiteSubmit },
+        { id: '#ops-site-request-form', handler: handleSiteSubmit },
+        { id: '#admin-site-form', handler: handleAdminSiteSubmit },
         { id: '#system-settings-form', handler: handleSystemSettingsSubmit },
         { id: '#user-details-form', handler: handleUserDetailsSubmit },
+        { id: '#add-user-form', handler: handleAddUserSubmit },
         { selector: '.spot-check-form', handler: handleSpotCheckSubmit },
     ];
     forms.forEach(formInfo => {
@@ -69,18 +64,19 @@ function attachFormEventListeners() {
         }
     });
 
-    const addSiteCheckbox = root.querySelector('#add-site-checkbox') as HTMLInputElement;
+    const addSiteCheckbox = root.querySelector('#add-site-checkbox');
     if (addSiteCheckbox) {
         addSiteCheckbox.addEventListener('change', (e) => {
-            const newSiteFields = root.querySelector('#new-site-fields') as HTMLElement;
+            const newSiteFields = root.querySelector('#new-site-fields');
             if (newSiteFields) {
+                // FIX: Cast e.target to HTMLInputElement to access 'checked' property
                 newSiteFields.classList.toggle('hidden', !(e.target as HTMLInputElement).checked);
             }
         });
     }
 }
 
-function openModal(type: string, id: string | null = null) {
+function openModal(type, id = null) {
     state.selectedModal = { type, id };
     render();
 }
@@ -90,7 +86,7 @@ function closeModal() {
 }
 
 // --- Event Handlers ---
-function handleLogin(email: string) {
+function handleLogin(email) {
     const user = getUserByEmail(email);
     if (user) {
         if (user.status === 'Terminated') {
@@ -110,7 +106,7 @@ function handleLogout() {
     state.isMobileMenuOpen = false;
     render();
 }
-function handleNavigation(view: string) {
+function handleNavigation(view) {
     state.activeView = view;
     state.activeMissionId = null;
     state.isMobileMenuOpen = false;
@@ -118,19 +114,25 @@ function handleNavigation(view: string) {
 }
 
 // --- Form Handlers ---
-function getFormData(form: HTMLFormElement): Record<string, any> {
+// FIX: Add type annotation for form parameter and return type.
+function getFormData(form: HTMLFormElement): { [key: string]: any } {
     const formData = new FormData(form);
-    const data: Record<string, any> = {};
+    // FIX: Define data with an index signature to allow dynamic property assignment.
+    const data: { [key: string]: any } = {};
     for (let [key, value] of formData.entries()) {
-        const element = form.elements[key as any] as HTMLInputElement;
+        const element = form.elements[key] as HTMLInputElement;
         if (element && element.type === 'number') {
+            // FIX: Cast FormDataEntryValue to string for parseFloat
             data[key] = parseFloat(value as string) || 0;
         } else if (element && element.type === 'date') {
+            // FIX: Cast FormDataEntryValue to string for split
             const [year, month, day] = (value as string).split('-').map(Number);
             data[key] = new Date(Date.UTC(year, month - 1, day));
         } else if (element && element.type === 'datetime-local') {
+             // FIX: Cast FormDataEntryValue to string for new Date()
              data[key] = new Date(value as string);
         } else if (element && element.type === 'checkbox') {
+             // FIX: Use checked property from HTMLInputElement
              data[key] = element.checked;
         } else {
             data[key] = value;
@@ -235,6 +237,19 @@ function handleContractSubmit(e: Event) {
     closeModal();
 }
 
+function handleAdminContractSubmit(e: Event) {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const data = getFormData(form);
+
+    const status = data.activateNow ? 'Active' : 'Pending';
+    delete data.activateNow;
+    
+    addContract(data, status);
+    alert('Contract created successfully.');
+    closeModal();
+}
+
 function handleSiteSubmit(e: Event) {
     e.preventDefault();
     const data = getFormData(e.target as HTMLFormElement);
@@ -243,11 +258,22 @@ function handleSiteSubmit(e: Event) {
     closeModal();
 }
 
+function handleAdminSiteSubmit(e: Event) {
+    e.preventDefault();
+    if(!state.currentUser) return;
+    const data = getFormData(e.target as HTMLFormElement);
+    if (createSite(data, state.currentUser)) {
+        alert('Site created successfully.');
+        closeModal();
+    }
+}
+
 function handleSystemSettingsSubmit(e: Event) {
     e.preventDefault();
     if(!state.currentUser) return;
     const data = getFormData(e.target as HTMLFormElement);
-    const updates: Record<string, any> = {
+    // FIX: Add index signature to allow adding commissionRates property later.
+    const updates: { [key: string]: any } = {
         companyName: data.companyName,
         payrollCycle: data.payrollCycle,
     };
@@ -284,48 +310,68 @@ function handleUserDetailsSubmit(e: Event) {
     const canAlwaysEdit = canAlwaysApproveRoles.includes(state.currentUser.role);
     const isManagerOfUser = managementAndOpsRoles.includes(state.currentUser.role) && userToUpdate.teamId === state.currentUser.teamId;
     const canEdit = canAlwaysEdit || isManagerOfUser;
+    const canPropose = canProposeChanges.includes(state.currentUser.role) && !canEdit && state.currentUser.id !== userId;
 
-    if(!canEdit) {
-        alert("You don't have permission to edit this user.");
+    if(!canEdit && !canPropose) {
+        alert("You don't have permission to modify this user's details.");
         return;
     }
 
-    const updates: Record<string, any> = {};
+    const updates: { [key: string]: any } = {};
     
-    if(data.firstName) updates.firstName = data.firstName;
-    if(data.lastName) updates.lastName = data.lastName;
+    if(data.firstName && data.firstName !== userToUpdate.firstName) updates.firstName = data.firstName;
+    if(data.lastName && data.lastName !== userToUpdate.lastName) updates.lastName = data.lastName;
 
     if (userToUpdate.role !== UserRole.Client) {
-        if(data.level) updates.level = parseInt(data.level as string, 10);
-        if(data.teamId !== undefined) updates.teamId = data.teamId === "" ? null : data.teamId;
+        const newLevel = parseInt(data.level, 10);
+        if(data.level && newLevel !== userToUpdate.level) updates.level = newLevel;
+        const newTeamId = data.teamId === "" ? null : data.teamId;
+        if(data.teamId !== undefined && newTeamId !== userToUpdate.teamId) updates.teamId = newTeamId;
     } else { // It's a client
         if (state.currentUser && canAlwaysApproveRoles.includes(state.currentUser.role) && data.teamId !== undefined) {
              const newTeamId = data.teamId === "" ? null : data.teamId;
-             updates.teamId = newTeamId;
-             const client = getClients().find(c => c.userId === userId);
-             if (client) {
-                 updateById('clients', client.id, { teamId: newTeamId });
+             if (newTeamId !== userToUpdate.teamId) {
+                updates.teamId = newTeamId;
              }
         }
     }
 
     if (Object.keys(updates).length > 0) {
-        if(updateById('users', userId, updates)) {
-            alert('User details updated.');
-            state.users = getUsers();
+        if(canEdit) {
+            if(updateById('users', userId, updates)) {
+                alert('User details updated.');
+                state.users = getUsers();
+                closeModal();
+            } else {
+                alert('Failed to update user.');
+            }
+        } else if (canPropose) {
+            addChangeRequest(state.currentUser.id, 'users', userId, updates);
+            alert('Your proposed changes have been submitted for approval.');
             closeModal();
-        } else {
-            alert('Failed to update user.');
         }
     } else {
         closeModal(); // No changes made
     }
 }
 
+function handleAddUserSubmit(e: Event) {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const data = getFormData(form);
+    
+    if (addUser(data)) {
+        alert(`${data.role} account created successfully.`);
+        state.users = getUsers();
+        closeModal();
+    }
+    // error is handled inside addUser
+}
+
 function handleSpotCheckSubmit(e: Event) {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const checkType = form.dataset.checkType as 'start' | 'mid' | 'end';
+    const checkType = form.dataset.checkType;
     const spotCheckId = form.dataset.spotCheckId;
     if(!spotCheckId || !checkType) return;
     const data = getFormData(form);
@@ -334,7 +380,7 @@ function handleSpotCheckSubmit(e: Event) {
     render();
 }
 
-function handleClientSearch(searchTerm: string) {
+function handleClientSearch(searchTerm) {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     
     const { currentUser } = state;
@@ -360,7 +406,7 @@ function handleClientSearch(searchTerm: string) {
         return companyMatch || emailMatch || nameMatch;
     });
     
-    const canEditClient = (client: { teamId: string | null }) => {
+    const canEditClient = (client) => {
         if (canSeeAll) return true;
         if (canEditOnTeam && client.teamId === currentUser.teamId) return true;
         return false;
@@ -428,9 +474,12 @@ function handleAuditLogFilter() {
     const container = root?.querySelector('#audit-log-list-container');
     if (!container) return;
 
-    const searchTerm = (root?.querySelector('#audit-search-input') as HTMLInputElement)?.value.toLowerCase() || '';
-    const typeFilter = (root?.querySelector('#audit-type-filter') as HTMLSelectElement)?.value || '';
-    const roleFilter = (root?.querySelector('#audit-role-filter') as HTMLSelectElement)?.value || '';
+    // FIX: Cast Element to HTMLInputElement to access value property.
+    const searchTerm = (root?.querySelector('#audit-search-input') as HTMLInputElement).value.toLowerCase() || '';
+    // FIX: Cast Element to HTMLSelectElement to access value property.
+    const typeFilter = (root?.querySelector('#audit-type-filter') as HTMLSelectElement).value || '';
+    // FIX: Cast Element to HTMLSelectElement to access value property.
+    const roleFilter = (root?.querySelector('#audit-role-filter') as HTMLSelectElement).value || '';
     
     const allLogs = getActionLog();
     const allUsers = getUsers();
@@ -449,24 +498,30 @@ function handleAuditLogFilter() {
         return typeMatch && roleMatch && searchMatch;
     });
 
+    // FIX: Cast window to any to access dynamically added property.
     const { renderAuditLogCards, renderAuditLogTable } = (window as any).auditLogRenderers;
     container.innerHTML = renderAuditLogTable(filteredLogs, allUsers) + renderAuditLogCards(filteredLogs, allUsers);
 }
 
 // --- Main Event Listener ---
 function attachEventListeners() {
-    root.addEventListener('click', (e: MouseEvent) => {
+    root.addEventListener('click', (e) => {
+        // FIX: Cast EventTarget to HTMLElement to use 'closest' method.
         const target = (e.target as HTMLElement).closest('[data-action]');
         if (!target) return;
 
         const action = target.getAttribute('data-action');
         const id = target.getAttribute('data-id');
         
-        const actionMap: Record<string, (e: MouseEvent) => void> = {
+        const actionMap = {
             'login': () => id && handleLogin(id),
             'logout': () => handleLogout(),
             'navigate': () => handleNavigation(target.getAttribute('data-type')),
             'open-login': () => openModal('Login'),
+            'open-add-user-modal': () => openModal('AddUser', target.getAttribute('data-role')),
+            'open-admin-contract-modal': () => openModal('AdminContract'),
+            'open-admin-site-modal': () => openModal('AdminSite'),
+            'open-ops-site-modal': () => openModal('OpsSite'),
             'open-mobile-menu': () => { state.isMobileMenuOpen = true; render(); },
             'close-modal': closeModal,
             'close-modal-backdrop': (e) => { if (!(e.target as HTMLElement).closest('[data-modal-content]')) closeModal(); },
@@ -548,7 +603,7 @@ function attachEventListeners() {
             'open-action-log-details': () => openModal('ActionLogDetails', id),
             'update-roster': () => {
                 if(!state.currentUser) return;
-                const { guardId, listType } = (target as HTMLElement).dataset as {guardId: string, listType: 'whitelist' | 'blacklist'};
+                const { guardId, listType } = (target as HTMLElement).dataset;
                 const client = getClients().find(c => c.userId === state.currentUser.id);
                 if(!client) return;
                 const list = client[listType];
@@ -565,8 +620,8 @@ function attachEventListeners() {
             'approve-contract': () => { if(state.currentUser && updateContractStatus(id, 'Active', state.currentUser)) render(); },
             'deny-contract': () => { if(state.currentUser && updateContractStatus(id, 'Denied', state.currentUser)) render(); },
             'review-contract': () => { if(state.currentUser && updateContractStatus(id, 'Ready for Review', state.currentUser)) render(); },
-            'approve-promotion': () => { updatePromotionStatus(id, 'Approved'); render(); },
-            'deny-promotion': () => { updatePromotionStatus(id, 'Denied'); render(); },
+            'approve-promotion': () => { if(id && state.currentUser) { updatePromotionStatus(id, 'Approved', state.currentUser); render(); } },
+            'deny-promotion': () => { if(id && state.currentUser) { updatePromotionStatus(id, 'Denied', state.currentUser); render(); } },
             'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
             'approve-payroll-run': () => { approvePayrollRun(id); render(); },
             'confirm-payment': () => { confirmPayment(id); render(); },
@@ -591,7 +646,8 @@ function attachEventListeners() {
             },
             'complete-spot-check': () => {
                 if(!id) return;
-                const report = (root.querySelector('#final-spot-report') as HTMLTextAreaElement)?.value || 'No report submitted.';
+                // FIX: Cast Element to HTMLTextAreaElement to access value property.
+                const report = (root.querySelector('#final-spot-report') as HTMLTextAreaElement).value || 'No report submitted.';
                 completeSpotCheck(id, report);
                 state.activeMissionId = null;
                 alert('Spot check completed and submitted.');
@@ -606,7 +662,8 @@ function attachEventListeners() {
             'terminate-user': () => { if(id && confirm('Are you sure you want to terminate this user? This is a permanent action.')) { terminateUser(id); state.users = getUsers(); closeModal(); } },
             'delete-user-permanently': () => { if(id && state.currentUser && executiveRoles.includes(state.currentUser.role) && confirm('PERMANENTLY DELETE USER? This cannot be undone.')) { deleteById('users', id); state.users = getUsers(); closeModal(); } },
             'delete-mission-permanently': () => { if(id && state.currentUser && executiveRoles.includes(state.currentUser.role) && confirm('PERMANENTLY DELETE MISSION? This cannot be undone.')) { deleteById('missions', id); closeModal(); } },
-
+            'approve-change-request': () => { if(id && state.currentUser) { updateChangeRequestStatus(id, 'Approved', state.currentUser.id); render(); } },
+            'reject-change-request': () => { if(id && state.currentUser) { updateChangeRequestStatus(id, 'Rejected', state.currentUser.id); render(); } },
         };
         
         if (actionMap[action]) {
@@ -615,7 +672,8 @@ function attachEventListeners() {
         }
     });
 
-    root.addEventListener('input', (e: Event) => {
+    root.addEventListener('input', (e) => {
+        // FIX: Cast EventTarget to HTMLInputElement to access 'id' and 'value' properties.
         const target = e.target as HTMLInputElement;
 
         if (target.id === 'client-search-input') {
@@ -627,6 +685,7 @@ function attachEventListeners() {
     });
 
     root.addEventListener('change', (e) => {
+        // FIX: Cast EventTarget to HTMLInputElement to access 'matches' and 'id' properties.
         const target = e.target as HTMLInputElement;
         if (target.matches('#start-selfie') || target.matches('#end-selfie')) {
             if (state.activeMissionId) {

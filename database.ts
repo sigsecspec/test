@@ -1,95 +1,9 @@
 
+
 import { UserRole, Ranks } from './types.js';
-import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles, canCreateMissionsDirectly, canCreateMissionsForApproval } from './constants.js';
+import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles, canCreateMissionsDirectly, canCreateMissionsForApproval, operationsRoles } from './constants.js';
 
-// Define interfaces for the database structure to provide proper typing.
-export interface User {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-    rank: string;
-    level: number;
-    certifications: string[];
-    teamId: string | null;
-    weeklyHours: number;
-    performanceRating: number;
-    needsUniform: boolean;
-    status: 'Active' | 'Suspended' | 'Terminated';
-}
-
-export interface Client {
-    id: string;
-    companyName: string;
-    contactEmail: string;
-    userId: string;
-    teamId: string | null;
-    whitelist: string[];
-    blacklist: string[];
-}
-
-export interface Mission {
-    id: string;
-    title: string;
-    clientId: string;
-    siteId: string;
-    contractId: string;
-    requiredTrainingId: string;
-    startTime: Date;
-    endTime: Date;
-    payRate: number;
-    requiredGuards: number;
-    requiredLevel: number;
-    leadGuardId?: string;
-    description: string;
-    status: 'Open' | 'Claimed' | 'Active' | 'Completed' | 'Cancelled' | 'Pending Approval';
-    claimedBy: string[];
-    checkIns: { [userId: string]: { time: Date, verifiedBy?: string } };
-    checkOuts: { [userId: string]: { time: Date, verifiedBy?: string } };
-}
-
-export interface ActionLogEntry {
-    id: string;
-    timestamp: Date;
-    userId: string;
-    actionType: string;
-    entityType: string;
-    entityId: string;
-    severity: 'Low' | 'Medium' | 'High';
-    details: {
-        before?: any;
-        after?: any;
-        description: string;
-    };
-}
-
-interface DB {
-    users: User[];
-    clients: Client[];
-    missions: Mission[];
-    sites: any[];
-    contracts: any[];
-    applications: any[];
-    promotions: any[];
-    siteApprovalRequests: any[];
-    trainingModules: any[];
-    trainingProgress: any[];
-    payrollRuns: any[];
-    payrollEntries: any[];
-    alerts: any[];
-    systemSettings: any;
-    teams: any[];
-    spotChecks: any[];
-    uniformDeliveries: any[];
-    leadGuardAssignments: any[];
-    vehicles: any[];
-    vehicleAssignments: any[];
-    appeals: any[];
-    actionLog: ActionLogEntry[];
-}
-
-const initialData: DB = {
+const initialData = {
   users: [
     { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false, status: 'Active' },
     { id: 'user-co', firstName: 'Ashley', lastName: 'Smith', email: 'A.Smith@SignatureSecuritySpecialist.com', role: UserRole.CoOwner, rank: Ranks[UserRole.CoOwner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
@@ -98,6 +12,8 @@ const initialData: DB = {
     { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false, status: 'Active' },
     { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7, needsUniform: false, status: 'Active' },
     { id: 'user-sup-1', firstName: 'Super', lastName: 'Visor', email: 'supervisor@test.com', role: UserRole.Supervisor, rank: Ranks[UserRole.Supervisor], level: 3, certifications: [], teamId: 'team-1', weeklyHours: 20, performanceRating: 4.5, needsUniform: false, status: 'Active' },
+    { id: 'user-guard-1', firstName: 'Test', lastName: 'Guard', email: 'guard@test.com', role: UserRole.Guard, rank: Ranks[UserRole.Guard], level: 1, certifications: [], teamId: 'team-1', weeklyHours: 10, performanceRating: 4.2, needsUniform: false, status: 'Active' },
+
 
     // Team 2
     { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
@@ -166,22 +82,24 @@ const initialData: DB = {
   appeals: [
       { id: 'appeal-1', missionId: 'mission-123', clientId: 'client-abc', reason: 'Guard was late and unprofessional.', status: 'Pending', createdAt: new Date() }
   ],
+  changeRequests: [],
   actionLog: [
       { id: `log-${Date.now()}`, timestamp: new Date(), userId: 'user-1', actionType: 'SYSTEM_INITIALIZED', entityType: 'System', entityId: 'system-0', severity: 'Low', details: { description: 'Database was seeded with initial data.' } }
   ]
 };
-let _DB: DB = {} as DB;
-let _currentUser: User | null = null; // Store current user for logging
+// FIX: Change type of _DB to any to allow dynamic properties
+let _DB: any = {};
+let _currentUser = null; // Store current user for logging
 
 function logAction(
-    actionType: string,
-    entityType: string,
-    entityId: string,
-    severity: 'Low' | 'Medium' | 'High',
-    details: object
+    actionType,
+    entityType,
+    entityId,
+    severity,
+    details
 ) {
     if (!_currentUser) return; // Don't log if no user is acting
-    const logEntry: ActionLogEntry = {
+    const logEntry = {
         id: `log-${Date.now()}-${Math.random()}`,
         timestamp: new Date(),
         userId: _currentUser.id,
@@ -204,10 +122,10 @@ function load() {
   if (dbString) {
     try {
       const parsedDB = JSON.parse(dbString);
-      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests', 'appeals', 'vehicleAssignments', 'actionLog'];
+      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests', 'appeals', 'vehicleAssignments', 'actionLog', 'changeRequests'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
-              (parsedDB as any)[collection].forEach((item: any) => {
+              (parsedDB)[collection].forEach((item) => {
                   if (item.startTime) item.startTime = new Date(item.startTime);
                   if (item.endTime) item.endTime = new Date(item.endTime);
                   if (item.startDate) item.startDate = new Date(item.startDate);
@@ -218,6 +136,7 @@ function load() {
                   if (item.sentAt) item.sentAt = new Date(item.sentAt);
                   if (item.receivedAt) item.receivedAt = new Date(item.receivedAt);
                   if (item.timestamp) item.timestamp = new Date(item.timestamp);
+                  if (item.reviewedAt) item.reviewedAt = new Date(item.reviewedAt);
               });
           }
       });
@@ -242,24 +161,24 @@ export function initializeDB() {
   }
 }
 
-export const setCurrentUserForDB = (user: User | null) => {
+export const setCurrentUserForDB = (user) => {
     _currentUser = user;
 }
 
-export const getCollection = (name: keyof DB) => _DB[name] || [];
+export const getCollection = (name) => _DB[name] || [];
 
-export const getUsers = (roles: string[] | null = null): User[] => {
-    if (!roles) return getCollection('users') as User[];
-    return (getCollection('users') as User[]).filter(u => roles.includes(u.role));
+export const getUsers = (roles = null) => {
+    if (!roles) return getCollection('users');
+    return (getCollection('users')).filter(u => roles.includes(u.role));
 };
 
-export const getUserById = (id: string) => (getCollection('users') as User[]).find(u => u.id === id);
-export const getUserByEmail = (email: string) => (getCollection('users') as User[]).find(u => u.email === email);
-export const getClients = (): Client[] => getCollection('clients') as Client[];
-export const getClientById = (id: string) => (getCollection('clients') as Client[]).find(c => c.id === id);
+export const getUserById = (id) => (getCollection('users')).find(u => u.id === id);
+export const getUserByEmail = (email) => (getCollection('users')).find(u => u.email === email);
+export const getClients = () => getCollection('clients');
+export const getClientById = (id) => (getCollection('clients')).find(c => c.id === id);
 
-export const getMissions = (teamId: string | null = null): Mission[] => {
-    const missions = getCollection('missions') as Mission[];
+export const getMissions = (teamId = null) => {
+    const missions = getCollection('missions');
     if (!teamId) return missions;
     return missions.filter(m => {
         const client = getClientById(m.clientId);
@@ -267,15 +186,15 @@ export const getMissions = (teamId: string | null = null): Mission[] => {
     });
 };
 
-export const getMissionById = (id: string) => (getCollection('missions') as Mission[]).find(m => m.id === id);
+export const getMissionById = (id) => (getCollection('missions')).find(m => m.id === id);
 export const getSites = () => getCollection('sites');
-export const getSiteById = (id: string) => getCollection('sites').find(s => s.id === id);
+export const getSiteById = (id) => getCollection('sites').find(s => s.id === id);
 export const getContracts = () => getCollection('contracts');
 export const getApplications = (status = 'Pending') => getCollection('applications').filter(a => a.status === status);
 export const getTrainingModules = () => getCollection('trainingModules');
-export const getUserTrainingProgress = (userId: string) => getCollection('trainingProgress').filter(p => p.userId === userId);
+export const getUserTrainingProgress = (userId) => getCollection('trainingProgress').filter(p => p.userId === userId);
 
-export const getPendingTrainingApprovals = (teamId: string | null = null) => {
+export const getPendingTrainingApprovals = (teamId = null) => {
     const pending = getCollection('trainingProgress').filter(p => p.status === 'Pending Approval');
     if (!teamId) return pending;
     return pending.filter(p => {
@@ -287,19 +206,19 @@ export const getPendingTrainingApprovals = (teamId: string | null = null) => {
 export const getSystemSettings = () => getCollection('systemSettings');
 export const getAlerts = () => getCollection('alerts');
 export const getPromotions = () => getCollection('promotions');
-export const getPayrollRuns = () => getCollection('payrollRuns').sort((a: any,b: any) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
-export const getPayrollEntriesForRun = (runId: string) => getCollection('payrollEntries').filter(e => e.runId === runId);
+export const getPayrollRuns = () => getCollection('payrollRuns').sort((a,b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
+export const getPayrollEntriesForRun = (runId) => getCollection('payrollEntries').filter(e => e.runId === runId);
 
-export const getMissionsForSpotCheck = (supervisorId: string) => {
+export const getMissionsForSpotCheck = (supervisorId) => {
     const supervisor = getUserById(supervisorId);
     if (!supervisor) return [];
     return getMissions(supervisor.teamId).filter(m => m.status === 'Active' && !m.claimedBy.includes(supervisorId));
 };
 
-export const getSpotCheckByMissionId = (missionId: string) => getCollection('spotChecks').find(sc => sc.missionId === missionId);
-export const getLeadGuardAssignment = (missionId: string) => getCollection('leadGuardAssignments').find(lg => lg.missionId === missionId);
+export const getSpotCheckByMissionId = (missionId) => getCollection('spotChecks').find(sc => sc.missionId === missionId);
+export const getLeadGuardAssignment = (missionId) => getCollection('leadGuardAssignments').find(lg => lg.missionId === missionId);
 
-export const getPendingSiteApprovals = (teamId: string | null = null) => {
+export const getPendingSiteApprovals = (teamId = null) => {
     const pending = getCollection('siteApprovalRequests').filter(r => r.status === 'Pending');
     if (!teamId) return pending;
     return pending.filter(r => {
@@ -308,18 +227,43 @@ export const getPendingSiteApprovals = (teamId: string | null = null) => {
     });
 };
 
-export const getVehicleById = (id: string) => getCollection('vehicles').find(v => v.id === id);
-export const getVehicleAssignments = (vehicleId: string) => (getCollection('vehicleAssignments') as any[]).filter(a => a.vehicleId === vehicleId);
-export const getActionLog = () => (getCollection('actionLog') as ActionLogEntry[]).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-export const getActionLogEntryById = (id: string) => (getCollection('actionLog') as ActionLogEntry[]).find(entry => entry.id === id);
+export const getVehicleById = (id) => getCollection('vehicles').find(v => v.id === id);
+export const getVehicleAssignments = (vehicleId) => (getCollection('vehicleAssignments')).filter(a => a.vehicleId === vehicleId);
+export const getActionLog = () => (getCollection('actionLog')).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+export const getActionLogEntryById = (id) => (getCollection('actionLog')).find(entry => entry.id === id);
 
-export function updateById(collectionName: keyof Omit<DB, 'systemSettings' | 'actionLog'>, id: string, updates: object) {
-    const collection = _DB[collectionName] as any[];
+export const getPendingChangeRequests = (teamId = null) => {
+    const pending = (getCollection('changeRequests')).filter(r => r.status === 'Pending');
+    if (teamId === null || teamId === undefined) return pending; // For execs who see all
+    return pending.filter(r => {
+        const targetUser = getUserById(r.entityId);
+        // Assuming changes are only for users for now. This can be expanded.
+        if (r.entityType === 'users' && targetUser) {
+            return targetUser.teamId === teamId;
+        }
+        return false; // Or handle other entity types
+    });
+};
+
+export function updateById(collectionName, id, updates) {
+    const collection = _DB[collectionName];
     if (!collection) return false;
     const item = collection.find(i => i.id === id);
     if (item) {
         const before = { ...item };
         Object.assign(item, updates);
+        
+        // SIDE EFFECTS
+        if (collectionName === 'users' && updates.hasOwnProperty('teamId')) {
+            const user = item;
+            if (user.role === UserRole.Client) {
+                const client = (_DB.clients).find(c => c.userId === user.id);
+                if (client) {
+                    client.teamId = updates.teamId;
+                }
+            }
+        }
+
         logAction('UPDATE', collectionName, id, 'Low', { before, after: item });
         save();
         return true;
@@ -327,7 +271,7 @@ export function updateById(collectionName: keyof Omit<DB, 'systemSettings' | 'ac
     return false;
 }
 
-export function updateSystemSettings(updates: object) {
+export function updateSystemSettings(updates) {
     const before = { ..._DB.systemSettings };
     _DB.systemSettings = { ..._DB.systemSettings, ...updates };
     logAction('UPDATE', 'systemSettings', 'system-0', 'Medium', { before, after: _DB.systemSettings });
@@ -335,28 +279,45 @@ export function updateSystemSettings(updates: object) {
     return true;
 }
 
-export function addApplication({ type, data }: { type: string, data: any }) {
+export function addApplication({ type, data }) {
     const newApp = { id: `app-${Date.now()}`, type, data, status: 'Pending', submittedAt: new Date() };
     _DB.applications.push(newApp);
     logAction('CREATE', 'applications', newApp.id, 'Low', { after: newApp });
     save();
 }
 
-function addSite(siteData: any) {
+function addSite(siteData) {
     const newSite = { ...siteData, id: `site-${Date.now()}` };
     _DB.sites.push(newSite);
     logAction('CREATE', 'sites', newSite.id, 'Low', { after: newSite });
     save();
 }
 
-export function addSiteApprovalRequest(requestData: any) {
+export function createSite(siteData, user) {
+    if (!executiveRoles.includes(user.role)) {
+        alert("You don't have permission to create sites directly.");
+        return false;
+    }
+    const newSite = { 
+        id: `site-${Date.now()}`,
+        clientId: siteData.clientId,
+        name: siteData.siteName,
+        address: siteData.siteAddress,
+    };
+    _DB.sites.push(newSite);
+    logAction('CREATE_MANUAL', 'sites', newSite.id, 'High', { after: newSite, description: `Site manually created by ${user.role}` });
+    save();
+    return true;
+}
+
+export function addSiteApprovalRequest(requestData) {
     const newRequest = { ...requestData, id: `sar-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
     _DB.siteApprovalRequests.push(newRequest);
     logAction('CREATE', 'siteApprovalRequests', newRequest.id, 'Low', { after: newRequest });
     save();
 }
 
-export function updateSiteApprovalStatus(requestId: string, status: string) {
+export function updateSiteApprovalStatus(requestId, status) {
     const request = _DB.siteApprovalRequests.find(r => r.id === requestId);
     if (request) {
         request.status = status;
@@ -375,13 +336,13 @@ export function updateSiteApprovalStatus(requestId: string, status: string) {
     save();
 }
 
-export function updateApplicationStatus(appId: string, status: string, teamId: string | null = null) {
+export function updateApplicationStatus(appId, status, teamId = null) {
     const app = _DB.applications.find(a => a.id === appId);
     if (app) {
         app.status = status;
         if (status === 'Approved') {
             logAction('APPROVE', 'applications', appId, 'Medium', { after: app });
-            const roleMap: { [key: string]: string } = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer, 'New Operations': UserRole.OperationsManager, 'New Management': UserRole.Secretary };
+            const roleMap = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer, 'New Operations': UserRole.OperationsManager, 'New Management': UserRole.Secretary };
             const role = roleMap[app.type];
             if (!role) return;
 
@@ -393,7 +354,7 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
                 }
             }
             
-            const newUser: User = {
+            const newUser = {
                 id: `user-${Date.now()}`,
                 firstName: app.data.firstName || app.data.companyName.split(' ')[0],
                 lastName: app.data.lastName || app.data.companyName.split(' ')[1] || 'Contact',
@@ -411,7 +372,7 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
             _DB.users.push(newUser);
              logAction('CREATE', 'users', newUser.id, 'Medium', { after: newUser, description: `User created from approved application ${appId}` });
             if(role === UserRole.Client) {
-                const newClient: Client = {
+                const newClient = {
                     id: `client-${Date.now()}`,
                     companyName: app.data.companyName,
                     contactEmail: app.data.contactEmail,
@@ -438,14 +399,57 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
     save();
 }
 
-export function addMission(missionData: any, user: User) {
+export function addUser(userData) {
+    const { role, email, firstName, lastName, teamId, companyName } = userData;
+
+    if (_DB.users.find(u => u.email === email)) {
+        alert('A user with this email already exists.');
+        return false;
+    }
+
+    const newUser = {
+        id: `user-${Date.now()}`,
+        firstName,
+        lastName,
+        email,
+        role,
+        rank: Ranks[role],
+        level: 1,
+        certifications: [],
+        teamId: teamId || null,
+        weeklyHours: 0,
+        performanceRating: 5.0,
+        needsUniform: (role !== UserRole.Client),
+        status: 'Active',
+    };
+    _DB.users.push(newUser);
+    logAction('CREATE_MANUAL', 'users', newUser.id, 'Medium', { after: newUser, description: `User manually created by ${_currentUser.role}` });
+
+    if(role === UserRole.Client) {
+        const newClient = {
+            id: `client-${Date.now()}`,
+            companyName: companyName,
+            contactEmail: email,
+            userId: newUser.id,
+            teamId: teamId || null,
+            whitelist: [],
+            blacklist: []
+        };
+        _DB.clients.push(newClient);
+        logAction('CREATE_MANUAL', 'clients', newClient.id, 'Medium', { after: newClient, description: `Client manually created by ${_currentUser.role}` });
+    }
+    save();
+    return true;
+}
+
+export function addMission(missionData, user) {
     const missionId = `mission-${Date.now()}`;
     const canCreateDirectly = canCreateMissionsDirectly.includes(user.role);
     
     // Supervisors create for approval, clients also create for approval
     const requiresApproval = canCreateMissionsForApproval.includes(user.role) || user.role === UserRole.Client;
 
-    const newMission: Mission = {
+    const newMission = {
         ...missionData,
         id: missionId,
         status: (requiresApproval && !canCreateDirectly) ? 'Pending Approval' : 'Open',
@@ -467,7 +471,7 @@ export function addMission(missionData: any, user: User) {
     save();
 }
 
-export function claimMission(missionId: string, userId: string) {
+export function claimMission(missionId, userId) {
     const mission = getMissionById(missionId);
     const user = getUserById(userId);
     const client = mission ? getClientById(mission.clientId) : undefined;
@@ -491,7 +495,7 @@ export function claimMission(missionId: string, userId: string) {
     return { success: true, message: "Mission claimed successfully!" };
 }
 
-export function missionCheckIn(missionId: string, userId: string, isLead = false, guardToCheckIn: string | null = null) {
+export function missionCheckIn(missionId, userId, isLead = false, guardToCheckIn = null) {
     const mission = getMissionById(missionId);
     if (!mission || !mission.claimedBy.includes(userId)) return;
 
@@ -517,7 +521,7 @@ export function missionCheckIn(missionId: string, userId: string, isLead = false
     save();
 }
 
-export function missionCheckOut(missionId: string, userId: string, isLead = false, guardToCheckOut: string | null = null) {
+export function missionCheckOut(missionId, userId, isLead = false, guardToCheckOut = null) {
     const mission = getMissionById(missionId);
     if (!mission || !mission.checkIns[userId]) return;
 
@@ -547,7 +551,7 @@ export function missionCheckOut(missionId: string, userId: string, isLead = fals
     save();
 }
 
-export function updateClientGuardList(clientId: string, guardId: string, listType: 'whitelist' | 'blacklist', action: 'add' | 'remove') {
+export function updateClientGuardList(clientId, guardId, listType, action) {
     const client = getClientById(clientId);
     if (!client) return;
     const otherList = listType === 'whitelist' ? 'blacklist' : 'whitelist';
@@ -564,7 +568,7 @@ export function updateClientGuardList(clientId: string, guardId: string, listTyp
     save();
 }
 
-export function submitTraining(userId: string, moduleId: string, answers: { [key: string]: string }) {
+export function submitTraining(userId, moduleId, answers) {
     const module = getTrainingModules().find(m => m.id === moduleId);
     if (!module) return false;
 
@@ -575,7 +579,7 @@ export function submitTraining(userId: string, moduleId: string, answers: { [key
     }
 
     let correct = 0;
-    module.quiz.forEach((q: any, index: number) => {
+    module.quiz.forEach((q, index) => {
         if (answers[`q-${index}`]?.toLowerCase().trim() === q.a.toLowerCase().trim()) {
             correct++;
         }
@@ -595,7 +599,7 @@ export function submitTraining(userId: string, moduleId: string, answers: { [key
     return passed;
 }
 
-export function updateTrainingProgressStatus(progressId: string, status: string) {
+export function updateTrainingProgressStatus(progressId, status) {
     const progress = _DB.trainingProgress.find(p => p.id === progressId);
     if (progress) {
         progress.status = status;
@@ -613,13 +617,14 @@ export function updateTrainingProgressStatus(progressId: string, status: string)
     save();
 }
 
-export function addContract(contractData: any) {
-    const newContract = { ...contractData, id: `contract-${Date.now()}`, status: 'Pending' };
+export function addContract(contractData, status = 'Pending') {
+    const newContract = { ...contractData, id: `contract-${Date.now()}`, status };
     _DB.contracts.push(newContract);
+    logAction('CREATE', 'contracts', newContract.id, 'Medium', { after: newContract });
     save();
 }
 
-export function updateContractStatus(contractId: string, status: 'Active' | 'Denied' | 'Ready for Review', user: User) {
+export function updateContractStatus(contractId, status, user) {
     if (!user) return false;
     const canApprove = canAlwaysApproveRoles.includes(user.role);
     const canReview = managementAndOpsRoles.includes(user.role);
@@ -639,24 +644,45 @@ export function updateContractStatus(contractId: string, status: 'Active' | 'Den
     return false;
 }
 
-export function addPromotion(promoData: any) {
-    const newPromo = { ...promoData, id: `promo-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
+export function addPromotion(promoData) {
+    const newPromo = { ...promoData, id: `promo-${Date.now()}`, status: 'Pending Ops Approval', submittedAt: new Date() };
     _DB.promotions.push(newPromo);
+    logAction('CREATE', 'promotions', newPromo.id, 'Medium', { after: newPromo });
     save();
 }
 
-export function updatePromotionStatus(promoId: string, status: string) {
+export function updatePromotionStatus(promoId, decision, currentUser) {
     const promo = _DB.promotions.find(p => p.id === promoId);
-    if (promo) {
-        promo.status = status;
-        if (status === 'Approved') {
-            updateById('users', promo.userId, { role: promo.toRole, rank: Ranks[promo.toRole], needsUniform: true });
-        }
+    if (!promo) return;
+
+    const before = { ...promo };
+
+    if (decision === 'Denied') {
+        promo.status = 'Denied';
+        logAction('DENY', 'promotions', promoId, 'Medium', { before, after: promo, description: `Promotion denied by ${currentUser.role}` });
+        save();
+        return;
+    }
+
+    // Handle Approval
+    const isOps = [...operationsRoles, ...executiveRoles].includes(currentUser.role);
+    const isOwner = executiveRoles.includes(currentUser.role);
+
+    if (promo.status === 'Pending Ops Approval' && isOps) {
+        promo.status = 'Pending Owner Approval';
+        logAction('APPROVE_OPS', 'promotions', promoId, 'Medium', { before, after: promo, description: `Ops approval by ${currentUser.firstName}` });
+    } else if (promo.status === 'Pending Owner Approval' && isOwner) {
+        promo.status = 'Approved';
+        logAction('APPROVE_OWNER', 'promotions', promoId, 'High', { before, after: promo, description: `Final approval by ${currentUser.firstName}` });
+        updateById('users', promo.userId, { role: promo.toRole, rank: Ranks[promo.toRole], needsUniform: true });
+    } else {
+        console.warn(`User ${currentUser.id} (${currentUser.role}) does not have permission to approve promotion ${promoId} in its current state (${promo.status}).`);
+        return; // Don't save if no valid action was taken
     }
     save();
 }
 
-export function createPayrollRun(startDate: Date, endDate: Date) {
+export function createPayrollRun(startDate, endDate) {
     const runId = `pr-${Date.now()}`;
     const run = { id: runId, startDate, endDate, status: 'Pending', totalAmount: 0, createdAt: new Date() };
     const paidMissionIds = _DB.payrollEntries.map(e => e.missionIds).flat();
@@ -666,7 +692,7 @@ export function createPayrollRun(startDate: Date, endDate: Date) {
         new Date(m.endTime) <= endDate &&
         !paidMissionIds.includes(m.id)
     );
-    const guardPay: { [userId: string]: { totalHours: number, totalPay: number, missionIds: string[] } } = {};
+    const guardPay = {};
     missionsInPeriod.forEach(mission => {
         mission.claimedBy.forEach(guardId => {
             const checkIn = mission.checkIns[guardId];
@@ -696,11 +722,11 @@ export function createPayrollRun(startDate: Date, endDate: Date) {
     save();
 }
 
-export function approvePayrollRun(runId: string) {
+export function approvePayrollRun(runId) {
     updateById('payrollRuns', runId, { status: 'Approved' });
 }
 
-export function confirmPayment(entryId: string) {
+export function confirmPayment(entryId) {
     updateById('payrollEntries', entryId, { paymentConfirmed: true });
     const entry = _DB.payrollEntries.find(e => e.id === entryId);
     if(entry) {
@@ -713,7 +739,7 @@ export function confirmPayment(entryId: string) {
     }
 }
 
-export function addSpotCheck(supervisorId: string, missionId: string) {
+export function addSpotCheck(supervisorId, missionId) {
     const existing = getSpotCheckByMissionId(missionId);
     if(existing) {
         alert("A spot check for this mission is already in progress.");
@@ -733,7 +759,7 @@ export function addSpotCheck(supervisorId: string, missionId: string) {
     save();
 }
 
-export function updateSpotCheck(spotCheckId: string, checkType: 'start' | 'mid' | 'end', checkData: any) {
+export function updateSpotCheck(spotCheckId, checkType, checkData) {
     const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
     if(spotCheck) {
         spotCheck.checks[checkType] = checkData;
@@ -741,14 +767,14 @@ export function updateSpotCheck(spotCheckId: string, checkType: 'start' | 'mid' 
     }
 }
 
-export function addSpotCheckSelfie(spotCheckId: string, type: 'start' | 'end', imageData: string) {
+export function addSpotCheckSelfie(spotCheckId, type, imageData) {
     const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
     if (spotCheck) {
         updateById('spotChecks', spotCheckId, { selfies: { ...spotCheck.selfies, [type]: imageData } });
     }
 }
 
-export function completeSpotCheck(spotCheckId: string, report: string) {
+export function completeSpotCheck(spotCheckId, report) {
     const spotCheck = _DB.spotChecks.find(sc => sc.id === spotCheckId);
     if(spotCheck && spotCheck.checks.start && spotCheck.checks.mid && spotCheck.checks.end) {
         updateById('spotChecks', spotCheckId, { finalReport: report, status: 'Completed', endTime: new Date() });
@@ -757,20 +783,20 @@ export function completeSpotCheck(spotCheckId: string, report: string) {
     }
 }
 
-export function assignLeadGuard(missionId: string, userId: string) {
+export function assignLeadGuard(missionId, userId) {
     _DB.leadGuardAssignments = _DB.leadGuardAssignments.filter(lg => lg.missionId !== missionId);
     const assignment = { id: `lg-${Date.now()}`, missionId, userId };
     _DB.leadGuardAssignments.push(assignment);
     save();
 }
 
-export const getNeedsUniformUsers = (teamId: string | null = null) => {
+export const getNeedsUniformUsers = (teamId = null) => {
     const users = _DB.users.filter(u => u.needsUniform);
     if(!teamId) return users;
     return users.filter(u => u.teamId === teamId);
 }
 
-export function markUniformSent(userId: string) {
+export function markUniformSent(userId) {
     const user = getUserById(userId);
     if(user && user.needsUniform) {
         const delivery = {
@@ -785,7 +811,7 @@ export function markUniformSent(userId: string) {
     }
 }
 
-export function confirmUniformReceived(userId: string) {
+export function confirmUniformReceived(userId) {
     const delivery = _DB.uniformDeliveries.find(d => d.userId === userId && d.receivedAt === null);
     if(delivery) {
         delivery.receivedAt = new Date();
@@ -793,7 +819,7 @@ export function confirmUniformReceived(userId: string) {
     }
 }
 
-export function suspendUser(userId: string) {
+export function suspendUser(userId) {
     const user = getUserById(userId);
     if(user) {
         const before = {...user};
@@ -805,7 +831,7 @@ export function suspendUser(userId: string) {
     return false;
 }
 
-export function terminateUser(userId: string) {
+export function terminateUser(userId) {
     const user = getUserById(userId);
     if(user) {
         const before = {...user};
@@ -817,8 +843,8 @@ export function terminateUser(userId: string) {
     return false;
 }
 
-export function deleteById(collectionName: keyof Omit<DB, 'systemSettings' | 'actionLog'>, id: string) {
-    const collection = _DB[collectionName] as any[];
+export function deleteById(collectionName, id) {
+    const collection = _DB[collectionName];
     if (!collection) return false;
     const index = collection.findIndex(i => i.id === id);
     if (index > -1) {
@@ -831,12 +857,48 @@ export function deleteById(collectionName: keyof Omit<DB, 'systemSettings' | 'ac
     return false;
 }
 
-export function approveMission(missionId: string) {
+export function approveMission(missionId) {
     logAction('APPROVE', 'missions', missionId, 'Low', { description: "Mission status changed to Open" });
     return updateById('missions', missionId, { status: 'Open' });
 }
 
-export function denyMission(missionId: string) {
+export function denyMission(missionId) {
     logAction('DENY', 'missions', missionId, 'Medium', { description: "Mission status changed to Cancelled" });
     return updateById('missions', missionId, { status: 'Cancelled' });
+}
+
+export function addChangeRequest(proposerId, entityType, entityId, proposedChanges) {
+    const newRequest = {
+        id: `cr-${Date.now()}`,
+        proposerId,
+        entityType,
+        entityId,
+        proposedChanges,
+        status: 'Pending',
+        createdAt: new Date(),
+    };
+    (_DB.changeRequests).push(newRequest);
+    logAction('PROPOSE_CHANGE', 'changeRequests', newRequest.id, 'Medium', { after: newRequest });
+    save();
+}
+
+export function updateChangeRequestStatus(requestId, status, reviewerId) {
+    const request = (_DB.changeRequests).find(r => r.id === requestId);
+    if (request && request.status === 'Pending') {
+        const before = { ...request };
+        request.status = status;
+        request.reviewedBy = reviewerId;
+        request.reviewedAt = new Date();
+
+        if (status === 'Approved') {
+            logAction('APPROVE_CHANGE', 'changeRequests', requestId, 'Medium', { before, after: request });
+            // Apply the changes
+            updateById(request.entityType, request.entityId, request.proposedChanges);
+        } else {
+            logAction('REJECT_CHANGE', 'changeRequests', requestId, 'Medium', { before, after: request });
+        }
+        save();
+        return true;
+    }
+    return false;
 }

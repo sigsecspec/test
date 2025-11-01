@@ -1,6 +1,7 @@
 
+
 import { UserRole } from '../types.js';
-import { getMissionById, getLeadGuardAssignment, getSpotCheckByMissionId, User } from '../database.js';
+import { getMissionById, getLeadGuardAssignment, getSpotCheckByMissionId } from '../database.js';
 import { TrainingModal } from './TrainingModal.js';
 import { ContractModal } from './ContractModal.js';
 import { SiteModal } from './SiteModal.js';
@@ -9,6 +10,11 @@ import { UserDetailsModal } from './UserDetailsModal.js';
 import { EditMissionModal } from './EditMissionModal.js';
 import { VehicleDetailsModal } from './VehicleDetailsModal.js';
 import { ActionLogDetailsModal } from './ActionLogDetailsModal.js';
+import { AddUserModal } from './AddUserModal.js';
+import { AdminContractModal } from './AdminContractModal.js';
+import { AdminSiteModal } from './AdminSiteModal.js';
+import { OpsSiteModal } from './OpsSiteModal.js';
+import { ApplicationView } from './ApplicationModal.js';
 
 import { CommandSidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
 
@@ -48,16 +54,7 @@ import { SystemSettings } from './views/SystemSettings.js';
 import { OwnerActionAudit } from './views/OwnerActionAudit.js';
 import { GuardMissionDashboard, LeadGuardMissionDashboard, SupervisorSpotCheckDashboard } from './views/MissionDashboards.js';
 
-interface DashboardScreenProps {
-    currentUser: User;
-    activeView: string;
-    activeMissionId: string | null;
-    selectedPayrollRunId: string | null;
-    selectedModal: { type: string | null, id: string | null };
-    isMobileMenuOpen: boolean;
-}
-
-export const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId, selectedModal, isMobileMenuOpen }: DashboardScreenProps) => {
+export const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId, selectedModal, isMobileMenuOpen }) => {
     let viewContent = '';
 
     if (activeMissionId) {
@@ -79,7 +76,7 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
              viewContent = `<p>Error: Mission not found.</p>`;
         }
     } else {
-        const viewMap: { [key: string]: () => string } = {
+        const viewMap = {
             'Dashboard': () => DashboardView({ user: currentUser }),
             'MyProfile': () => MyProfile({ user: currentUser }),
             'MissionBoard': () => MissionBoard({ user: currentUser }),
@@ -114,6 +111,7 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
             'LiveControl': () => LiveControl({ user: currentUser }),
             'SystemSettings': () => SystemSettings({ user: currentUser }),
             'OwnerActionAudit': () => OwnerActionAudit({ user: currentUser }),
+            'GuardApplication': () => ApplicationView({type: 'Guard'}),
         };
         viewContent = viewMap[activeView] ? viewMap[activeView]() : `<div>View "${activeView}" not found.</div>`;
     }
@@ -127,6 +125,10 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     if (selectedModal.type === 'EditMission' && selectedModal.id) modalHtml = EditMissionModal({ missionId: selectedModal.id });
     if (selectedModal.type === 'VehicleDetails' && selectedModal.id) modalHtml = VehicleDetailsModal({ vehicleId: selectedModal.id, currentUser });
     if (selectedModal.type === 'ActionLogDetails' && selectedModal.id) modalHtml = ActionLogDetailsModal({ logEntryId: selectedModal.id });
+    if (selectedModal.type === 'AddUser' && selectedModal.id) modalHtml = AddUserModal({ role: selectedModal.id });
+    if (selectedModal.type === 'AdminContract') modalHtml = AdminContractModal();
+    if (selectedModal.type === 'AdminSite') modalHtml = AdminSiteModal();
+    if (selectedModal.type === 'OpsSite') modalHtml = OpsSiteModal();
 
     return `
         <div class="h-screen bg-[var(--color-bg-base)] text-[var(--color-text-base)] flex flex-col md:flex-row overflow-hidden">

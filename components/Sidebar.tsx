@@ -1,22 +1,10 @@
 
+
 import { Icons } from './Icons.js';
 import { UserRole } from '../types.js';
 import { allInternalRoles, clientRole, fieldRoles, operationsRoles, executiveRoles, managementRoles } from '../constants.js';
 
-interface NavItem {
-    name: string;
-    icon: ({ className }: { className?: string; }) => string;
-    view: string;
-    roles: string[];
-}
-
-interface NavGroup {
-    title: string;
-    roles: string[];
-    items: NavItem[];
-}
-
-const getSidebarStructure = (currentUser: any): NavGroup[] => [
+const getSidebarStructure = (currentUser) => [
     {
         title: 'Main',
         roles: [...allInternalRoles, ...clientRole],
@@ -66,6 +54,7 @@ const getSidebarStructure = (currentUser: any): NavGroup[] => [
             { name: 'Guard Management', icon: Icons.Users, view: 'GuardManagement', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
             { name: 'Client Management', icon: Icons.Briefcase, view: 'ClientManagement', roles: [...operationsRoles, ...managementRoles, ...executiveRoles] },
             { name: 'Site Roster', icon: Icons.LocationMarker, view: 'SiteRoster', roles: [...operationsRoles, ...executiveRoles] },
+            { name: 'Team Management', icon: Icons.Users, view: 'TeamManagement', roles: [...operationsRoles, ...executiveRoles] },
             { name: 'Communications', icon: Icons.Mail, view: 'Communications', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
             { name: 'Alerts', icon: Icons.Bell, view: 'Alerts', roles: [...operationsRoles, ...executiveRoles, ...managementRoles] },
             { name: 'Vehicle Management', icon: Icons.Truck, view: 'VehicleManagement', roles: [...operationsRoles, UserRole.Dispatch, ...executiveRoles] },
@@ -87,7 +76,6 @@ const getSidebarStructure = (currentUser: any): NavGroup[] => [
         title: 'Executive',
         roles: executiveRoles,
         items: [
-            { name: 'Team Management', icon: Icons.Users, view: 'TeamManagement', roles: executiveRoles },
             { name: 'Payroll', icon: Icons.CreditCard, view: 'Payroll', roles: [...executiveRoles] },
             { name: 'Analytics', icon: Icons.ChartBar, view: 'Analytics', roles: [...executiveRoles] },
             { name: 'Live Control', icon: Icons.Shield, view: 'LiveControl', roles: executiveRoles },
@@ -148,15 +136,16 @@ export const CommandSidebar = ({ currentUser, activeView }) => {
 // Keep old Sidebar for compatibility in case it's referenced elsewhere, but it's deprecated.
 export const Sidebar = CommandSidebar;
 
-type BottomNavItem = {
+// FIX: Add type for nav items to allow either view or action.
+type NavItem = {
     name: string;
     icon: ({ className }: { className?: string; }) => string;
     view?: string;
     action?: string;
-};
+}
 
 export const BottomNavBar = ({ currentUser, activeView }) => {
-    let primaryNav: BottomNavItem[] = [
+    let primaryNav: NavItem[] = [
         { name: 'Dashboard', icon: Icons.Home, view: 'Dashboard' },
     ];
 

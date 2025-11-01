@@ -1,10 +1,15 @@
+
 import { getSites, getMissions, getUserById, getClients } from '../../database.js';
 import { Icons } from '../Icons.js';
+import { executiveRoles, operationsRoles } from '../../constants.js';
 
 export const SiteRoster = ({ user }) => {
      const sites = getSites();
      const missions = getMissions();
      const clients = getClients();
+     
+     const canCreateDirectly = executiveRoles.includes(user.role);
+     const canPropose = operationsRoles.includes(user.role);
 
      const getSiteRoster = (siteId) => {
          return missions
@@ -22,7 +27,21 @@ export const SiteRoster = ({ user }) => {
 
      return `
     <div class="animate-in" style="opacity: 0;">
-        <h1 class="text-3xl font-bold text-[var(--color-text-base)] mb-6">All Client Sites & Rosters</h1>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <h1 class="text-3xl font-bold text-[var(--color-text-base)]">All Client Sites & Rosters</h1>
+            <div class="flex items-center gap-2">
+                ${canPropose ? `
+                <button data-action="open-ops-site-modal" class="flex items-center gap-2 px-4 py-2 bg-[var(--color-bg-surface-raised)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] transition-colors">
+                    ${Icons.PlusCircle({className: "w-5 h-5"})} Propose Site
+                </button>
+                ` : ''}
+                ${canCreateDirectly ? `
+                <button data-action="open-admin-site-modal" class="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] font-semibold rounded-md hover:bg-[var(--color-secondary-hover)] transition-colors">
+                    ${Icons.PlusCircle({className: "w-5 h-5"})} Create Site
+                </button>
+                ` : ''}
+            </div>
+        </div>
         <div class="space-y-8">
             ${sites.map(site => {
                 const roster = getSiteRoster(site.id);

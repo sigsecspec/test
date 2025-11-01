@@ -14,8 +14,8 @@ export const MyMissions = ({ user }) => {
     const now = new Date();
     const categorizedMissions = {
         active: myMissions.filter(m => m.status === 'Active').sort((a,b) => a.startTime.getTime() - b.startTime.getTime()),
-        upcoming: myMissions.filter(m => m.startTime > now && (m.status === 'Claimed' || m.status === 'Open')).sort((a,b) => a.startTime.getTime() - b.startTime.getTime()),
-        past: myMissions.filter(m => m.endTime <= now || m.status === 'Completed' || m.status === 'Cancelled').sort((a,b) => b.startTime.getTime() - a.startTime.getTime()),
+        upcoming: myMissions.filter(m => new Date(m.startTime).getTime() > now.getTime() && (m.status === 'Claimed' || m.status === 'Open' || m.status === 'Pending Approval')).sort((a,b) => a.startTime.getTime() - b.startTime.getTime()),
+        past: myMissions.filter(m => new Date(m.endTime).getTime() <= now.getTime() || m.status === 'Completed' || m.status === 'Cancelled').sort((a,b) => b.startTime.getTime() - a.startTime.getTime()),
     };
     const MissionCard = ({ mission, user }) => {
         const isGuard = !clientRole.includes(user.role);
@@ -25,7 +25,7 @@ export const MyMissions = ({ user }) => {
         if (isGuard) {
              if(mission.status === 'Active') {
                 actions = `<button data-action="view-mission-dashboard" data-id="${mission.id}" class="px-3 py-1 text-sm font-bold rounded-md bg-[var(--color-secondary)] text-[var(--color-secondary-text)] hover:bg-[var(--color-secondary-hover)]">Open Dashboard</button>`;
-            } else if (canStartMission && mission.status !== 'Completed' && mission.status !== 'Cancelled') {
+            } else if (canStartMission && mission.status !== 'Completed' && mission.status !== 'Cancelled' && mission.status !== 'Pending Approval') {
                 actions = `<button data-action="start-mission" data-id="${mission.id}" class="px-3 py-1 text-sm font-bold rounded-md bg-[var(--color-accent)] text-[var(--color-accent-text)] hover:bg-[var(--color-accent-hover)]">Start Mission</button>`;
             }
         }
@@ -35,7 +35,7 @@ export const MyMissions = ({ user }) => {
                     <div class="flex-grow">
                         <p class="font-bold text-[var(--color-text-base)]">${mission.title}</p>
                         <p class="text-sm text-[var(--color-text-muted)]">${new Date(mission.startTime).toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'})}</p>
-                        <span class="status-pill mt-1 ${mission.status === 'Completed' ? 'status-green' : mission.status === 'Active' ? 'status-blue' : mission.status === 'Cancelled' ? 'status-red' : 'status-gray'}">${mission.status}</span>
+                        <span class="status-pill mt-1 ${mission.status === 'Completed' ? 'status-green' : mission.status === 'Active' ? 'status-blue' : mission.status === 'Cancelled' ? 'status-red' : mission.status === 'Pending Approval' ? 'status-yellow' : 'status-gray'}">${mission.status}</span>
                     </div>
                     <div class="flex-shrink-0 flex items-center gap-2">
                         <button data-action="open-mission-details" data-id="${mission.id}" class="text-sm font-semibold text-[var(--color-accent)] hover:underline">Details</button>

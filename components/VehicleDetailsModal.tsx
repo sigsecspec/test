@@ -1,14 +1,9 @@
+
 import { getVehicleById, getVehicleAssignments, getUserById, getSiteById } from '../database.js';
 import { Icons } from './Icons.js';
-import { User } from '../database.js';
 import { executiveRoles } from '../constants.js';
 
-interface VehicleDetailsModalProps {
-    vehicleId: string;
-    currentUser: User;
-}
-
-export const VehicleDetailsModal = ({ vehicleId, currentUser }: VehicleDetailsModalProps) => {
+export const VehicleDetailsModal = ({ vehicleId, currentUser }) => {
     const vehicle = getVehicleById(vehicleId);
     if (!vehicle) return '';
 

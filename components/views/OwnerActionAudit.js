@@ -1,5 +1,4 @@
 
-
 import { getActionLog, getUsers } from '../../database.js';
 import { UserRole } from '../../types.js';
 import { Icons } from '../Icons.js';
@@ -98,9 +97,8 @@ export const OwnerActionAudit = ({ user }) => {
     const entityTypes = [...new Set(allLogs.map(log => log.entityType))];
     const userRoles = [...new Set(allUsers.map(u => u.role))];
 
-    // Expose renderers to window for dynamic updates from index.tsx
-    // FIX: Cast window to any to access dynamically added property.
-    (window as any).auditLogRenderers = { renderAuditLogCards, renderAuditLogTable };
+    // Expose renderers to window for dynamic updates from index.js
+    window.auditLogRenderers = { renderAuditLogCards, renderAuditLogTable };
 
     return `
         <div class="animate-in" style="opacity: 0;">

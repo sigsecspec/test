@@ -1,3 +1,4 @@
+
 import { UserRole } from '../types.js';
 import { getMissionById, getLeadGuardAssignment, getSpotCheckByMissionId } from '../database.js';
 import { TrainingModal } from './TrainingModal.js';
@@ -6,7 +7,11 @@ import { SiteModal } from './SiteModal.js';
 import { MissionDetailsModal } from './MissionDetailsModal.js';
 import { UserDetailsModal } from './UserDetailsModal.js';
 import { EditMissionModal } from './EditMissionModal.js';
+import { VehicleDetailsModal } from './VehicleDetailsModal.js';
+import { ActionLogDetailsModal } from './ActionLogDetailsModal.js';
+
 import { CommandSidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
+
 import { DashboardView } from './views/Dashboard.js';
 import { MyProfile } from './views/MyProfile.js';
 import { MissionBoard } from './views/MissionBoard.js';
@@ -40,9 +45,12 @@ import { Payroll } from './views/Payroll.js';
 import { Analytics } from './views/Analytics.js';
 import { LiveControl } from './views/LiveControl.js';
 import { SystemSettings } from './views/SystemSettings.js';
+import { OwnerActionAudit } from './views/OwnerActionAudit.js';
 import { GuardMissionDashboard, LeadGuardMissionDashboard, SupervisorSpotCheckDashboard } from './views/MissionDashboards.js';
+
 export const DashboardScreen = ({ currentUser, activeView, activeMissionId, selectedPayrollRunId, selectedModal, isMobileMenuOpen }) => {
     let viewContent = '';
+
     if (activeMissionId) {
         const mission = getMissionById(activeMissionId);
         if (mission) {
@@ -50,21 +58,18 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
             const isLead = leadAssignment && leadAssignment.userId === currentUser.id;
             const isSupervisor = currentUser.role === UserRole.Supervisor;
             const spotCheck = getSpotCheckByMissionId(mission.id);
+
             if (spotCheck && isSupervisor && spotCheck.supervisorId === currentUser.id) {
                 viewContent = SupervisorSpotCheckDashboard({ user: currentUser, mission, spotCheck });
-            }
-            else if (isLead) {
+            } else if (isLead) {
                 viewContent = LeadGuardMissionDashboard({ user: currentUser, mission });
-            }
-            else {
+            } else {
                 viewContent = GuardMissionDashboard({ user: currentUser, mission });
             }
+        } else {
+             viewContent = `<p>Error: Mission not found.</p>`;
         }
-        else {
-            viewContent = `<p>Error: Mission not found.</p>`;
-        }
-    }
-    else {
+    } else {
         const viewMap = {
             'Dashboard': () => DashboardView({ user: currentUser }),
             'MyProfile': () => MyProfile({ user: currentUser }),
@@ -99,22 +104,21 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
             'Analytics': () => Analytics({ user: currentUser }),
             'LiveControl': () => LiveControl({ user: currentUser }),
             'SystemSettings': () => SystemSettings({ user: currentUser }),
+            'OwnerActionAudit': () => OwnerActionAudit({ user: currentUser }),
         };
         viewContent = viewMap[activeView] ? viewMap[activeView]() : `<div>View "${activeView}" not found.</div>`;
     }
+
     let modalHtml = '';
-    if (selectedModal.type === 'Training' && selectedModal.id)
-        modalHtml = TrainingModal({ moduleId: selectedModal.id });
-    if (selectedModal.type === 'Contract')
-        modalHtml = ContractModal({ user: currentUser });
-    if (selectedModal.type === 'Site')
-        modalHtml = SiteModal({ user: currentUser });
-    if (selectedModal.type === 'MissionDetails' && selectedModal.id)
-        modalHtml = MissionDetailsModal({ missionId: selectedModal.id, user: currentUser });
-    if (selectedModal.type === 'UserDetails' && selectedModal.id)
-        modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
-    if (selectedModal.type === 'EditMission' && selectedModal.id)
-        modalHtml = EditMissionModal({ missionId: selectedModal.id });
+    if (selectedModal.type === 'Training' && selectedModal.id) modalHtml = TrainingModal({ moduleId: selectedModal.id });
+    if (selectedModal.type === 'Contract') modalHtml = ContractModal({ user: currentUser });
+    if (selectedModal.type === 'Site') modalHtml = SiteModal({ user: currentUser });
+    if (selectedModal.type === 'MissionDetails' && selectedModal.id) modalHtml = MissionDetailsModal({ missionId: selectedModal.id, user: currentUser });
+    if (selectedModal.type === 'UserDetails' && selectedModal.id) modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
+    if (selectedModal.type === 'EditMission' && selectedModal.id) modalHtml = EditMissionModal({ missionId: selectedModal.id });
+    if (selectedModal.type === 'VehicleDetails' && selectedModal.id) modalHtml = VehicleDetailsModal({ vehicleId: selectedModal.id, currentUser });
+    if (selectedModal.type === 'ActionLogDetails' && selectedModal.id) modalHtml = ActionLogDetailsModal({ logEntryId: selectedModal.id });
+
     return `
         <div class="h-screen bg-[var(--color-bg-base)] text-[var(--color-text-base)] flex flex-col md:flex-row overflow-hidden">
             <!-- Desktop Command Sidebar -->

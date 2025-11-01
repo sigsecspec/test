@@ -1,5 +1,4 @@
 
-
 import { UserRole } from './types.js';
 
 export const executiveRoles = [UserRole.Owner, UserRole.CoOwner];
@@ -21,3 +20,6 @@ export const canCreateMissionsForApproval = [UserRole.Supervisor];
 export const canCreateMissionsDirectly = [...operationsRoles, ...executiveRoles, ...managementRoles];
 export const canManageAllUsers = [...operationsRoles, ...executiveRoles];
 export const canManageTeamUsers = [UserRole.Supervisor, UserRole.TrainingOfficer];
+
+export const canProposeChanges = [UserRole.Supervisor];
+export const canApproveChanges = [...managementRoles, ...operationsRoles, ...executiveRoles];

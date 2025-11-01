@@ -1,9 +1,10 @@
-import { getClients, getSites, getContracts, getTrainingModules, getUserById, User } from '../../database.js';
+
+import { getClients, getSites, getContracts, getTrainingModules, getUserById } from '../../database.js';
 import { Icons } from '../Icons.js';
 import { UserRole } from '../../types.js';
 import { clientRole, canCreateMissionsDirectly, canCreateMissionsForApproval } from '../../constants.js';
 
-export const PostMission = ({ user }: { user: User }) => {
+export const PostMission = ({ user }) => {
     const isClient = clientRole.includes(user.role);
     const canCreate = canCreateMissionsDirectly.includes(user.role) || canCreateMissionsForApproval.includes(user.role);
 
@@ -18,7 +19,7 @@ export const PostMission = ({ user }: { user: User }) => {
     const inputStyles = "mt-1 block w-full border border-[var(--color-border)] rounded-md shadow-sm p-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] bg-[var(--color-bg-surface-raised)]";
     
     const pageTitle = isClient ? "Post a New Mission" : "Create a New Mission";
-    const submitText = canCreateMissionsForApproval.includes(user.role) ? 'Submit for Approval' : "Create Mission";
+    const submitText = canCreateMissionsForApproval.includes(user.role) && !canCreateMissionsDirectly.includes(user.role) ? 'Submit for Approval' : "Create Mission";
 
     return `
         <div class="animate-in max-w-4xl mx-auto" style="opacity: 0;">

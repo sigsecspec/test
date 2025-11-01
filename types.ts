@@ -31,3 +31,20 @@ export const Ranks = {
     [UserRole.Guard]: "OFC (Officer)",
     [UserRole.Client]: "Client",
 };
+
+// FIX: Add User type definition
+export type User = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    rank: string;
+    level: number;
+    certifications: string[];
+    teamId: string | null;
+    weeklyHours: number;
+    performanceRating: number;
+    needsUniform: boolean;
+    status: 'Active' | 'Suspended' | 'Terminated';
+};

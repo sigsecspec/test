@@ -6,13 +6,16 @@ import {
     updateTrainingProgressStatus, updateContractStatus, addPromotion, updatePromotionStatus,
     createPayrollRun, approvePayrollRun, confirmPayment, updateById, addSpotCheck,
     updateSpotCheck, addSpotCheckSelfie, completeSpotCheck, markUniformSent, getSpotCheckByMissionId,
-    getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients, getSystemSettings, updateSystemSettings, getUserById
+    getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients, getSystemSettings, 
+    updateSystemSettings, getUserById, suspendUser, terminateUser, deleteById, approveMission, denyMission,
+    setCurrentUserForDB, getActionLog, addChangeRequest, updateChangeRequestStatus
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
-import { canAlwaysApproveRoles, managementAndOpsRoles } from './constants.js';
+import { canAlwaysApproveRoles, managementAndOpsRoles, executiveRoles, canProposeChanges } from './constants.js';
 
 // --- START: MAIN APP LOGIC ---
+
 const state = {
     currentUser: null,
     users: [],
@@ -80,13 +83,19 @@ function closeModal() {
 function handleLogin(email) {
     const user = getUserByEmail(email);
     if (user) {
+        if (user.status === 'Terminated') {
+            alert('This user account has been terminated. Access denied.');
+            return;
+        }
         state.currentUser = user;
+        setCurrentUserForDB(user);
         state.activeView = 'Dashboard';
         closeModal();
     } else { alert('User not found.'); }
 }
 function handleLogout() {
     state.currentUser = null;
+    setCurrentUserForDB(null);
     state.activeView = 'Home';
     state.isMobileMenuOpen = false;
     render();
@@ -133,15 +142,19 @@ function handleApplicationSubmit(e) {
 
 function handlePostMission(e) {
     e.preventDefault();
+    if (!state.currentUser) return;
     const data = getFormData(e.target);
-    data.clientId = state.currentUser ? getClients().find(c => c.userId === state.currentUser.id)?.id : null;
+    if (state.currentUser.role === UserRole.Client) {
+        data.clientId = getClients().find(c => c.userId === state.currentUser.id)?.id;
+    }
+    
     if (data.clientId) {
-        addMission(data);
-        alert('Mission posted successfully!');
+        addMission(data, state.currentUser);
+        alert('Mission submitted successfully!');
         state.activeView = 'MyMissions';
         render();
     } else {
-        alert('Could not identify client. Please log in again.');
+        alert('Could not identify client. Please log in again or select a client.');
     }
 }
 
@@ -252,38 +265,54 @@ function handleUserDetailsSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const userId = form.dataset.userId;
-    if (!userId) return;
+    if (!userId || !state.currentUser) return;
     
     const data = getFormData(form);
     const userToUpdate = getUserById(userId);
     if (!userToUpdate) return;
+    
+    const canAlwaysEdit = canAlwaysApproveRoles.includes(state.currentUser.role);
+    const isManagerOfUser = managementAndOpsRoles.includes(state.currentUser.role) && userToUpdate.teamId === state.currentUser.teamId;
+    const canEdit = canAlwaysEdit || isManagerOfUser;
+    const canPropose = canProposeChanges.includes(state.currentUser.role) && !canEdit && state.currentUser.id !== userId;
+
+    if(!canEdit && !canPropose) {
+        alert("You don't have permission to modify this user's details.");
+        return;
+    }
 
     const updates = {};
     
-    if(data.firstName) updates.firstName = data.firstName;
-    if(data.lastName) updates.lastName = data.lastName;
+    if(data.firstName && data.firstName !== userToUpdate.firstName) updates.firstName = data.firstName;
+    if(data.lastName && data.lastName !== userToUpdate.lastName) updates.lastName = data.lastName;
 
     if (userToUpdate.role !== UserRole.Client) {
-        if(data.level) updates.level = parseInt(data.level, 10);
-        if(data.teamId !== undefined) updates.teamId = data.teamId === "" ? null : data.teamId;
+        const newLevel = parseInt(data.level, 10);
+        if(data.level && newLevel !== userToUpdate.level) updates.level = newLevel;
+        const newTeamId = data.teamId === "" ? null : data.teamId;
+        if(data.teamId !== undefined && newTeamId !== userToUpdate.teamId) updates.teamId = newTeamId;
     } else { // It's a client
         if (state.currentUser && canAlwaysApproveRoles.includes(state.currentUser.role) && data.teamId !== undefined) {
              const newTeamId = data.teamId === "" ? null : data.teamId;
-             updates.teamId = newTeamId;
-             const client = getClients().find(c => c.userId === userId);
-             if (client) {
-                 updateById('clients', client.id, { teamId: newTeamId });
+             if (newTeamId !== userToUpdate.teamId) {
+                updates.teamId = newTeamId;
              }
         }
     }
 
     if (Object.keys(updates).length > 0) {
-        if(updateById('users', userId, updates)) {
-            alert('User details updated.');
-            state.users = getUsers();
+        if(canEdit) {
+            if(updateById('users', userId, updates)) {
+                alert('User details updated.');
+                state.users = getUsers();
+                closeModal();
+            } else {
+                alert('Failed to update user.');
+            }
+        } else if (canPropose) {
+            addChangeRequest(state.currentUser.id, 'users', userId, updates);
+            alert('Your proposed changes have been submitted for approval.');
             closeModal();
-        } else {
-            alert('Failed to update user.');
         }
     } else {
         closeModal(); // No changes made
@@ -392,6 +421,35 @@ function handleClientSearch(searchTerm) {
     }
 }
 
+function handleAuditLogFilter() {
+    const container = root?.querySelector('#audit-log-list-container');
+    if (!container) return;
+
+    const searchTerm = (root?.querySelector('#audit-search-input')).value.toLowerCase() || '';
+    const typeFilter = (root?.querySelector('#audit-type-filter')).value || '';
+    const roleFilter = (root?.querySelector('#audit-role-filter')).value || '';
+    
+    const allLogs = getActionLog();
+    const allUsers = getUsers();
+
+    const filteredLogs = allLogs.filter(log => {
+        const user = allUsers.find(u => u.id === log.userId);
+        if (!user) return false;
+
+        const typeMatch = !typeFilter || log.entityType === typeFilter;
+        const roleMatch = !roleFilter || user.role === roleFilter;
+        const searchMatch = !searchTerm || 
+            log.actionType.toLowerCase().includes(searchTerm) ||
+            log.entityId.toLowerCase().includes(searchTerm) ||
+            `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm);
+
+        return typeMatch && roleMatch && searchMatch;
+    });
+
+    const { renderAuditLogCards, renderAuditLogTable } = window.auditLogRenderers;
+    container.innerHTML = renderAuditLogTable(filteredLogs, allUsers) + renderAuditLogCards(filteredLogs, allUsers);
+}
+
 // --- Main Event Listener ---
 function attachEventListeners() {
     root.addEventListener('click', (e) => {
@@ -483,6 +541,8 @@ function attachEventListeners() {
             
             'open-contract-modal': () => openModal('Contract'),
             'open-site-modal': () => openModal('Site'),
+            'open-vehicle-details': () => openModal('VehicleDetails', id),
+            'open-action-log-details': () => openModal('ActionLogDetails', id),
             'update-roster': () => {
                 if(!state.currentUser) return;
                 const { guardId, listType } = target.dataset;
@@ -502,8 +562,8 @@ function attachEventListeners() {
             'approve-contract': () => { if(state.currentUser && updateContractStatus(id, 'Active', state.currentUser)) render(); },
             'deny-contract': () => { if(state.currentUser && updateContractStatus(id, 'Denied', state.currentUser)) render(); },
             'review-contract': () => { if(state.currentUser && updateContractStatus(id, 'Ready for Review', state.currentUser)) render(); },
-            'approve-promotion': () => { updatePromotionStatus(id, 'Approved'); render(); },
-            'deny-promotion': () => { updatePromotionStatus(id, 'Denied'); render(); },
+            'approve-promotion': () => { if(id && state.currentUser) { updatePromotionStatus(id, 'Approved', state.currentUser); render(); } },
+            'deny-promotion': () => { if(id && state.currentUser) { updatePromotionStatus(id, 'Denied', state.currentUser); render(); } },
             'select-payroll-run': () => { state.selectedPayrollRunId = id; render(); },
             'approve-payroll-run': () => { approvePayrollRun(id); render(); },
             'confirm-payment': () => { confirmPayment(id); render(); },
@@ -528,7 +588,7 @@ function attachEventListeners() {
             },
             'complete-spot-check': () => {
                 if(!id) return;
-                const report = root.querySelector('#final-spot-report')?.value || 'No report submitted.';
+                const report = (root.querySelector('#final-spot-report')).value || 'No report submitted.';
                 completeSpotCheck(id, report);
                 state.activeMissionId = null;
                 alert('Spot check completed and submitted.');
@@ -537,6 +597,14 @@ function attachEventListeners() {
             'mark-uniform-sent': () => { markUniformSent(id); render(); },
             'approve-site': () => { updateSiteApprovalStatus(id, 'Approved'); render(); },
             'deny-site': () => { updateSiteApprovalStatus(id, 'Denied'); render(); },
+            'approve-mission': () => { if(id) { approveMission(id); render(); } },
+            'deny-mission': () => { if(id) { denyMission(id); render(); } },
+            'suspend-user': () => { if(id) { suspendUser(id); state.users = getUsers(); closeModal(); } },
+            'terminate-user': () => { if(id && confirm('Are you sure you want to terminate this user? This is a permanent action.')) { terminateUser(id); state.users = getUsers(); closeModal(); } },
+            'delete-user-permanently': () => { if(id && state.currentUser && executiveRoles.includes(state.currentUser.role) && confirm('PERMANENTLY DELETE USER? This cannot be undone.')) { deleteById('users', id); state.users = getUsers(); closeModal(); } },
+            'delete-mission-permanently': () => { if(id && state.currentUser && executiveRoles.includes(state.currentUser.role) && confirm('PERMANENTLY DELETE MISSION? This cannot be undone.')) { deleteById('missions', id); closeModal(); } },
+            'approve-change-request': () => { if(id && state.currentUser) { updateChangeRequestStatus(id, 'Approved', state.currentUser.id); render(); } },
+            'reject-change-request': () => { if(id && state.currentUser) { updateChangeRequestStatus(id, 'Rejected', state.currentUser.id); render(); } },
         };
         
         if (actionMap[action]) {
@@ -550,6 +618,9 @@ function attachEventListeners() {
 
         if (target.id === 'client-search-input') {
             handleClientSearch(target.value);
+        }
+        if (target.id === 'audit-search-input' || target.id === 'audit-type-filter' || target.id === 'audit-role-filter') {
+            handleAuditLogFilter();
         }
     });
 

@@ -1,22 +1,19 @@
-import { getContracts, getClients, User } from '../../database.js';
-import { canAlwaysApproveRoles, managementAndOpsRoles } from '../../constants.js';
 
-interface Contract {
-    id: string;
-    title: string;
-    clientId: string;
-    status: 'Pending' | 'Ready for Review' | 'Active' | 'Denied';
-    startDate: Date;
-}
 
-export const ContractApprovals = ({ user }: { user: User }) => {
+import { getContracts, getClients } from '../../database.js';
+// FIX: Import 'managementRoles' to resolve 'Cannot find name' error.
+import { canAlwaysApproveRoles, managementAndOpsRoles, operationsRoles, executiveRoles, managementRoles } from '../../constants.js';
+import { Icons } from '../Icons.js';
+
+export const ContractApprovals = ({ user }) => {
     const clients = getClients();
     
     const canApprove = canAlwaysApproveRoles.includes(user.role);
     const canReview = managementAndOpsRoles.includes(user.role);
+    const canCreate = executiveRoles.includes(user.role);
 
     // Filter which contracts are visible and actionable for the current user
-    const contracts: Contract[] = getContracts().filter((c: Contract) => {
+    const contracts = getContracts().filter((c) => {
         if (c.status === 'Active' || c.status === 'Denied') return false; // Ignore completed contracts
         
         // Find the client to check teamId
@@ -29,12 +26,12 @@ export const ContractApprovals = ({ user }: { user: User }) => {
         return false;
     });
 
-    const getClientName = (clientId: string) => {
+    const getClientName = (clientId) => {
         const client = clients.find(c => c.id === clientId);
         return client ? client.companyName : 'Unknown Client';
     };
 
-    const renderButtons = (contract: Contract) => {
+    const renderButtons = (contract) => {
         let buttons = '';
         if (canApprove) {
             // Owner/Co-Owner can approve or deny any non-active contract
@@ -53,7 +50,14 @@ export const ContractApprovals = ({ user }: { user: User }) => {
 
     return `
         <div class="animate-in" style="opacity: 0;">
-            <h1 class="text-3xl font-bold text-[var(--color-text-base)] mb-6">Contract Approvals</h1>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <h1 class="text-3xl font-bold text-[var(--color-text-base)]">Contract Approvals</h1>
+                 ${canCreate ? `
+                <button data-action="open-admin-contract-modal" class="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] font-semibold rounded-md hover:bg-[var(--color-secondary-hover)] transition-colors">
+                    ${Icons.PlusCircle({className: "w-5 h-5"})} Create Contract
+                </button>
+                ` : ''}
+            </div>
             <div class="space-y-4">
                 ${contracts.length > 0 ? contracts.map(contract => {
                     const statusColor = contract.status === 'Ready for Review' ? 'text-blue-400' : 'text-yellow-400';

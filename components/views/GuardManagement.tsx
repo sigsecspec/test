@@ -1,14 +1,21 @@
-import { getUsers, User } from '../../database.js';
-import { canAlwaysApproveRoles, fieldRoles } from '../../constants.js';
 
-export const GuardManagement = ({ user }: { user: User }) => {
-    const canSeeAll = canAlwaysApproveRoles.includes(user.role);
+
+import { getUsers } from '../../database.js';
+import { canManageAllUsers, fieldRoles, executiveRoles, operationsRoles } from '../../constants.js';
+import { Icons } from '../Icons.js';
+
+export const GuardManagement = ({ user }) => {
+    const canManage = canManageAllUsers.includes(user.role);
+    const canSeeAll = canManageAllUsers.includes(user.role);
+    const canCreateDirectly = executiveRoles.includes(user.role);
+    const canPropose = operationsRoles.includes(user.role);
+    
     const teamId = canSeeAll ? null : user.teamId;
     const guards = getUsers(fieldRoles)
         .filter(g => teamId ? g.teamId === teamId : true)
         .sort((a,b) => (a.status === 'Active' ? -1 : 1) - (b.status === 'Active' ? -1 : 1) || a.lastName.localeCompare(b.lastName));
 
-    const getStatusPill = (status: User['status']) => {
+    const getStatusPill = (status) => {
         switch(status) {
             case 'Active': return 'status-green';
             case 'Suspended': return 'status-yellow';
@@ -17,9 +24,26 @@ export const GuardManagement = ({ user }: { user: User }) => {
         }
     }
 
+    let addGuardButton = '';
+    if (canCreateDirectly) {
+        addGuardButton = `
+            <button data-action="open-add-user-modal" data-role="Guard" class="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] font-semibold rounded-md hover:bg-[var(--color-secondary-hover)] transition-colors">
+                ${Icons.PlusCircle({className: "w-5 h-5"})} Add Guard
+            </button>`;
+    } else if (canPropose) {
+        addGuardButton = `
+            <button data-action="navigate" data-type="GuardApplication" class="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] font-semibold rounded-md hover:bg-[var(--color-secondary-hover)] transition-colors">
+                ${Icons.PlusCircle({className: "w-5 h-5"})} Propose New Guard
+            </button>`;
+    }
+
+
     return `
         <div class="animate-in" style="opacity: 0;">
-            <h1 class="text-3xl font-bold text-[var(--color-text-base)] mb-6">Guard Management</h1>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <h1 class="text-3xl font-bold text-[var(--color-text-base)]">Guard Management</h1>
+                ${addGuardButton}
+            </div>
             
             <div class="bg-[var(--color-bg-surface)] shadow-md rounded-lg overflow-hidden border border-[var(--color-border)]">
                 <div class="hidden md:block">

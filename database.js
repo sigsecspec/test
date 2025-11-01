@@ -1,19 +1,23 @@
 
 import { UserRole, Ranks } from './types.js';
-import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles } from './constants.js';
+import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles, canCreateMissionsDirectly, canCreateMissionsForApproval, operationsRoles } from './constants.js';
 
 const initialData = {
   users: [
-    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false },
-    { id: 'user-co', firstName: 'Ashley', lastName: 'Smith', email: 'A.Smith@SignatureSecuritySpecialist.com', role: UserRole.CoOwner, rank: Ranks[UserRole.CoOwner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
+    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false, status: 'Active' },
+    { id: 'user-co', firstName: 'Ashley', lastName: 'Smith', email: 'A.Smith@SignatureSecuritySpecialist.com', role: UserRole.CoOwner, rank: Ranks[UserRole.CoOwner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
     // Team 1
-    { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
-    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
-    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
+    { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
+    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false, status: 'Active' },
+    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7, needsUniform: false, status: 'Active' },
+    { id: 'user-sup-1', firstName: 'Super', lastName: 'Visor', email: 'supervisor@test.com', role: UserRole.Supervisor, rank: Ranks[UserRole.Supervisor], level: 3, certifications: [], teamId: 'team-1', weeklyHours: 20, performanceRating: 4.5, needsUniform: false, status: 'Active' },
+    { id: 'user-guard-1', firstName: 'Test', lastName: 'Guard', email: 'guard@test.com', role: UserRole.Guard, rank: Ranks[UserRole.Guard], level: 1, certifications: [], teamId: 'team-1', weeklyHours: 10, performanceRating: 4.2, needsUniform: false, status: 'Active' },
+
+
     // Team 2
-    { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
-    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
-    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
+    { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
+    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.8, needsUniform: false, status: 'Active' },
+    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.7, needsUniform: false, status: 'Active' },
   ],
   clients: [],
   missions: [],
@@ -65,8 +69,46 @@ const initialData = {
   spotChecks: [],
   uniformDeliveries: [],
   leadGuardAssignments: [],
+  vehicles: [
+    { id: 'v-1', make: 'Ford', model: 'Explorer', year: 2022, licensePlate: 'SSS-001', status: 'Active' },
+    { id: 'v-2', make: 'Chevrolet', model: 'Tahoe', year: 2023, licensePlate: 'SSS-002', status: 'Active' },
+    { id: 'v-3', make: 'Ford', model: 'Explorer', year: 2020, licensePlate: 'SEC-101', status: 'Decommissioned' },
+  ],
+  vehicleAssignments: [
+      { id: 'va-1', vehicleId: 'v-1', assigneeId: 'user-3', assigneeType: 'User', startDate: new Date('2023-01-01'), endDate: null, status: 'Active'},
+      { id: 'va-2', vehicleId: 'v-2', assigneeId: 'site-1', assigneeType: 'Site', startDate: new Date('2023-02-15'), endDate: null, status: 'Active'},
+  ],
+  appeals: [
+      { id: 'appeal-1', missionId: 'mission-123', clientId: 'client-abc', reason: 'Guard was late and unprofessional.', status: 'Pending', createdAt: new Date() }
+  ],
+  changeRequests: [],
+  actionLog: [
+      { id: `log-${Date.now()}`, timestamp: new Date(), userId: 'user-1', actionType: 'SYSTEM_INITIALIZED', entityType: 'System', entityId: 'system-0', severity: 'Low', details: { description: 'Database was seeded with initial data.' } }
+  ]
 };
 let _DB = {};
+let _currentUser = null; // Store current user for logging
+
+function logAction(
+    actionType,
+    entityType,
+    entityId,
+    severity,
+    details
+) {
+    if (!_currentUser) return; // Don't log if no user is acting
+    const logEntry = {
+        id: `log-${Date.now()}-${Math.random()}`,
+        timestamp: new Date(),
+        userId: _currentUser.id,
+        actionType,
+        entityType,
+        entityId,
+        severity,
+        details: { description: `${actionType} on ${entityType} (${entityId})`, ...details }
+    };
+    _DB.actionLog.push(logEntry);
+}
 
 function save() {
   localStorage.setItem('sss_db', JSON.stringify(_DB));
@@ -78,7 +120,7 @@ function load() {
   if (dbString) {
     try {
       const parsedDB = JSON.parse(dbString);
-      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests'];
+      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests', 'appeals', 'vehicleAssignments', 'actionLog', 'changeRequests'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
               (parsedDB)[collection].forEach((item) => {
@@ -91,6 +133,8 @@ function load() {
                   if (item.time) item.time = new Date(item.time);
                   if (item.sentAt) item.sentAt = new Date(item.sentAt);
                   if (item.receivedAt) item.receivedAt = new Date(item.receivedAt);
+                  if (item.timestamp) item.timestamp = new Date(item.timestamp);
+                  if (item.reviewedAt) item.reviewedAt = new Date(item.reviewedAt);
               });
           }
       });
@@ -113,6 +157,10 @@ export function initializeDB() {
   } else {
     console.log("Loaded DB from localStorage.");
   }
+}
+
+export const setCurrentUserForDB = (user) => {
+    _currentUser = user;
 }
 
 export const getCollection = (name) => _DB[name] || [];
@@ -177,12 +225,44 @@ export const getPendingSiteApprovals = (teamId = null) => {
     });
 };
 
+export const getVehicleById = (id) => getCollection('vehicles').find(v => v.id === id);
+export const getVehicleAssignments = (vehicleId) => (getCollection('vehicleAssignments')).filter(a => a.vehicleId === vehicleId);
+export const getActionLog = () => (getCollection('actionLog')).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+export const getActionLogEntryById = (id) => (getCollection('actionLog')).find(entry => entry.id === id);
+
+export const getPendingChangeRequests = (teamId = null) => {
+    const pending = (getCollection('changeRequests')).filter(r => r.status === 'Pending');
+    if (teamId === null || teamId === undefined) return pending; // For execs who see all
+    return pending.filter(r => {
+        const targetUser = getUserById(r.entityId);
+        // Assuming changes are only for users for now. This can be expanded.
+        if (r.entityType === 'users' && targetUser) {
+            return targetUser.teamId === teamId;
+        }
+        return false; // Or handle other entity types
+    });
+};
+
 export function updateById(collectionName, id, updates) {
     const collection = _DB[collectionName];
     if (!collection) return false;
     const item = collection.find(i => i.id === id);
     if (item) {
+        const before = { ...item };
         Object.assign(item, updates);
+        
+        // SIDE EFFECTS
+        if (collectionName === 'users' && updates.hasOwnProperty('teamId')) {
+            const user = item;
+            if (user.role === UserRole.Client) {
+                const client = (_DB.clients).find(c => c.userId === user.id);
+                if (client) {
+                    client.teamId = updates.teamId;
+                }
+            }
+        }
+
+        logAction('UPDATE', collectionName, id, 'Low', { before, after: item });
         save();
         return true;
     }
@@ -190,7 +270,9 @@ export function updateById(collectionName, id, updates) {
 }
 
 export function updateSystemSettings(updates) {
+    const before = { ..._DB.systemSettings };
     _DB.systemSettings = { ..._DB.systemSettings, ...updates };
+    logAction('UPDATE', 'systemSettings', 'system-0', 'Medium', { before, after: _DB.systemSettings });
     save();
     return true;
 }
@@ -198,18 +280,21 @@ export function updateSystemSettings(updates) {
 export function addApplication({ type, data }) {
     const newApp = { id: `app-${Date.now()}`, type, data, status: 'Pending', submittedAt: new Date() };
     _DB.applications.push(newApp);
+    logAction('CREATE', 'applications', newApp.id, 'Low', { after: newApp });
     save();
 }
 
 function addSite(siteData) {
     const newSite = { ...siteData, id: `site-${Date.now()}` };
     _DB.sites.push(newSite);
+    logAction('CREATE', 'sites', newSite.id, 'Low', { after: newSite });
     save();
 }
 
 export function addSiteApprovalRequest(requestData) {
     const newRequest = { ...requestData, id: `sar-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
     _DB.siteApprovalRequests.push(newRequest);
+    logAction('CREATE', 'siteApprovalRequests', newRequest.id, 'Low', { after: newRequest });
     save();
 }
 
@@ -218,11 +303,14 @@ export function updateSiteApprovalStatus(requestId, status) {
     if (request) {
         request.status = status;
         if (status === 'Approved') {
+            logAction('APPROVE', 'siteApprovalRequests', requestId, 'Low', { after: request });
             addSite({
                 clientId: request.clientId,
                 name: request.siteName,
                 address: request.siteAddress
             });
+        } else {
+             logAction('DENY', 'siteApprovalRequests', requestId, 'Medium', { after: request });
         }
         _DB.siteApprovalRequests = _DB.siteApprovalRequests.filter(r => r.id !== requestId);
     }
@@ -234,6 +322,7 @@ export function updateApplicationStatus(appId, status, teamId = null) {
     if (app) {
         app.status = status;
         if (status === 'Approved') {
+            logAction('APPROVE', 'applications', appId, 'Medium', { after: app });
             const roleMap = { 'New Guard': UserRole.Guard, 'New Supervisor': UserRole.Supervisor, 'New Client': UserRole.Client, 'New Training Officer': UserRole.TrainingOfficer, 'New Operations': UserRole.OperationsManager, 'New Management': UserRole.Secretary };
             const role = roleMap[app.type];
             if (!role) return;
@@ -259,8 +348,10 @@ export function updateApplicationStatus(appId, status, teamId = null) {
                 weeklyHours: 0,
                 performanceRating: 5.0,
                 needsUniform: (role !== UserRole.Client),
+                status: 'Active',
             };
             _DB.users.push(newUser);
+             logAction('CREATE', 'users', newUser.id, 'Medium', { after: newUser, description: `User created from approved application ${appId}` });
             if(role === UserRole.Client) {
                 const newClient = {
                     id: `client-${Date.now()}`,
@@ -272,6 +363,7 @@ export function updateApplicationStatus(appId, status, teamId = null) {
                     blacklist: []
                 };
                 _DB.clients.push(newClient);
+                logAction('CREATE', 'clients', newClient.id, 'Medium', { after: newClient, description: `Client created from approved application ${appId}` });
                  if (app.data.siteName && app.data.siteAddress) {
                     addSite({
                         clientId: newClient.id,
@@ -280,27 +372,36 @@ export function updateApplicationStatus(appId, status, teamId = null) {
                     });
                 }
             }
+        } else {
+            logAction('DENY', 'applications', appId, 'Medium', { after: app });
         }
         _DB.applications = _DB.applications.filter(a => a.id !== appId);
     }
     save();
 }
 
-export function addMission(missionData) {
+export function addMission(missionData, user) {
     const missionId = `mission-${Date.now()}`;
+    const canCreateDirectly = canCreateMissionsDirectly.includes(user.role);
+    
+    // Supervisors create for approval, clients also create for approval
+    const requiresApproval = canCreateMissionsForApproval.includes(user.role) || user.role === UserRole.Client;
+
     const newMission = {
         ...missionData,
         id: missionId,
-        status: 'Open',
+        status: (requiresApproval && !canCreateDirectly) ? 'Pending Approval' : 'Open',
         claimedBy: [],
         checkIns: {},
         checkOuts: {},
     };
+
     _DB.missions.push(newMission);
+     logAction('CREATE', 'missions', newMission.id, 'Low', { after: newMission });
     _DB.alerts.push({
         id: `alert-${Date.now()}`,
         severity: 'Info',
-        message: `New mission "${newMission.title}" created. Requires supervisor assignment.`,
+        message: `New mission "${newMission.title}" created. ${newMission.status === 'Pending Approval' ? 'Requires operations approval.' : ''}`,
     });
     if(missionData.leadGuardId) {
         assignLeadGuard(missionId, missionData.leadGuardId);
@@ -327,6 +428,7 @@ export function claimMission(missionId, userId) {
     if (mission.claimedBy.length >= mission.requiredGuards) {
         mission.status = 'Claimed';
     }
+    logAction('CLAIM', 'missions', missionId, 'Low', { description: `User ${userId} claimed mission.` });
     save();
     return { success: true, message: "Mission claimed successfully!" };
 }
@@ -480,18 +582,39 @@ export function updateContractStatus(contractId, status, user) {
 }
 
 export function addPromotion(promoData) {
-    const newPromo = { ...promoData, id: `promo-${Date.now()}`, status: 'Pending', submittedAt: new Date() };
+    const newPromo = { ...promoData, id: `promo-${Date.now()}`, status: 'Pending Ops Approval', submittedAt: new Date() };
     _DB.promotions.push(newPromo);
+    logAction('CREATE', 'promotions', newPromo.id, 'Medium', { after: newPromo });
     save();
 }
 
-export function updatePromotionStatus(promoId, status) {
+export function updatePromotionStatus(promoId, decision, currentUser) {
     const promo = _DB.promotions.find(p => p.id === promoId);
-    if (promo) {
-        promo.status = status;
-        if (status === 'Approved') {
-            updateById('users', promo.userId, { role: promo.toRole, rank: Ranks[promo.toRole], needsUniform: true });
-        }
+    if (!promo) return;
+
+    const before = { ...promo };
+
+    if (decision === 'Denied') {
+        promo.status = 'Denied';
+        logAction('DENY', 'promotions', promoId, 'Medium', { before, after: promo, description: `Promotion denied by ${currentUser.role}` });
+        save();
+        return;
+    }
+
+    // Handle Approval
+    const isOps = [...operationsRoles, ...executiveRoles].includes(currentUser.role);
+    const isOwner = executiveRoles.includes(currentUser.role);
+
+    if (promo.status === 'Pending Ops Approval' && isOps) {
+        promo.status = 'Pending Owner Approval';
+        logAction('APPROVE_OPS', 'promotions', promoId, 'Medium', { before, after: promo, description: `Ops approval by ${currentUser.firstName}` });
+    } else if (promo.status === 'Pending Owner Approval' && isOwner) {
+        promo.status = 'Approved';
+        logAction('APPROVE_OWNER', 'promotions', promoId, 'High', { before, after: promo, description: `Final approval by ${currentUser.firstName}` });
+        updateById('users', promo.userId, { role: promo.toRole, rank: Ranks[promo.toRole], needsUniform: true });
+    } else {
+        console.warn(`User ${currentUser.id} (${currentUser.role}) does not have permission to approve promotion ${promoId} in its current state (${promo.status}).`);
+        return; // Don't save if no valid action was taken
     }
     save();
 }
@@ -631,4 +754,88 @@ export function confirmUniformReceived(userId) {
         delivery.receivedAt = new Date();
         save();
     }
+}
+
+export function suspendUser(userId) {
+    const user = getUserById(userId);
+    if(user) {
+        const before = {...user};
+        user.status = 'Suspended';
+        logAction('SUSPEND', 'users', userId, 'Medium', { before, after: user });
+        save();
+        return true;
+    }
+    return false;
+}
+
+export function terminateUser(userId) {
+    const user = getUserById(userId);
+    if(user) {
+        const before = {...user};
+        user.status = 'Terminated';
+        logAction('TERMINATE', 'users', userId, 'High', { before, after: user });
+        save();
+        return true;
+    }
+    return false;
+}
+
+export function deleteById(collectionName, id) {
+    const collection = _DB[collectionName];
+    if (!collection) return false;
+    const index = collection.findIndex(i => i.id === id);
+    if (index > -1) {
+        const item = collection[index];
+        logAction('DELETE_PERMANENT', collectionName, id, 'High', { before: item });
+        collection.splice(index, 1);
+        save();
+        return true;
+    }
+    return false;
+}
+
+export function approveMission(missionId) {
+    logAction('APPROVE', 'missions', missionId, 'Low', { description: "Mission status changed to Open" });
+    return updateById('missions', missionId, { status: 'Open' });
+}
+
+export function denyMission(missionId) {
+    logAction('DENY', 'missions', missionId, 'Medium', { description: "Mission status changed to Cancelled" });
+    return updateById('missions', missionId, { status: 'Cancelled' });
+}
+
+export function addChangeRequest(proposerId, entityType, entityId, proposedChanges) {
+    const newRequest = {
+        id: `cr-${Date.now()}`,
+        proposerId,
+        entityType,
+        entityId,
+        proposedChanges,
+        status: 'Pending',
+        createdAt: new Date(),
+    };
+    (_DB.changeRequests).push(newRequest);
+    logAction('PROPOSE_CHANGE', 'changeRequests', newRequest.id, 'Medium', { after: newRequest });
+    save();
+}
+
+export function updateChangeRequestStatus(requestId, status, reviewerId) {
+    const request = (_DB.changeRequests).find(r => r.id === requestId);
+    if (request && request.status === 'Pending') {
+        const before = { ...request };
+        request.status = status;
+        request.reviewedBy = reviewerId;
+        request.reviewedAt = new Date();
+
+        if (status === 'Approved') {
+            logAction('APPROVE_CHANGE', 'changeRequests', requestId, 'Medium', { before, after: request });
+            // Apply the changes
+            updateById(request.entityType, request.entityId, request.proposedChanges);
+        } else {
+            logAction('REJECT_CHANGE', 'changeRequests', requestId, 'Medium', { before, after: request });
+        }
+        save();
+        return true;
+    }
+    return false;
 }

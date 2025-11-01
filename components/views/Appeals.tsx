@@ -1,9 +1,9 @@
+
 import { getCollection, getClientById } from '../../database.js';
 import { Icons } from '../Icons.js';
-import { User } from '../../database.js';
 import { executiveRoles } from '../../constants.js';
 
-export const Appeals = ({ user }: { user: User }) => {
+export const Appeals = ({ user }) => {
     if (!executiveRoles.includes(user.role)) {
         return `
             <div class="animate-in" style="opacity: 0;">
