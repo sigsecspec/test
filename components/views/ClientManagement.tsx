@@ -1,5 +1,6 @@
 import { getClients, getUserById, User } from '../../database.js';
 import { canAlwaysApproveRoles, managementAndOpsRoles } from '../../constants.js';
+import { Icons } from '../Icons.js';
 
 export const ClientManagement = ({ user }: { user: User }) => {
     const canSeeAll = canAlwaysApproveRoles.includes(user.role);
@@ -20,8 +21,17 @@ export const ClientManagement = ({ user }: { user: User }) => {
     
     return `
         <div class="animate-in" style="opacity: 0;">
-            <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-6">Client Management</h1>
-             <div class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 class="text-3xl font-bold text-[var(--text-primary)]">Client Management</h1>
+                <div class="relative w-full md:w-72">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        ${Icons.Search({ className: "w-5 h-5 text-[var(--text-secondary)]" })}
+                    </span>
+                    <input type="text" id="client-search-input" placeholder="Search clients..." class="block w-full rounded-md border border-[var(--border-secondary)] bg-[var(--bg-tertiary)] py-2 pl-10 pr-3 text-sm placeholder:text-[var(--text-secondary)] focus:border-[var(--accent-primary)] focus:ring-[var(--accent-primary)]" />
+                </div>
+            </div>
+
+             <div id="client-list-container" class="bg-[var(--bg-secondary)] shadow-md rounded-lg overflow-hidden border border-[var(--border-primary)]">
                 <table class="min-w-full leading-normal hidden md:table">
                     <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Company Name</th><th class="px-5 py-3 font-semibold">Contact</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
                     <tbody class="divide-y divide-[var(--border-primary)]">

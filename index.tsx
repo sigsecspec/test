@@ -9,7 +9,7 @@ import {
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
-import { canAlwaysApproveRoles } from './constants.js';
+import { canAlwaysApproveRoles, managementAndOpsRoles } from './constants.js';
 
 // --- START: MAIN APP LOGIC ---
 interface AppState {
@@ -312,6 +312,92 @@ function handleSpotCheckSubmit(e: Event) {
     render();
 }
 
+function handleClientSearch(searchTerm: string) {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    
+    const { currentUser } = state;
+    if (!currentUser) return;
+
+    const canSeeAll = canAlwaysApproveRoles.includes(currentUser.role);
+    const canEditOnTeam = managementAndOpsRoles.includes(currentUser.role);
+    
+    const allClients = getClients();
+    const visibleClients = allClients.filter(c => {
+        if (canSeeAll) return true;
+        return c.teamId === currentUser.teamId;
+    });
+
+    const filteredClients = visibleClients.filter(client => {
+        const contactUser = getUserById(client.userId);
+        const companyMatch = client.companyName.toLowerCase().includes(lowerCaseSearchTerm);
+        const emailMatch = client.contactEmail.toLowerCase().includes(lowerCaseSearchTerm);
+        let nameMatch = false;
+        if (contactUser) {
+            nameMatch = `${contactUser.firstName} ${contactUser.lastName}`.toLowerCase().includes(lowerCaseSearchTerm);
+        }
+        return companyMatch || emailMatch || nameMatch;
+    });
+    
+    const canEditClient = (client: { teamId: string | null }) => {
+        if (canSeeAll) return true;
+        if (canEditOnTeam && client.teamId === currentUser.teamId) return true;
+        return false;
+    };
+
+    let finalContent = '';
+    if (filteredClients.length > 0) {
+        const tableBodyContent = filteredClients.map(client => {
+            const contactUser = getUserById(client.userId);
+            const editButton = canEditClient(client) 
+               ? `<button data-action="open-user-details" data-id="${client.userId}" class="text-[var(--accent-primary)] hover:underline font-semibold">View / Edit Contact</button>`
+               : `<button data-action="open-user-details" data-id="${client.userId}" class="text-[var(--text-secondary)] hover:underline font-semibold">View Contact</button>`;
+    
+            return `
+           <tr class="hover:bg-[var(--bg-tertiary)]">
+               <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${client.companyName}</p></td>
+               <td class="px-5 py-4 text-sm"><p class="text-[var(--text-primary)] whitespace-no-wrap font-semibold">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : 'N/A'}</p><p class="text-[var(--text-secondary)] whitespace-no-wrap text-xs">${client.contactEmail}</p></td>
+               <td class="px-5 py-4 text-sm">
+                   ${editButton}
+               </td>
+           </tr>`;
+       }).join('');
+    
+        const mobileCardsContent = filteredClients.map(client => {
+            const contactUser = getUserById(client.userId);
+            const editButtonText = canEditClient(client) ? "View / Edit Contact" : "View Contact";
+            return `
+            <div class="bg-[var(--bg-tertiary)] p-4 rounded-lg border border-[var(--border-primary)]">
+                <p class="font-bold text-[var(--text-primary)]">${client.companyName}</p>
+                 <p class="text-sm text-[var(--text-secondary)]">${contactUser ? `${contactUser.firstName} ${contactUser.lastName}` : client.contactEmail}</p>
+                <div class="mt-2 pt-2 border-t border-[var(--border-primary)] flex justify-end">
+                    <button data-action="open-user-details" data-id="${client.userId}" class="text-sm text-[var(--accent-primary)] font-semibold">${editButtonText} &rarr;</button>
+                </div>
+            </div>
+        `}).join('');
+
+        finalContent = `
+            <table class="min-w-full leading-normal hidden md:table">
+                <thead class="bg-[var(--bg-tertiary)]"><tr class="text-left text-[var(--text-secondary)] uppercase text-sm"><th class="px-5 py-3 font-semibold">Company Name</th><th class="px-5 py-3 font-semibold">Contact</th><th class="px-5 py-3 font-semibold">Actions</th></tr></thead>
+                <tbody class="divide-y divide-[var(--border-primary)]">
+                    ${tableBodyContent}
+                </tbody>
+            </table>
+             <div class="md:hidden space-y-3 p-3">
+                ${mobileCardsContent}
+            </div>
+        `;
+    } else {
+        finalContent = `<div class="p-8 text-center text-[var(--text-secondary)]">No clients found matching your search.</div>`;
+    }
+
+    if(root) {
+        const clientListContainer = root.querySelector('#client-list-container');
+        if (clientListContainer) {
+            clientListContainer.innerHTML = finalContent;
+        }
+    }
+}
+
 // --- Main Event Listener ---
 function attachEventListeners() {
     root.addEventListener('click', (e: MouseEvent) => {
@@ -462,6 +548,14 @@ function attachEventListeners() {
         if (actionMap[action]) {
             e.preventDefault();
             actionMap[action](e);
+        }
+    });
+
+    root.addEventListener('input', (e: Event) => {
+        const target = e.target as HTMLInputElement;
+
+        if (target.id === 'client-search-input') {
+            handleClientSearch(target.value);
         }
     });
 
