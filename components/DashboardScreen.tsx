@@ -6,6 +6,7 @@ import { SiteModal } from './SiteModal.js';
 import { MissionDetailsModal } from './MissionDetailsModal.js';
 import { UserDetailsModal } from './UserDetailsModal.js';
 import { EditMissionModal } from './EditMissionModal.js';
+import { VehicleDetailsModal } from './VehicleDetailsModal.js';
 
 import { CommandSidebar, BottomNavBar, MobileMenu } from './Sidebar.js';
 
@@ -120,6 +121,7 @@ export const DashboardScreen = ({ currentUser, activeView, activeMissionId, sele
     if (selectedModal.type === 'MissionDetails' && selectedModal.id) modalHtml = MissionDetailsModal({ missionId: selectedModal.id, user: currentUser });
     if (selectedModal.type === 'UserDetails' && selectedModal.id) modalHtml = UserDetailsModal({ userId: selectedModal.id, currentUser });
     if (selectedModal.type === 'EditMission' && selectedModal.id) modalHtml = EditMissionModal({ missionId: selectedModal.id });
+    if (selectedModal.type === 'VehicleDetails' && selectedModal.id) modalHtml = VehicleDetailsModal({ vehicleId: selectedModal.id, currentUser });
 
     return `
         <div class="h-screen bg-[var(--color-bg-base)] text-[var(--color-text-base)] flex flex-col md:flex-row overflow-hidden">

@@ -5,11 +5,12 @@ import {
     updateTrainingProgressStatus, updateContractStatus, addPromotion, updatePromotionStatus,
     createPayrollRun, approvePayrollRun, confirmPayment, updateById, addSpotCheck,
     updateSpotCheck, addSpotCheckSelfie, completeSpotCheck, markUniformSent, getSpotCheckByMissionId,
-    getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients, getSystemSettings, updateSystemSettings, getUserById, User
+    getLeadGuardAssignment, updateClientGuardList, updateSiteApprovalStatus, getClients, getSystemSettings, 
+    updateSystemSettings, getUserById, User, suspendUser, terminateUser, deleteById, approveMission, denyMission
 } from './database.js';
 import { App } from './App.js';
 import { UserRole } from './types.js';
-import { canAlwaysApproveRoles, managementAndOpsRoles } from './constants.js';
+import { canAlwaysApproveRoles, managementAndOpsRoles, executiveRoles } from './constants.js';
 
 // --- START: MAIN APP LOGIC ---
 interface AppState {
@@ -90,6 +91,10 @@ function closeModal() {
 function handleLogin(email: string) {
     const user = getUserByEmail(email);
     if (user) {
+        if (user.status === 'Terminated') {
+            alert('This user account has been terminated. Access denied.');
+            return;
+        }
         state.currentUser = user;
         state.activeView = 'Dashboard';
         closeModal();
@@ -143,15 +148,19 @@ function handleApplicationSubmit(e: Event) {
 
 function handlePostMission(e: Event) {
     e.preventDefault();
+    if (!state.currentUser) return;
     const data = getFormData(e.target as HTMLFormElement);
-    data.clientId = state.currentUser ? getClients().find(c => c.userId === state.currentUser.id)?.id : null;
+    if (state.currentUser.role === UserRole.Client) {
+        data.clientId = getClients().find(c => c.userId === state.currentUser.id)?.id;
+    }
+    
     if (data.clientId) {
-        addMission(data);
-        alert('Mission posted successfully!');
+        addMission(data, state.currentUser);
+        alert('Mission submitted successfully!');
         state.activeView = 'MyMissions';
         render();
     } else {
-        alert('Could not identify client. Please log in again.');
+        alert('Could not identify client. Please log in again or select a client.');
     }
 }
 
@@ -262,11 +271,20 @@ function handleUserDetailsSubmit(e: Event) {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const userId = form.dataset.userId;
-    if (!userId) return;
+    if (!userId || !state.currentUser) return;
     
     const data = getFormData(form);
     const userToUpdate = getUserById(userId);
     if (!userToUpdate) return;
+    
+    const canAlwaysEdit = canAlwaysApproveRoles.includes(state.currentUser.role);
+    const isManagerOfUser = managementAndOpsRoles.includes(state.currentUser.role) && userToUpdate.teamId === state.currentUser.teamId;
+    const canEdit = canAlwaysEdit || isManagerOfUser;
+
+    if(!canEdit) {
+        alert("You don't have permission to edit this user.");
+        return;
+    }
 
     const updates: Record<string, any> = {};
     
@@ -493,6 +511,7 @@ function attachEventListeners() {
             
             'open-contract-modal': () => openModal('Contract'),
             'open-site-modal': () => openModal('Site'),
+            'open-vehicle-details': () => openModal('VehicleDetails', id),
             'update-roster': () => {
                 if(!state.currentUser) return;
                 const { guardId, listType } = (target as HTMLElement).dataset as {guardId: string, listType: 'whitelist' | 'blacklist'};
@@ -547,6 +566,13 @@ function attachEventListeners() {
             'mark-uniform-sent': () => { markUniformSent(id); render(); },
             'approve-site': () => { updateSiteApprovalStatus(id, 'Approved'); render(); },
             'deny-site': () => { updateSiteApprovalStatus(id, 'Denied'); render(); },
+            'approve-mission': () => { if(id) { approveMission(id); render(); } },
+            'deny-mission': () => { if(id) { denyMission(id); render(); } },
+            'suspend-user': () => { if(id) { suspendUser(id); state.users = getUsers(); closeModal(); } },
+            'terminate-user': () => { if(id && confirm('Are you sure you want to terminate this user? This is a permanent action.')) { terminateUser(id); state.users = getUsers(); closeModal(); } },
+            'delete-user-permanently': () => { if(id && state.currentUser && executiveRoles.includes(state.currentUser.role) && confirm('PERMANENTLY DELETE USER? This cannot be undone.')) { deleteById('users', id); state.users = getUsers(); closeModal(); } },
+            'delete-mission-permanently': () => { if(id && state.currentUser && executiveRoles.includes(state.currentUser.role) && confirm('PERMANENTLY DELETE MISSION? This cannot be undone.')) { deleteById('missions', id); closeModal(); } },
+
         };
         
         if (actionMap[action]) {

@@ -1,6 +1,5 @@
 import { getUserById, getUserTrainingProgress, getTrainingModules, getCollection, User } from '../database.js';
-import { canAlwaysApproveRoles, managementAndOpsRoles, clientRole } from '../constants.js';
-// FIX: Import UserRole to fix 'Cannot find name' error.
+import { canAlwaysApproveRoles, managementAndOpsRoles, clientRole, executiveRoles } from '../constants.js';
 import { UserRole } from '../types.js';
 import { Icons } from './Icons.js';
 
@@ -21,6 +20,7 @@ export const UserDetailsModal = ({ userId, currentUser }: UserDetailsModalProps)
     const canEdit = canAlwaysEdit || isManagerOfUser;
     
     const isClientContact = user.role === UserRole.Client;
+    const isOwner = executiveRoles.includes(currentUser.role);
 
     const renderInternalUserFields = () => `
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-[var(--color-bg-surface-raised)] p-4 rounded-lg border border-[var(--color-border)]">
@@ -37,6 +37,7 @@ export const UserDetailsModal = ({ userId, currentUser }: UserDetailsModalProps)
                     ${teams.map(t => `<option value="${t.id}" ${user.teamId === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
                 </select>
             </div>
+             <p class="sm:col-span-2"><strong>Status:</strong> <span class="font-semibold ${user.status === 'Active' ? 'text-green-400' : (user.status === 'Suspended' ? 'text-yellow-400' : 'text-red-400')}">${user.status}</span></p>
         </div>
     `;
     
@@ -60,6 +61,7 @@ export const UserDetailsModal = ({ userId, currentUser }: UserDetailsModalProps)
                     </select>
                 </div>
             ` : `<p><strong>Team:</strong> ${teams.find(t => t.id === user.teamId)?.name || 'N/A'}</p>`}
+            <p><strong>Status:</strong> <span class="font-semibold ${user.status === 'Active' ? 'text-green-400' : (user.status === 'Suspended' ? 'text-yellow-400' : 'text-red-400')}">${user.status}</span></p>
         </div>
     `;
 
@@ -95,9 +97,18 @@ export const UserDetailsModal = ({ userId, currentUser }: UserDetailsModalProps)
                     </div>
                     ` : ''}
                 </div>
-                <div class="p-4 bg-[var(--color-bg-surface-raised)] border-t border-[var(--color-border)] flex justify-end items-center space-x-3 flex-shrink-0">
-                    <button type="button" data-action="close-modal" class="px-4 py-2 bg-[var(--color-bg-surface)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] border border-[var(--color-border)]">Close</button>
-                    ${canEdit || (isClientContact && canAlwaysEdit) ? `<button type="submit" class="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] font-semibold rounded-md hover:bg-[var(--color-secondary-hover)]">Save Changes</button>` : ''}
+                <div class="p-4 bg-[var(--color-bg-surface-raised)] border-t border-[var(--color-border)] flex justify-between items-center flex-shrink-0">
+                    <div>
+                        ${isOwner && user.id !== currentUser.id ? `<button type="button" data-action="delete-user-permanently" data-id="${user.id}" class="px-3 py-1.5 text-xs bg-red-900/50 text-red-400 font-semibold rounded-md hover:bg-red-900/80 transition">Delete Permanently</button>` : ''}
+                    </div>
+                    <div class="flex items-center space-x-3">
+                         ${canEdit && user.status === 'Active' && user.id !== currentUser.id ? `
+                            <button type="button" data-action="suspend-user" data-id="${user.id}" class="px-4 py-2 bg-yellow-600/50 text-yellow-300 font-semibold rounded-md hover:bg-yellow-600/80 transition">Suspend</button>
+                            <button type="button" data-action="terminate-user" data-id="${user.id}" class="px-4 py-2 bg-red-600/50 text-red-300 font-semibold rounded-md hover:bg-red-600/80 transition">Terminate</button>
+                         `: ''}
+                        <button type="button" data-action="close-modal" class="px-4 py-2 bg-[var(--color-bg-surface)] text-[var(--color-text-base)] font-semibold rounded-md hover:bg-[var(--color-border)] border border-[var(--color-border)]">Close</button>
+                        ${canEdit ? `<button type="submit" class="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-text)] font-semibold rounded-md hover:bg-[var(--color-secondary-hover)]">Save Changes</button>` : ''}
+                    </div>
                 </div>
             </form>
         </div>

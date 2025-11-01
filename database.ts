@@ -1,5 +1,7 @@
+
+
 import { UserRole, Ranks } from './types.js';
-import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles } from './constants.js';
+import { executiveRoles, canAlwaysApproveRoles, managementAndOpsRoles, canCreateMissionsDirectly, canCreateMissionsForApproval } from './constants.js';
 
 // Define interfaces for the database structure to provide proper typing.
 export interface User {
@@ -15,6 +17,7 @@ export interface User {
     weeklyHours: number;
     performanceRating: number;
     needsUniform: boolean;
+    status: 'Active' | 'Suspended' | 'Terminated';
 }
 
 export interface Client {
@@ -41,7 +44,7 @@ export interface Mission {
     requiredLevel: number;
     leadGuardId?: string;
     description: string;
-    status: 'Open' | 'Claimed' | 'Active' | 'Completed' | 'Cancelled';
+    status: 'Open' | 'Claimed' | 'Active' | 'Completed' | 'Cancelled' | 'Pending Approval';
     claimedBy: string[];
     checkIns: { [userId: string]: { time: Date, verifiedBy?: string } };
     checkOuts: { [userId: string]: { time: Date, verifiedBy?: string } };
@@ -66,20 +69,25 @@ interface DB {
     spotChecks: any[];
     uniformDeliveries: any[];
     leadGuardAssignments: any[];
+    vehicles: any[];
+    vehicleAssignments: any[];
+    appeals: any[];
 }
 
 const initialData: DB = {
   users: [
-    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false },
-    { id: 'user-co', firstName: 'Ashley', lastName: 'Smith', email: 'A.Smith@SignatureSecuritySpecialist.com', role: UserRole.CoOwner, rank: Ranks[UserRole.CoOwner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
+    { id: 'user-1', firstName: 'Markeith', lastName: 'White', email: 'M.White@SignatureSecuritySpecialist.com', role: UserRole.Owner, rank: Ranks[UserRole.Owner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 0, performanceRating: 5.0, needsUniform: false, status: 'Active' },
+    { id: 'user-co', firstName: 'Ashley', lastName: 'Smith', email: 'A.Smith@SignatureSecuritySpecialist.com', role: UserRole.CoOwner, rank: Ranks[UserRole.CoOwner], level: 5, certifications: ['All'], teamId: null, weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
     // Team 1
-    { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
-    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
-    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
+    { id: 'user-sec-1', firstName: 'Ahlya', lastName: 'Lyons', email: 'A.Lyons@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
+    { id: 'user-2', firstName: 'James', lastName: 'Lyons', email: 'J.Lyons@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.8, needsUniform: false, status: 'Active' },
+    { id: 'user-3', firstName: 'Tommy', lastName: 'Moreno', email: 'T.Moreno@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-1', weeklyHours: 0, performanceRating: 4.7, needsUniform: false, status: 'Active' },
+    { id: 'user-sup-1', firstName: 'Super', lastName: 'Visor', email: 'supervisor@test.com', role: UserRole.Supervisor, rank: Ranks[UserRole.Supervisor], level: 3, certifications: [], teamId: 'team-1', weeklyHours: 20, performanceRating: 4.5, needsUniform: false, status: 'Active' },
+
     // Team 2
-    { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false },
-    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.8, needsUniform: false },
-    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.7, needsUniform: false },
+    { id: 'user-sec-2', firstName: 'Alison', lastName: 'Avancena', email: 'A.Avancena@SignatureSecuritySpecialist.com', role: UserRole.Secretary, rank: Ranks[UserRole.Secretary], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 40, performanceRating: 5.0, needsUniform: false, status: 'Active' },
+    { id: 'user-4', firstName: 'Brandon', lastName: 'Baker', email: 'B.Baker@SignatureSecuritySpecialist.com', role: UserRole.OperationsDirector, rank: Ranks[UserRole.OperationsDirector], level: 5, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.8, needsUniform: false, status: 'Active' },
+    { id: 'user-5', firstName: 'Ronald', lastName: 'Granum', email: 'R.Granum@SignatureSecuritySpecialist.com', role: UserRole.OperationsManager, rank: Ranks[UserRole.OperationsManager], level: 4, certifications: ['All'], teamId: 'team-2', weeklyHours: 0, performanceRating: 4.7, needsUniform: false, status: 'Active' },
   ],
   clients: [],
   missions: [],
@@ -131,6 +139,18 @@ const initialData: DB = {
   spotChecks: [],
   uniformDeliveries: [],
   leadGuardAssignments: [],
+  vehicles: [
+    { id: 'v-1', make: 'Ford', model: 'Explorer', year: 2022, licensePlate: 'SSS-001', status: 'Active' },
+    { id: 'v-2', make: 'Chevrolet', model: 'Tahoe', year: 2023, licensePlate: 'SSS-002', status: 'Active' },
+    { id: 'v-3', make: 'Ford', model: 'Explorer', year: 2020, licensePlate: 'SEC-101', status: 'Decommissioned' },
+  ],
+  vehicleAssignments: [
+      { id: 'va-1', vehicleId: 'v-1', assigneeId: 'user-3', assigneeType: 'User', startDate: new Date('2023-01-01'), endDate: null, status: 'Active'},
+      { id: 'va-2', vehicleId: 'v-2', assigneeId: 'site-1', assigneeType: 'Site', startDate: new Date('2023-02-15'), endDate: null, status: 'Active'},
+  ],
+  appeals: [
+      { id: 'appeal-1', missionId: 'mission-123', clientId: 'client-abc', reason: 'Guard was late and unprofessional.', status: 'Pending', createdAt: new Date() }
+  ],
 };
 let _DB: DB = {} as DB;
 
@@ -144,7 +164,7 @@ function load() {
   if (dbString) {
     try {
       const parsedDB = JSON.parse(dbString);
-      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests'];
+      const collectionsWithDates = ['missions', 'contracts', 'promotions', 'payrollRuns', 'applications', 'trainingProgress', 'spotChecks', 'uniformDeliveries', 'siteApprovalRequests', 'appeals', 'vehicleAssignments'];
       collectionsWithDates.forEach(collection => {
           if(parsedDB[collection]) {
               (parsedDB as any)[collection].forEach((item: any) => {
@@ -243,6 +263,10 @@ export const getPendingSiteApprovals = (teamId: string | null = null) => {
     });
 };
 
+export const getVehicleById = (id: string) => getCollection('vehicles').find(v => v.id === id);
+export const getVehicleAssignments = (vehicleId: string) => (getCollection('vehicleAssignments') as any[]).filter(a => a.vehicleId === vehicleId);
+
+
 export function updateById(collectionName: keyof Omit<DB, 'systemSettings'>, id: string, updates: object) {
     const collection = _DB[collectionName] as any[];
     if (!collection) return false;
@@ -325,6 +349,7 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
                 weeklyHours: 0,
                 performanceRating: 5.0,
                 needsUniform: (role !== UserRole.Client),
+                status: 'Active',
             };
             _DB.users.push(newUser);
             if(role === UserRole.Client) {
@@ -352,21 +377,27 @@ export function updateApplicationStatus(appId: string, status: string, teamId: s
     save();
 }
 
-export function addMission(missionData: any) {
+export function addMission(missionData: any, user: User) {
     const missionId = `mission-${Date.now()}`;
+    const canCreateDirectly = canCreateMissionsDirectly.includes(user.role);
+    
+    // Supervisors create for approval, clients also create for approval
+    const requiresApproval = canCreateMissionsForApproval.includes(user.role) || user.role === UserRole.Client;
+
     const newMission: Mission = {
         ...missionData,
         id: missionId,
-        status: 'Open',
+        status: (requiresApproval && !canCreateDirectly) ? 'Pending Approval' : 'Open',
         claimedBy: [],
         checkIns: {},
         checkOuts: {},
     };
+
     _DB.missions.push(newMission);
     _DB.alerts.push({
         id: `alert-${Date.now()}`,
         severity: 'Info',
-        message: `New mission "${newMission.title}" created. Requires supervisor assignment.`,
+        message: `New mission "${newMission.title}" created. ${newMission.status === 'Pending Approval' ? 'Requires operations approval.' : ''}`,
     });
     if(missionData.leadGuardId) {
         assignLeadGuard(missionId, missionData.leadGuardId);
@@ -697,4 +728,32 @@ export function confirmUniformReceived(userId: string) {
         delivery.receivedAt = new Date();
         save();
     }
+}
+
+export function suspendUser(userId: string) {
+    return updateById('users', userId, { status: 'Suspended' });
+}
+
+export function terminateUser(userId: string) {
+    return updateById('users', userId, { status: 'Terminated' });
+}
+
+export function deleteById(collectionName: keyof Omit<DB, 'systemSettings'>, id: string) {
+    const collection = _DB[collectionName] as any[];
+    if (!collection) return false;
+    const index = collection.findIndex(i => i.id === id);
+    if (index > -1) {
+        collection.splice(index, 1);
+        save();
+        return true;
+    }
+    return false;
+}
+
+export function approveMission(missionId: string) {
+    return updateById('missions', missionId, { status: 'Open' });
+}
+
+export function denyMission(missionId: string) {
+    return updateById('missions', missionId, { status: 'Cancelled' });
 }
